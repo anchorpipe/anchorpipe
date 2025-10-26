@@ -1,0 +1,32 @@
+# Local scratch area (do not track)
+# All content under this directory is intentionally excluded from version control.
+# This directory is used to hold moved ADR/docs/.github backups for local reference only.
+# Do NOT remove this rule.
+# If you need to bring content back into the repo, curate it into proper directories outside tempo-local.
+# ------------------------------------------------------------------------------
+/tempo-local/
+
+# Node / package managers
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+
+# Environment files
+.env
+.env.*
+
+# Build outputs / dist
+.dist/
+dist/
+build/
+.out/
+.next/
+
+# OS/IDE files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
