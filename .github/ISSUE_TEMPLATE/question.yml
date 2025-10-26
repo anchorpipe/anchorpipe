@@ -1,0 +1,99 @@
+name: "❓ Question / Support"
+description: "Ask a question or request support (consider using Discussions first)"
+title: "[QUESTION] "
+labels: ["type:question", "status:needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Question / Support Request ❓
+        
+        **Before asking here, please consider:**
+        - 📚 Check the [documentation](https://github.com/rick1330/flakeradar/tree/main/docs)
+        - 💬 Ask in [Discussions Q&A](https://github.com/rick1330/flakeradar/discussions/categories/q-a)
+        - 🔍 Search existing issues and discussions
+        
+        Use this form for questions that might reveal bugs or need to be tracked as issues.
+
+  - type: dropdown
+    id: question_type
+    attributes:
+      label: Question Type
+      description: What type of question is this?
+      options:
+        - How to use a feature
+        - Configuration help
+        - Troubleshooting
+        - Best practices
+        - Architecture / Design
+        - Integration with other tools
+        - Performance optimization
+        - General question
+    validations:
+      required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Your Question
+      description: Ask your question clearly and concisely.
+      placeholder: |
+        **What I'm trying to do:**
+        Describe what you're trying to accomplish...
+        
+        **My question:**
+        State your specific question...
+        
+        **What I've tried:**
+        Describe what you've already attempted...
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Provide relevant context about your setup and use case.
+      placeholder: |
+        **Environment:**
+        - OS: ...
+        - FlakeRadar version: ...
+        - Relevant configuration: ...
+        
+        **Use case:**
+        Describe your specific use case or scenario...
+
+  - type: textarea
+    id: research
+    attributes:
+      label: Research Done
+      description: What have you already tried or researched?
+      placeholder: |
+        - Checked documentation: [link]
+        - Searched issues: [link]
+        - Tried: [what you tried]
+        - Found: [what you found]
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other relevant information, code snippets, or screenshots.
+      placeholder: |
+        Code snippets, error messages, screenshots, etc.
+        
+        ```typescript
+        // Your code here
+        ```
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      options:
+        - label: I have searched the documentation
+          required: true
+        - label: I have searched existing issues and discussions
+          required: true
+        - label: This question is not better suited for Discussions
+          required: true

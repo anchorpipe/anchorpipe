@@ -1,0 +1,158 @@
+name: "✅ Task"
+description: "Track smaller work items, chores, or technical tasks"
+title: "[TASK] "
+labels: ["type:task", "status:needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Task Template ✅
+        
+        Use this template for smaller work items that don't fit the user story format.
+        
+        **Examples of tasks:**
+        - Technical debt cleanup
+        - Refactoring work
+        - Configuration changes
+        - Dependency updates
+        - Build/CI improvements
+        - Code cleanup or optimization
+
+  - type: dropdown
+    id: task_type
+    attributes:
+      label: Task Type
+      description: What type of task is this?
+      options:
+        - Refactoring
+        - Technical Debt
+        - Dependency Update
+        - Configuration
+        - Build/CI
+        - Testing
+        - Documentation
+        - Chore
+        - Investigation
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Task Description
+      description: Describe what needs to be done and why.
+      placeholder: |
+        **What needs to be done:**
+        Describe the task in detail...
+        
+        **Why this is needed:**
+        Explain the rationale or benefit...
+        
+        **Context:**
+        Provide any additional context...
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Completion Criteria
+      description: How will we know this task is complete?
+      placeholder: |
+        - [ ] Criterion 1
+        - [ ] Criterion 2
+        - [ ] Criterion 3
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      description: Which area does this task affect?
+      options:
+        - web
+        - api
+        - docs
+        - cli
+        - desktop
+        - infra
+        - auth
+        - db
+        - analytics
+        - algo
+        - testing
+        - ci-cd
+        - tooling
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How urgent is this task?
+      options:
+        - P0 (Critical - Do now)
+        - P1 (High - Do soon)
+        - P2 (Medium - Schedule it)
+        - P3 (Low - When time permits)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: effort
+    attributes:
+      label: Estimated Effort
+      description: Rough estimate of effort required.
+      options:
+        - XS (< 1 hour)
+        - S (1-4 hours)
+        - M (1-2 days)
+        - L (3-5 days)
+        - XL (> 1 week, consider breaking down)
+    validations:
+      required: true
+
+  - type: textarea
+    id: technical_details
+    attributes:
+      label: Technical Details
+      description: Technical implementation details or constraints.
+      placeholder: |
+        **Files to modify:**
+        - file1.ts
+        - file2.ts
+        
+        **Dependencies:**
+        - Dependency 1
+        
+        **Risks:**
+        - Risk 1
+
+  - type: input
+    id: related
+    attributes:
+      label: Related Issues/PRs
+      description: Link to related issues or pull requests.
+      placeholder: "#123, #456"
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional Notes
+      description: Any other relevant information.
+      placeholder: "Add any other context..."
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Task Checklist
+      options:
+        - label: Task is clearly defined
+          required: true
+        - label: Completion criteria are clear
+          required: true
+        - label: Effort is estimated
+          required: true

@@ -1,0 +1,150 @@
+name: "🐛 Bug Report"
+description: "Report a defect with clear reproduction steps and impact assessment"
+title: "[BUG] "
+labels: ["type:bug", "status:needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Thank you for reporting a bug! 🐛
+        
+        Please fill out this form as completely as possible to help us understand and fix the issue quickly.
+        
+        **Before submitting:**
+        - Search existing issues to avoid duplicates
+        - Ensure you're using the latest version
+        - Check if the issue is already fixed in the main branch
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How severe is this bug? Consider impact on users and system stability.
+      options:
+        - S0 - Critical (System down, data loss, security breach)
+        - S1 - High (Major functionality broken, workaround difficult)
+        - S2 - Medium (Feature impaired, workaround available)
+        - S3 - Low (Minor issue, cosmetic, or easy workaround)
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is.
+      placeholder: "Describe the bug in detail..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: env
+    attributes:
+      label: Environment
+      description: Provide details about your environment where the bug occurs.
+      placeholder: |
+        - OS: [e.g., Ubuntu 22.04, macOS 14.0, Windows 11]
+        - Browser/Runtime: [e.g., Chrome 120, Node.js 20.10.0]
+        - FlakeRadar Version: [e.g., 1.2.3]
+        - Package Manager: [e.g., npm 10.2.0, pnpm 8.10.0]
+        - CI Environment: [e.g., GitHub Actions, local]
+        - Additional context: [e.g., Docker, WSL2]
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Provide detailed steps to reproduce the behavior.
+      placeholder: |
+        1. Go to '...'
+        2. Click on '...'
+        3. Execute command '...'
+        4. See error
+      value: |
+        1. 
+        2. 
+        3. 
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+      placeholder: "Describe what should happen..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened? Include error messages, stack traces, or screenshots.
+      placeholder: "Describe what actually happened. Include error messages, logs, or screenshots..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs and Screenshots
+      description: |
+        Provide relevant logs, error messages, or screenshots.
+        Tip: You can attach images by dragging and dropping them here.
+      placeholder: |
+        ```
+        Paste error logs here
+        ```
+
+  - type: checkboxes
+    id: regression
+    attributes:
+      label: Regression Check
+      description: Help us identify if this is a regression from a previous working state.
+      options:
+        - label: This is a regression (it worked in a previous version)
+        - label: I can identify the version where it last worked
+
+  - type: input
+    id: last_working_version
+    attributes:
+      label: Last Working Version
+      description: If this is a regression, which version last worked correctly?
+      placeholder: "e.g., 1.2.0"
+
+  - type: textarea
+    id: workaround
+    attributes:
+      label: Workaround or Mitigation
+      description: Have you found any temporary workaround or mitigation?
+      placeholder: "Describe any workaround you've found..."
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Add any other context about the problem here.
+      placeholder: "Any additional information that might help..."
+
+  - type: input
+    id: related
+    attributes:
+      label: Related Issues/PRs
+      description: Link to related issues or pull requests (e.g., #123, #456)
+      placeholder: "#123, #456"
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      description: Please confirm the following before submitting.
+      options:
+        - label: I have searched for similar issues and found none
+          required: true
+        - label: I have provided all required information above
+          required: true
+        - label: I am willing to help test a fix if needed
+          required: false

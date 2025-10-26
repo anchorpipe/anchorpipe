@@ -1,0 +1,235 @@
+name: "📖 User Story"
+description: "Define user-centric work with persona, problem, acceptance criteria, and NFRs"
+title: "[STORY] "
+labels: ["type:feature", "status:needs-refinement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## User Story Template 📖
+        
+        Use this template to define user-centric work items with clear acceptance criteria.
+        
+        **What is a User Story?**
+        - Describes a feature from the user's perspective
+        - Includes acceptance criteria for definition of done
+        - Considers non-functional requirements
+        - Sized appropriately for a single sprint
+
+  - type: dropdown
+    id: persona
+    attributes:
+      label: Persona
+      description: Who is this story for?
+      options:
+        - end-user (Application end user)
+        - admin (System administrator)
+        - dev (Developer/API consumer)
+        - qa (QA/Test engineer)
+        - ops (Operations/SRE)
+        - auditor (Compliance/Security auditor)
+        - contributor (Open source contributor)
+        - maintainer (Project maintainer)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      description: Which area or component does this story affect?
+      options:
+        - web (Web application)
+        - api (REST/GraphQL API)
+        - docs (Documentation)
+        - cli (Command-line interface)
+        - desktop (Desktop application)
+        - infra (Infrastructure/DevOps)
+        - auth (Authentication/Authorization)
+        - db (Database/Data layer)
+        - analytics (Analytics/Metrics)
+        - algo (Algorithm/Core logic)
+        - testing (Testing infrastructure)
+        - ci-cd (CI/CD pipeline)
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: User Need / Problem Statement
+      description: Describe the user need or problem this story addresses.
+      placeholder: |
+        **As a** [persona],
+        **I want to** [capability],
+        **So that** [benefit/value].
+        
+        **Context:**
+        Provide additional context about why this is needed...
+    validations:
+      required: true
+
+  - type: textarea
+    id: ac
+    attributes:
+      label: Acceptance Criteria
+      description: Define clear, testable acceptance criteria (Gherkin format optional).
+      placeholder: |
+        **Scenario 1:** [Scenario name]
+        - **Given** [initial context]
+        - **When** [action taken]
+        - **Then** [expected outcome]
+        - **And** [additional expectation]
+        
+        **Scenario 2:** [Scenario name]
+        - **Given** [initial context]
+        - **When** [action taken]
+        - **Then** [expected outcome]
+        
+        **Additional Criteria:**
+        - [ ] Criterion 1
+        - [ ] Criterion 2
+        - [ ] Criterion 3
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: nfr
+    attributes:
+      label: Non-Functional Requirements
+      description: Consider these quality attributes and best practices.
+      options:
+        - label: "Accessibility: WCAG 2.2 AA compliance considered"
+        - label: "Performance: Meets performance budget (bundle <100KB gzipped, Core Web Vitals 'Good')"
+        - label: "Security: Security review completed (input validation, CSP, CSRF/origin checks, rate limiting)"
+        - label: "Usability: User experience reviewed and validated"
+        - label: "Testability: Unit and integration tests included"
+        - label: "Documentation: User-facing documentation updated"
+        - label: "Observability: Logging and monitoring instrumented"
+        - label: "Internationalization: i18n/l10n considered if applicable"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: size
+    attributes:
+      label: Story Size
+      description: Estimated size/complexity of this story.
+      options:
+        - S (Small - 1-2 days, simple change)
+        - M (Medium - 3-5 days, moderate complexity)
+        - L (Large - 1-2 weeks, complex or needs breakdown)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Business priority of this story.
+      options:
+        - P0 (Critical - Must have, blocking)
+        - P1 (High - Should have, important)
+        - P2 (Medium - Nice to have)
+        - P3 (Low - Could have, future)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: gate
+    attributes:
+      label: Release Gate
+      description: Which release gate is this story targeting?
+      options:
+        - G0 (Internal/Alpha)
+        - GA (Private Beta)
+        - GB (Public Beta)
+        - GC (General Availability)
+        - GD (Post-GA Enhancement)
+    validations:
+      required: true
+
+  - type: input
+    id: epic
+    attributes:
+      label: Parent Epic
+      description: Link to the parent epic if this story is part of one.
+      placeholder: "#123"
+
+  - type: input
+    id: design
+    attributes:
+      label: Design / Documentation Link
+      description: Link to designs, mockups, or technical documentation.
+      placeholder: "https://..."
+
+  - type: textarea
+    id: technical_notes
+    attributes:
+      label: Technical Implementation Notes
+      description: Technical details, constraints, or implementation guidance.
+      placeholder: |
+        **Technical Approach:**
+        - Approach detail 1
+        - Approach detail 2
+        
+        **API Changes:**
+        - Change 1
+        - Change 2
+        
+        **Database Changes:**
+        - Schema change 1
+        
+        **Dependencies:**
+        - Dependency 1
+        - Dependency 2
+
+  - type: textarea
+    id: test_scenarios
+    attributes:
+      label: Test Scenarios
+      description: Key test scenarios to validate this story.
+      placeholder: |
+        **Manual Test Scenarios:**
+        1. Test scenario 1
+        2. Test scenario 2
+        
+        **Automated Tests:**
+        - Unit tests: ...
+        - Integration tests: ...
+        - E2E tests: ...
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional Notes
+      description: Any additional context, edge cases, or considerations.
+      placeholder: "Add any other relevant information..."
+
+  - type: checkboxes
+    id: definition_of_ready
+    attributes:
+      label: Definition of Ready
+      description: Is this story ready for development?
+      options:
+        - label: Story is clearly defined and understood
+        - label: Acceptance criteria are testable
+        - label: Dependencies are identified
+        - label: Design/mockups available (if needed)
+        - label: Technical approach is clear
+        - label: Story is appropriately sized
+
+  - type: checkboxes
+    id: definition_of_done
+    attributes:
+      label: Definition of Done (for implementer)
+      description: Checklist for story completion.
+      options:
+        - label: Code is written and reviewed
+        - label: Unit tests are written and passing
+        - label: Integration tests are written and passing
+        - label: Documentation is updated
+        - label: Acceptance criteria are met
+        - label: Non-functional requirements are addressed
+        - label: Code is merged to main branch
+        - label: Feature is deployed to staging/production
