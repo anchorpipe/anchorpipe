@@ -1,0 +1,128 @@
+name: "📚 Documentation"
+description: "Request documentation improvements or report documentation issues"
+title: "[DOCS] "
+labels: ["type:docs", "status:needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Documentation Issue 📚
+        
+        Help us improve FlakeRadar's documentation!
+        
+        **Types of documentation issues:**
+        - Missing documentation
+        - Incorrect or outdated information
+        - Unclear explanations
+        - Broken links or examples
+        - Typos or formatting issues
+
+  - type: dropdown
+    id: doc_type
+    attributes:
+      label: Documentation Type
+      description: What type of documentation needs attention?
+      options:
+        - Getting Started / Tutorial
+        - API Reference
+        - User Guide
+        - Developer Guide
+        - Architecture / Design Docs
+        - README
+        - Code Comments
+        - Examples / Samples
+        - FAQ
+        - Troubleshooting
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: issue_type
+    attributes:
+      label: Issue Type
+      description: What kind of documentation issue is this?
+      options:
+        - Missing documentation
+        - Incorrect information
+        - Outdated information
+        - Unclear or confusing
+        - Broken link or example
+        - Typo or formatting
+        - Improvement suggestion
+        - Translation needed
+    validations:
+      required: true
+
+  - type: input
+    id: location
+    attributes:
+      label: Documentation Location
+      description: URL or file path to the documentation in question.
+      placeholder: "https://... or docs/path/to/file.md"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Issue Description
+      description: Describe the documentation issue in detail.
+      placeholder: |
+        **Current state:**
+        Describe what's currently in the documentation...
+        
+        **Problem:**
+        Explain what's wrong or missing...
+        
+        **Expected:**
+        Describe what should be documented or how it should be improved...
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested Improvement
+      description: If you have a specific suggestion, provide it here.
+      placeholder: |
+        Provide your suggested text, examples, or improvements...
+        
+        You can use markdown formatting.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this documentation issue?
+      options:
+        - P0 (Critical - Blocking users)
+        - P1 (High - Important for user success)
+        - P2 (Medium - Would improve experience)
+        - P3 (Low - Minor improvement)
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      options:
+        - label: I am willing to submit a PR to fix this documentation issue
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other relevant information.
+      placeholder: "Screenshots, related issues, external references..."
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      options:
+        - label: I have checked that this documentation issue hasn't been reported
+          required: true
+        - label: I have provided the documentation location
+          required: true

@@ -1,0 +1,187 @@
+name: "⚡ Performance Issue"
+description: "Report performance problems or optimization opportunities"
+title: "[PERF] "
+labels: ["type:perf", "status:needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Performance Issue ⚡
+        
+        Help us identify and fix performance bottlenecks!
+        
+        **Before submitting:**
+        - Profile the issue to identify the bottleneck
+        - Gather performance metrics and benchmarks
+        - Check if this is a regression
+
+  - type: dropdown
+    id: perf_type
+    attributes:
+      label: Performance Issue Type
+      description: What type of performance issue is this?
+      options:
+        - Slow response time
+        - High memory usage
+        - High CPU usage
+        - Slow startup time
+        - Large bundle size
+        - Network performance
+        - Database query performance
+        - Rendering performance
+        - Build performance
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How severe is this performance issue?
+      options:
+        - S0 - Critical (System unusable)
+        - S1 - High (Major impact on user experience)
+        - S2 - Medium (Noticeable but tolerable)
+        - S3 - Low (Minor optimization opportunity)
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Performance Issue Description
+      description: Describe the performance problem in detail.
+      placeholder: |
+        **What is slow or inefficient:**
+        Describe the performance issue...
+        
+        **Impact:**
+        How does this affect users or the system?
+    validations:
+      required: true
+
+  - type: textarea
+    id: metrics
+    attributes:
+      label: Performance Metrics
+      description: Provide concrete performance measurements.
+      placeholder: |
+        **Current Performance:**
+        - Response time: X ms
+        - Memory usage: X MB
+        - CPU usage: X%
+        - Bundle size: X KB
+        - Lighthouse score: X
+        - Core Web Vitals: LCP=X, FID=X, CLS=X
+        
+        **Expected Performance:**
+        - Response time: < Y ms
+        - Memory usage: < Y MB
+        - etc.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce this performance issue?
+      placeholder: |
+        1. Go to '...'
+        2. Perform action '...'
+        3. Observe performance issue
+        
+        **Test data size:** X records/items
+        **Conditions:** Describe any specific conditions
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Provide environment details where the issue occurs.
+      placeholder: |
+        - OS: [e.g., Ubuntu 22.04]
+        - Browser/Runtime: [e.g., Chrome 120, Node.js 20.10.0]
+        - FlakeRadar Version: [e.g., 1.2.3]
+        - Hardware: [e.g., CPU, RAM]
+        - Network: [e.g., bandwidth, latency]
+    validations:
+      required: true
+
+  - type: textarea
+    id: profiling
+    attributes:
+      label: Profiling Data
+      description: Attach profiling data, flame graphs, or performance traces.
+      placeholder: |
+        Attach or link to:
+        - Chrome DevTools performance profile
+        - Flame graphs
+        - Memory snapshots
+        - Network waterfall
+        - Lighthouse report
+        
+        You can drag and drop files here.
+
+  - type: checkboxes
+    id: regression
+    attributes:
+      label: Regression Check
+      options:
+        - label: This is a regression (performance was better in a previous version)
+
+  - type: input
+    id: last_good_version
+    attributes:
+      label: Last Good Version
+      description: If this is a regression, which version had acceptable performance?
+      placeholder: "e.g., 1.2.0"
+
+  - type: textarea
+    id: root_cause
+    attributes:
+      label: Root Cause Analysis
+      description: If you've identified the root cause, describe it here.
+      placeholder: |
+        **Suspected cause:**
+        Describe what you think is causing the performance issue...
+        
+        **Evidence:**
+        Provide evidence from profiling or analysis...
+
+  - type: textarea
+    id: optimization
+    attributes:
+      label: Suggested Optimization
+      description: If you have optimization suggestions, provide them here.
+      placeholder: |
+        **Optimization approach:**
+        Describe potential optimization strategies...
+        
+        **Expected improvement:**
+        Estimate the performance improvement...
+        
+        **Trade-offs:**
+        Note any trade-offs or risks...
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other relevant information.
+      placeholder: "Related issues, external references, benchmarks..."
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      options:
+        - label: I have profiled the issue and gathered metrics
+          required: true
+        - label: I have checked for similar performance issues
+          required: true
+        - label: I have provided reproduction steps
+          required: true

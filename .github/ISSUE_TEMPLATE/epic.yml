@@ -1,0 +1,228 @@
+name: "🎯 Epic"
+description: "Track large initiatives with outcomes, metrics, dependencies, and risks"
+title: "[EPIC] "
+labels: ["type:epic", "status:needs-planning"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Epic Planning Template 🎯
+        
+        Use this template to plan and track large initiatives that span multiple stories or tasks.
+        
+        **What is an Epic?**
+        - A large body of work that can be broken down into smaller stories
+        - Typically takes multiple sprints to complete
+        - Has clear outcomes and success metrics
+        - May have dependencies and risks that need management
+
+  - type: textarea
+    id: vision
+    attributes:
+      label: Vision & Outcomes
+      description: What is the high-level vision? What outcomes will this epic deliver?
+      placeholder: |
+        **Vision:**
+        Describe the big picture and why this epic matters...
+        
+        **Key Outcomes:**
+        1. Outcome 1: ...
+        2. Outcome 2: ...
+        3. Outcome 3: ...
+        
+        **In Scope:**
+        - Item 1
+        - Item 2
+        
+        **Out of Scope:**
+        - Item 1
+        - Item 2
+    validations:
+      required: true
+
+  - type: textarea
+    id: metrics
+    attributes:
+      label: Success Metrics / Key Results
+      description: How will we know we succeeded? Define quantitative and qualitative measures.
+      placeholder: |
+        **Quantitative Metrics:**
+        - Metric 1: [e.g., Reduce load time by 50%]
+        - Metric 2: [e.g., Increase test coverage to 90%]
+        
+        **Qualitative Signals:**
+        - Signal 1: [e.g., Positive user feedback]
+        - Signal 2: [e.g., Reduced support tickets]
+        
+        **Target Date:** YYYY-MM-DD
+    validations:
+      required: true
+
+  - type: textarea
+    id: user_impact
+    attributes:
+      label: User Impact
+      description: Who benefits from this epic? What's the user value?
+      placeholder: |
+        **Target Users:**
+        - User segment 1
+        - User segment 2
+        
+        **User Value:**
+        Describe how users will benefit...
+        
+        **User Stories:**
+        - As a [user], I can [action] so that [benefit]
+        - As a [user], I can [action] so that [benefit]
+    validations:
+      required: true
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: What are the upstream and downstream dependencies?
+      placeholder: |
+        **Upstream Dependencies (blockers):**
+        - #123: Description
+        - External dependency: Description
+        
+        **Downstream Dependencies (blocks):**
+        - #456: Description
+        - Team/project: Description
+        
+        **Cross-team Coordination:**
+        - Team 1: What they need to provide
+        - Team 2: What they need to provide
+
+  - type: textarea
+    id: risks
+    attributes:
+      label: Risks & Mitigations
+      description: What are the key risks and how can we mitigate them?
+      placeholder: |
+        | Risk | Impact | Probability | Mitigation |
+        |------|--------|-------------|------------|
+        | Risk 1 | High/Med/Low | High/Med/Low | Mitigation strategy |
+        | Risk 2 | High/Med/Low | High/Med/Low | Mitigation strategy |
+
+  - type: textarea
+    id: technical_approach
+    attributes:
+      label: Technical Approach
+      description: High-level technical approach and architecture decisions.
+      placeholder: |
+        **Architecture:**
+        Describe the high-level architecture...
+        
+        **Key Technical Decisions:**
+        1. Decision 1: Rationale
+        2. Decision 2: Rationale
+        
+        **Technology Stack:**
+        - Technology 1
+        - Technology 2
+        
+        **Design Documents:**
+        - Link to RFC or design doc
+
+  - type: textarea
+    id: breakdown
+    attributes:
+      label: Work Breakdown
+      description: List the major work items or stories that comprise this epic.
+      placeholder: |
+        - [ ] #XXX: Story 1 title
+        - [ ] #XXX: Story 2 title
+        - [ ] #XXX: Story 3 title
+        - [ ] Task: Additional work item
+        
+        **Estimated Total Effort:** X story points or X weeks
+
+  - type: dropdown
+    id: track
+    attributes:
+      label: Track / Area
+      description: Which track or area does this epic belong to?
+      options:
+        - Web
+        - API
+        - Docs
+        - CLI
+        - Desktop
+        - Algo (Algorithm)
+        - Infra (Infrastructure)
+        - Auth (Authentication)
+        - DB (Database)
+        - Analytics
+        - Cross-cutting
+    validations:
+      required: true
+
+  - type: dropdown
+    id: gate
+    attributes:
+      label: Release Gate
+      description: Which release gate is this epic targeting?
+      options:
+        - G0 - Internal/Alpha
+        - GA - Private Beta
+        - GB - Public Beta
+        - GC - General Availability
+        - GD - Post-GA Enhancement
+    validations:
+      required: true
+
+  - type: input
+    id: iteration
+    attributes:
+      label: Target Iteration/Sprint
+      description: Target sprint or iteration (e.g., 2024-W15)
+      placeholder: "YYYY-Www"
+
+  - type: textarea
+    id: stakeholders
+    attributes:
+      label: Stakeholders
+      description: Who are the key stakeholders and decision makers?
+      placeholder: |
+        - Product Owner: @username
+        - Tech Lead: @username
+        - Designer: @username
+        - Stakeholder 1: @username
+        - Stakeholder 2: @username
+
+  - type: textarea
+    id: timeline
+    attributes:
+      label: Timeline & Milestones
+      description: Key milestones and timeline.
+      placeholder: |
+        - **Week 1-2:** Discovery and design
+        - **Week 3-4:** Implementation phase 1
+        - **Week 5-6:** Implementation phase 2
+        - **Week 7:** Testing and refinement
+        - **Week 8:** Release and monitoring
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Notes
+      description: Any additional context, links, or references.
+      placeholder: "Add any other relevant information..."
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Epic Readiness Checklist
+      options:
+        - label: Vision and outcomes are clearly defined
+          required: true
+        - label: Success metrics are measurable
+          required: true
+        - label: Dependencies are identified
+          required: true
+        - label: Risks are assessed with mitigations
+          required: true
+        - label: Stakeholders are identified and aligned
+          required: false

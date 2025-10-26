@@ -1,0 +1,161 @@
+name: "✨ Feature Request"
+description: "Suggest a new feature or enhancement for FlakeRadar"
+title: "[FEATURE] "
+labels: ["type:feature", "status:needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Thank you for suggesting a feature! ✨
+        
+        We appreciate your ideas for improving FlakeRadar. Please provide as much detail as possible.
+        
+        **Before submitting:**
+        - Check if a similar feature request already exists
+        - Consider if this aligns with the project's goals
+        - Think about alternative solutions
+
+  - type: dropdown
+    id: feature_type
+    attributes:
+      label: Feature Type
+      description: What type of feature is this?
+      options:
+        - New capability or functionality
+        - Enhancement to existing feature
+        - Developer experience improvement
+        - Performance optimization
+        - API or integration
+        - Documentation improvement
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What problem does this feature solve? Who is affected?
+      placeholder: |
+        As a [user type], I want [goal] so that [benefit].
+        
+        Currently, [describe the pain point or limitation]...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe your proposed solution in detail.
+      placeholder: |
+        Describe how you envision this feature working...
+        
+        Include:
+        - User interface changes (if applicable)
+        - API changes (if applicable)
+        - Behavior and functionality
+        - Example usage or code snippets
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: What alternative solutions or features have you considered?
+      placeholder: "Describe alternative approaches and why they might not be as good..."
+
+  - type: textarea
+    id: use_cases
+    attributes:
+      label: Use Cases
+      description: Provide specific use cases or scenarios where this feature would be valuable.
+      placeholder: |
+        1. Use case 1: ...
+        2. Use case 2: ...
+        3. Use case 3: ...
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this feature to you?
+      options:
+        - P0 - Critical (Blocking current work)
+        - P1 - High (Important for upcoming work)
+        - P2 - Medium (Would be nice to have)
+        - P3 - Low (Minor improvement)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Expected Impact
+      description: How many users would benefit from this feature?
+      options:
+        - High - Most users would benefit
+        - Medium - Many users would benefit
+        - Low - Specific use case or niche users
+    validations:
+      required: true
+
+  - type: textarea
+    id: success_metrics
+    attributes:
+      label: Success Metrics
+      description: How would we measure the success of this feature?
+      placeholder: |
+        - Metric 1: ...
+        - Metric 2: ...
+        - Metric 3: ...
+
+  - type: textarea
+    id: mockups
+    attributes:
+      label: Mockups or Examples
+      description: |
+        Provide mockups, diagrams, or examples from other tools.
+        Tip: You can attach images by dragging and dropping them here.
+      placeholder: "Add mockups, wireframes, or links to similar implementations..."
+
+  - type: textarea
+    id: technical_notes
+    attributes:
+      label: Technical Considerations
+      description: Any technical details, constraints, or implementation notes?
+      placeholder: |
+        - Dependencies: ...
+        - Breaking changes: ...
+        - Performance considerations: ...
+        - Security implications: ...
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      description: Are you willing to contribute to this feature?
+      options:
+        - label: I am willing to submit a PR to implement this feature
+        - label: I can help with design or testing
+        - label: I can provide feedback during development
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Add any other context, links, or references.
+      placeholder: "Links to relevant discussions, documentation, or external resources..."
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      options:
+        - label: I have searched for similar feature requests
+          required: true
+        - label: I have provided sufficient detail above
+          required: true
+        - label: This feature aligns with FlakeRadar's goals
+          required: true
