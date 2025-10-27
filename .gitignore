@@ -5,6 +5,7 @@
 # If you need to bring content back into the repo, curate it into proper directories outside tempo-local.
 # ------------------------------------------------------------------------------
 /tempo-local/
+/anchorpipe_guide_docs/
 
 # Node / package managers
 node_modules/
