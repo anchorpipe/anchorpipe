@@ -1,0 +1,39 @@
+name: Add to Project V2
+
+on:
+  issues:
+    types: [opened, reopened]
+  pull_request:
+    types: [opened, reopened]
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  add-to-project:
+    runs-on: ubuntu-latest
+    # Skip if issue is created by automation (bot label)
+    if: ${{ !contains(github.event.issue.labels.*.name, 'bot') && !contains(github.event.pull_request.labels.*.name, 'bot') }}
+    steps:
+      - name: Add issue/PR to Project V2
+        uses: actions/add-to-project@v0.5.0
+        with:
+          # Project URL - can be set via secret PROJECT_V2_URL or use default below
+          # Format: https://github.com/orgs/ORG_NAME/projects/PROJECT_NUMBER
+          # Or: https://github.com/users/USERNAME/projects/PROJECT_NUMBER
+          project-url: ${{ secrets.PROJECT_V2_URL || 'https://github.com/orgs/anchorpipe/projects/3' }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Add triage label for new issues
+        if: github.event_name == 'issues'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.addLabels({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['status:needs-triage']
+            });
