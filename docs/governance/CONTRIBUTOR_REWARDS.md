@@ -12,18 +12,21 @@ anchorpipe believes in recognizing and rewarding contributors who help build the
 ## Recognition Programs (Active Now)
 
 ### 1. Public Recognition
+
 - ✅ Credit in release notes
 - ✅ Listed in CONTRIBUTORS.md
 - ✅ Featured on project website (when launched)
 - ✅ Social media recognition for significant contributions
 
 ### 2. Contributor Levels
+
 - **Contributor**: Any contribution
 - **Active Contributor**: Regular contributions over 3 months
 - **Core Contributor**: Significant sustained contributions
 - **Maintainer**: Commit access and release responsibilities
 
 ### 3. Contributor Benefits
+
 - Early access to new features
 - Direct input on roadmap decisions
 - Priority support (when support is available)
@@ -36,12 +39,14 @@ anchorpipe believes in recognizing and rewarding contributors who help build the
 **When**: After commercial entity is established and fundraising
 
 **Who Qualifies**:
+
 - Significant contributors (top 10-20 contributors)
 - Core maintainers
 - Contributors who built critical features
 - Long-term active contributors
 
-**Structure**: 
+**Structure**:
+
 - Stock options or equity grants
 - Vesting over 3-4 years
 - Based on contribution impact and longevity
@@ -53,12 +58,14 @@ anchorpipe believes in recognizing and rewarding contributors who help build the
 **When**: After commercial revenue is established
 
 **Options Under Consideration**:
+
 - **Percentage of Revenue**: Small percentage of commercial revenue to top contributors
 - **Feature Bounties**: Payment for implementing specific enterprise features
 - **Support Revenue Share**: Percentage of support contracts to maintainers
 - **Custom Development**: Paid opportunities to build commercial features
 
 **Structure**:
+
 - Transparent allocation methodology
 - Regular distributions
 - Based on contribution impact and commercial relevance
@@ -68,6 +75,7 @@ anchorpipe believes in recognizing and rewarding contributors who help build the
 **When**: After establishing commercial revenue
 
 **Structure**:
+
 - Specific features or bugs with bounties
 - Open to all contributors
 - Clear payment terms
@@ -80,12 +88,14 @@ anchorpipe believes in recognizing and rewarding contributors who help build the
 **When**: After commercial revenue is established
 
 **For**:
+
 - Core maintainers with significant responsibilities
 - Release managers
 - Security maintainers
 - Documentation maintainers
 
 **Structure**:
+
 - Monthly stipend or salary
 - Based on time commitment and responsibilities
 - Contract or part-time employment
@@ -93,21 +103,25 @@ anchorpipe believes in recognizing and rewarding contributors who help build the
 ## Implementation Timeline
 
 ### Phase 1: Recognition (Current)
+
 - ✅ Public recognition
 - ✅ Contributor levels
 - ✅ Social media features
 
 ### Phase 2: Early Commercial (Gate D+)
+
 - ⏳ Enhanced recognition
 - ⏳ Early access programs
 - ⏳ Community events
 
 ### Phase 3: Commercial Success (12-18 months post-launch)
+
 - ⏳ Equity program for top contributors
 - ⏳ Revenue sharing pilot
 - ⏳ Bounty program launch
 
 ### Phase 4: Mature Commercial (24+ months)
+
 - ⏳ Full revenue sharing
 - ⏳ Maintainer compensation
 - ⏳ Comprehensive equity program
@@ -115,12 +129,14 @@ anchorpipe believes in recognizing and rewarding contributors who help build the
 ## Transparency and Fairness
 
 ### Principles
+
 - **Transparent Criteria**: Clear guidelines for who qualifies
 - **Fair Evaluation**: Contribution impact measured objectively
 - **No Surprises**: Contributors know what to expect
 - **Community Input**: Community feedback on reward structures
 
 ### Metrics We Track
+
 - Code contributions (lines, commits, PRs)
 - Documentation improvements
 - Bug fixes and issue resolution
@@ -130,11 +146,13 @@ anchorpipe believes in recognizing and rewarding contributors who help build the
 ## Legal Considerations
 
 ### Tax Implications
+
 - Rewards may be taxable income
 - We'll provide necessary tax documentation
 - Consult tax professional for advice
 
 ### IP Rights
+
 - Rewards don't change IP assignment (see IP_ASSIGNMENT.md)
 - Contributors retain copyright
 - Commercial use rights remain as documented
@@ -148,6 +166,7 @@ anchorpipe believes in recognizing and rewarding contributors who help build the
 ## Examples from Other Projects
 
 ### Successful Models
+
 - **GitLab**: Equity for significant contributors, revenue sharing
 - **MongoDB**: Contributor recognition, commercial opportunities
 - **Elastic**: Contributor programs, conference sponsorships
@@ -156,6 +175,7 @@ anchorpipe believes in recognizing and rewarding contributors who help build the
 ## Updates
 
 This framework will evolve based on:
+
 - Project success and revenue
 - Community feedback
 - Industry best practices

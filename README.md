@@ -28,18 +28,21 @@ Deliver a world-class, open-source platform for flaky test management that is CI
 ### Local Development
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/anchorpipe/anchorpipe.git
    cd anchorpipe
    ```
 
 2. **Set up environment**
+
    ```bash
    cp .env.example .env  # Create .env file
    docker compose up -d  # Start local services (Postgres, Redis, RabbitMQ, MinIO)
    ```
 
 3. **Install dependencies**
+
    ```bash
    npm install
    ```
@@ -117,6 +120,7 @@ Contributors are recognized in release notes, contributors list, and project doc
 See our [GitHub Projects](https://github.com/orgs/anchorpipe/projects/3/views/2) board for the complete roadmap and issue tracking.
 
 **Gates**:
+
 - **G0** (Foundation): Repository setup, DB schema, CI/CD, Auth
 - **GA** (Security): RBAC, Encryption, Input validation
 - **GB** (Core Platform): GitHub App, CI integrations, Ingestion

@@ -121,6 +121,7 @@ See [docs/contributing/coding-standards.md](docs/contributing/coding-standards.m
 ## Recognition
 
 Contributors are recognized in:
+
 - Release notes
 - Contributors list in README
 - Project website (coming soon)

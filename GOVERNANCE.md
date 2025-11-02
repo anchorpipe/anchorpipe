@@ -11,6 +11,7 @@ anchorpipe follows a **Benevolent Dictator For Life (BDFL)** governance model wi
 **Current Owner**: RICK / ELSHADAY MENGESHA
 
 The project owner is responsible for:
+
 - Final decisions on project direction and features
 - Architectural decisions (documented via ADRs)
 - Release planning and gate decisions
@@ -40,6 +41,7 @@ See existing ADRs: `docs/adr/0001-core-backend-stack.md` through `docs/adr/0012-
 ### Code Changes
 
 All code changes follow standard open-source process:
+
 - Create issue (if not existing)
 - Fork, branch, implement
 - Sign DCO (Developer Certificate of Origin)
@@ -50,6 +52,7 @@ All code changes follow standard open-source process:
 ## CODEOWNERS
 
 The `.github/CODEOWNERS` file defines who reviews code in different areas:
+
 - Required approvals before merging
 - Expertise-based routing
 - Security-sensitive areas require additional review
@@ -57,6 +60,7 @@ The `.github/CODEOWNERS` file defines who reviews code in different areas:
 ## Release Process
 
 Releases follow the gate-based roadmap:
+
 - **G0**: Foundation (internal/alpha)
 - **GA**: Security Foundation (private beta)
 - **GB**: Core Platform (public beta)
@@ -70,6 +74,7 @@ See `docs/program/09-release-ops.md` for detailed release process.
 ### Contributors
 
 Anyone who contributes code, documentation, or other improvements:
+
 - Recognized in release notes
 - Listed in CONTRIBUTORS.md
 - Subject to Code of Conduct
@@ -77,6 +82,7 @@ Anyone who contributes code, documentation, or other improvements:
 ### Maintainers (Future)
 
 As the project grows, maintainers may be added to assist with:
+
 - Code review
 - Issue triage
 - Documentation
@@ -85,6 +91,7 @@ As the project grows, maintainers may be added to assist with:
 ### Core Team (Future)
 
 Long-term, highly engaged contributors may join the core team with:
+
 - Extended commit access
 - Release responsibilities
 - Architecture input
@@ -96,6 +103,7 @@ Long-term, highly engaged contributors may join the core team with:
 Core anchorpipe software is licensed under **AGPL v3**.
 
 This means:
+
 - ✅ Free to use, modify, and distribute
 - ✅ Must share source code if you modify and run as a service
 - ✅ Perfect for open-source collaboration
@@ -103,6 +111,7 @@ This means:
 ### Commercial Licensing
 
 For enterprises requiring:
+
 - Proprietary licensing
 - Trademark usage rights
 - Enterprise support
@@ -113,6 +122,7 @@ Contact: Use GitHub Discussions or create an issue
 ## Project Transparency
 
 We maintain transparency through:
+
 - **Public Roadmap**: GitHub Projects V2 board
 - **ADRs**: All architectural decisions documented
 - **Discussions**: Open community discussions
@@ -121,6 +131,7 @@ We maintain transparency through:
 ## Conflict Resolution
 
 For governance disputes:
+
 1. **Discussion**: Attempt resolution via GitHub Discussions
 2. **Mediation**: Project owner mediates if needed
 3. **Decision**: Project owner makes final decision
@@ -128,6 +139,7 @@ For governance disputes:
 ## Changes to Governance
 
 This governance model may evolve as the project grows. Changes will be:
+
 - Proposed via GitHub Discussion (Community category)
 - Discussed with community
 - Documented in this file
