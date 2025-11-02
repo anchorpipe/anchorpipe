@@ -25,7 +25,7 @@ RUN npm ci --only=production --legacy-peer-deps
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-# Copy package files
+# Copy package files (for dependency installation)
 COPY package.json package-lock.json ./
 COPY apps/web/package.json ./apps/web/
 COPY libs/database/package.json ./libs/database/
@@ -38,18 +38,26 @@ RUN npm ci --legacy-peer-deps
 WORKDIR /app/libs/database
 RUN npm ci --legacy-peer-deps
 
-# Copy source code
+# Copy ALL source code (must happen after npm ci for workspaces)
+# Copy web app source
 COPY apps/web ./apps/web
 
-# Copy contents of database library into existing /app/libs/database directory
-# Using trailing slash to copy CONTENTS, not the directory itself
-COPY libs/database/ ./libs/database/
+# Copy database library source files
+# Remove any existing content first to ensure clean copy
+WORKDIR /app
+RUN rm -rf ./libs/database/src ./libs/database/prisma ./libs/database/tsconfig.json 2>/dev/null || true
+
+# Copy database library contents explicitly
+COPY libs/database/prisma ./libs/database/prisma
+COPY libs/database/src ./libs/database/src
+COPY libs/database/tsconfig.json ./libs/database/tsconfig.json 2>/dev/null || true
 
 # Set working directory to database library for Prisma generation
 WORKDIR /app/libs/database
 
 # Verify Prisma schema exists
-RUN test -f prisma/schema.prisma || (echo "ERROR: schema.prisma not found!" && echo "Current directory: $(pwd)" && echo "Contents:" && ls -la && exit 1)
+RUN ls -la && echo "---" && ls -la prisma/ || (echo "ERROR: prisma directory not found!" && find . -name prisma -type d && exit 1)
+RUN test -f prisma/schema.prisma || (echo "ERROR: schema.prisma not found!" && echo "Contents of prisma/:" && ls -la prisma/ && exit 1)
 
 # Generate Prisma Client
 RUN npm run db:generate
