@@ -1,0 +1,123 @@
+# ============================================================================
+# Code Owners
+# ============================================================================
+# This file defines individuals or teams responsible for code in the repository.
+# When a PR modifies files in these paths, the specified owners will automatically
+# be requested for review.
+#
+# Syntax: path/to/files @username @org/team-name
+#
+# More information: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+# ============================================================================
+
+# Default owners for everything in the repo
+# These owners will be requested for review unless a later match takes precedence
+* @rick1330
+
+# ============================================================================
+# Applications
+# ============================================================================
+
+# Web Application (Next.js)
+/apps/web/ @rick1330
+/apps/web/src/ @rick1330
+/apps/web/next.config.mjs @rick1330
+/apps/web/tailwind.config.ts @rick1330
+/apps/web/tsconfig.json @rick1330
+
+# ============================================================================
+# Libraries
+# ============================================================================
+
+# Database (Prisma)
+/libs/database/ @rick1330
+/libs/database/prisma/ @rick1330
+/libs/database/src/ @rick1330
+
+# Shared Libraries
+/libs/shared/ @rick1330
+
+# ============================================================================
+# Services
+# ============================================================================
+
+# Services Directory
+/services/ @rick1330
+
+# ============================================================================
+# Infrastructure & DevOps
+# ============================================================================
+
+# GitHub Actions & Workflows
+/.github/ @rick1330
+/.github/workflows/ @rick1330
+/.github/CODEOWNERS @rick1330
+/.github/dependabot.yml @rick1330
+
+# Docker & Deployment
+/infra/ @rick1330
+/infra/docker-compose.yml @rick1330
+/docker-compose*.yml @rick1330
+
+# ============================================================================
+# Configuration & Build
+# ============================================================================
+
+# Package Management
+/package.json @rick1330
+/package-lock.json @rick1330
+/nx.json @rick1330
+/workspace.json @rick1330
+
+# Build Configuration
+/tsconfig.base.json @rick1330
+/eslint.config.mjs @rick1330
+/prettier.config.mjs @rick1330
+
+# ============================================================================
+# Documentation
+# ============================================================================
+
+# All documentation
+/docs/ @rick1330
+/*.md @rick1330
+/README.md @rick1330
+/CONTRIBUTING.md @rick1330
+
+# Project Documentation
+/anchorpipe_guide_docs/ @rick1330
+
+# ============================================================================
+# Testing
+# ============================================================================
+
+# Test Files (when added)
+/tests/ @rick1330
+/test/ @rick1330
+/__tests__/ @rick1330
+*.test.* @rick1330
+*.spec.* @rick1330
+
+# ============================================================================
+# Security & Legal
+# ============================================================================
+
+# Security Policies
+/SECURITY.md @rick1330
+/LICENSE @rick1330
+/IP_ASSIGNMENT.md @rick1330
+
+# Governance
+/GOVERNANCE.md @rick1330
+/TRADEMARK_POLICY.md @rick1330
+/CODE_OF_CONDUCT.md @rick1330
+
+# ============================================================================
+# Notes
+# ============================================================================
+# - Replace @rick1330 with actual team members or GitHub teams as the project grows
+# - Use @org/team-name for team-based ownership
+# - More specific paths override general paths
+# - Order matters: last matching pattern takes precedence
+# ============================================================================
+
