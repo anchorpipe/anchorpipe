@@ -12,7 +12,7 @@ COPY apps/web/package.json ./apps/web/
 COPY libs/database/package.json ./libs/database/
 
 # Install root dependencies
-RUN npm ci --only=production
+RUN npm ci --only=production --legacy-peer-deps
 
 # Install workspace dependencies
 WORKDIR /app/apps/web
@@ -32,7 +32,7 @@ COPY libs/database/package.json ./libs/database/
 COPY tsconfig.base.json ./
 
 # Install all dependencies (including dev)
-RUN npm ci
+RUN npm ci --legacy-peer-deps
 WORKDIR /app/apps/web
 RUN npm ci --legacy-peer-deps
 WORKDIR /app/libs/database
