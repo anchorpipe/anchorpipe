@@ -49,9 +49,7 @@ jobs:
 
       - name: Run TypeScript type check
         run: |
-          # Type check root config (excludes apps/web)
-          npx tsc --noEmit --project tsconfig.base.json || true
-          # Type check web app (which has JSX)
+          # Type check web app only (root tsconfig excludes apps/)
           npx tsc --noEmit --project apps/web/tsconfig.json
 
   build:
