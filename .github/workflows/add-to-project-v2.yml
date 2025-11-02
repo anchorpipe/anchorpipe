@@ -12,26 +12,38 @@ permissions:
   pull-requests: write
   repository-projects: write
 
-    jobs:
-      add-to-project:
-        runs-on: ubuntu-latest
-        # Skip if issue/PR is created by automation (bot label)
-        if: |
-          (github.event_name == 'issues' && !contains(github.event.issue.labels.*.name, 'bot')) ||
-          (github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'bot'))
-        env:
-          PROJECT_V2_URL: ${{ secrets.PROJECT_V2_URL }}
-        steps:
+jobs:
+  add-to-project:
+    runs-on: ubuntu-latest
+    # Skip if issue/PR is created by automation (bot label)
+    if: |
+      (github.event_name == 'issues' && !contains(github.event.issue.labels.*.name, 'bot')) ||
+      (github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'bot'))
+    env:
+      PROJECT_V2_URL: ${{ secrets.PROJECT_V2_URL }}
+    steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Validate Project V2 URL
+        if: env.PROJECT_V2_URL == ''
+        run: |
+          echo "⚠️  WARNING: PROJECT_V2_URL secret is not set."
+          echo "Skipping adding to Project V2. Set the secret in repository or organization settings."
+          echo "Expected format: https://github.com/orgs/anchorpipe/projects/NUMBER"
+
       - name: Add issue/PR to Project V2
+        if: env.PROJECT_V2_URL != ''
         uses: actions/add-to-project@v0.6.1
         with:
           # Project URL for organization project
           # Format: https://github.com/orgs/ORG_NAME/projects/PROJECT_NUMBER
-          project-url: ${{ secrets.PROJECT_V2_URL || 'https://github.com/orgs/anchorpipe/projects/3' }}
+          project-url: ${{ secrets.PROJECT_V2_URL }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          # Organization projects require owner field
+          owner: anchorpipe
+          # Repository name
+          repository: ${{ github.repository }}
 
       - name: Add triage label for new issues
         if: github.event_name == 'issues'
