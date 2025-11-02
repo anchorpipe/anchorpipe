@@ -1,0 +1,19 @@
+name: DCO Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  dco:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: DCO Check
+        uses: chef/dco-check@v2.1.2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          failure-msg: 'All commits must be signed off. See CONTRIBUTING.md for details.'
