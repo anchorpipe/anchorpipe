@@ -38,12 +38,17 @@ RUN npm ci --legacy-peer-deps
 WORKDIR /app/libs/database
 RUN npm ci --legacy-peer-deps
 
-# Copy source code
+# Copy source code (ensure Prisma schema is included)
 COPY apps/web ./apps/web
-COPY libs/database ./libs/database
+# Copy database library files explicitly to ensure Prisma schema is included
+COPY libs/database/prisma ./libs/database/prisma
+COPY libs/database/package.json ./libs/database/package.json
 
 # Set working directory to database library for Prisma generation
 WORKDIR /app/libs/database
+
+# Verify Prisma schema exists before generation
+RUN ls -la prisma/ && test -f prisma/schema.prisma || (echo "ERROR: schema.prisma not found in prisma/ directory!" && ls -la && exit 1)
 
 # Generate Prisma Client
 RUN npm run db:generate
