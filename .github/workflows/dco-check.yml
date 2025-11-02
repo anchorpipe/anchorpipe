@@ -11,9 +11,25 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: DCO Check
-        uses: chef/dco-check@v2.1.2
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          failure-msg: 'All commits must be signed off. See CONTRIBUTING.md for details.'
+      
+      - name: Verify DCO
+        run: |
+          FAILED_COMMITS=""
+          for commit in $(git rev-list origin/${{ github.base_ref }}..HEAD); do
+            if ! git log -1 --format="%B" "$commit" | grep -q "^Signed-off-by:"; then
+              FAILED_COMMITS="$FAILED_COMMITS $commit"
+            fi
+          done
+          
+          if [ -n "$FAILED_COMMITS" ]; then
+            echo "❌ The following commits are missing DCO sign-off:"
+            for commit in $FAILED_COMMITS; do
+              echo "  - $commit: $(git log -1 --format='%s' $commit)"
+            done
+            echo ""
+            echo "Please sign off your commits using: git commit --amend -s"
+            echo "See CONTRIBUTING.md for details."
+            exit 1
+          else
+            echo "✅ All commits are properly signed off."
+          fi
