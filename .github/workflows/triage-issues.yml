@@ -19,7 +19,7 @@ jobs:
             // Skip if already has a status label
             const existingLabels = context.payload.issue.labels.map(l => l.name);
             const hasStatusLabel = existingLabels.some(label => label.startsWith('status:'));
-            
+
             if (!hasStatusLabel) {
               await github.rest.issues.addLabels({
                 issue_number: context.issue.number,
@@ -32,4 +32,3 @@ jobs:
             } else {
               core.info(`Issue #${context.issue.number} already has a status label`);
             }
-

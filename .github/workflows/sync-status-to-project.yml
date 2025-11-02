@@ -23,12 +23,12 @@ jobs:
           script: |
             const label = context.payload.label?.name;
             const action = context.payload.action; // 'labeled' or 'unlabeled'
-            
+
             if (!label) {
               core.info('No label found in event');
               return;
             }
-            
+
             // Map status labels to project status values
             const statusMap = {
               'status:needs-triage': '🔍 Triage',
@@ -39,9 +39,9 @@ jobs:
               'status:needs-review': '🏗️ In Progress',
               'status:done': '✅ Done'
             };
-            
+
             const projectStatus = statusMap[label];
-            
+
             if (projectStatus) {
               core.info(`${action}: ${label} -> ${projectStatus}`);
               
@@ -57,7 +57,7 @@ jobs:
             } else {
               core.info(`Status label ${label} not mapped to project status`);
             }
-          
+
       - name: Comment on issue (optional - for verification)
         if: github.event_name == 'issues'
         uses: actions/github-script@v7

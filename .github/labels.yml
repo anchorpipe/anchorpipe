@@ -1,208 +1,208 @@
 # Anchorpipe label definitions. Sync using scripts/labels-sync.ps1
 labels:
   # Type
-  - name: "type:feature"
-    color: "1f7a1f"
-    description: "New feature or capability"
-  - name: "type:enhancement"
-    color: "2ea043"
-    description: "Improvement to existing functionality"
-  - name: "type:bug"
-    color: "d73a4a"
+  - name: 'type:feature'
+    color: '1f7a1f'
+    description: 'New feature or capability'
+  - name: 'type:enhancement'
+    color: '2ea043'
+    description: 'Improvement to existing functionality'
+  - name: 'type:bug'
+    color: 'd73a4a'
     description: "Something isn't working correctly"
-  - name: "type:docs"
-    color: "0e8a16"
-    description: "Documentation improvements or additions"
-  - name: "type:design"
-    color: "fbca04"
-    description: "Design or UX work"
-  - name: "type:security"
-    color: "b60205"
-    description: "Security vulnerability or improvement"
-  - name: "type:performance"
-    color: "e11d21"
-    description: "Performance optimization or issue"
-  - name: "type:refactor"
-    color: "bfd4f2"
-    description: "Code restructuring without changing external behavior"
-  - name: "type:test"
-    color: "c2e0c6"
-    description: "Adding or modifying tests"
-  - name: "type:ci-cd"
-    color: "0052cc"
-    description: "Continuous Integration/Continuous Deployment related work"
-  - name: "type:chore"
-    color: "fef2c0"
-    description: "Routine tasks, maintenance, tooling"
-  - name: "type:epic"
-    color: "6f42c1"
-    description: "Large body of work encompassing multiple stories/tasks"
-  - name: "type:story"
-    color: "006b75"
-    description: "User-focused functionality with clear acceptance criteria"
-  - name: "type:task"
-    color: "5319e7"
-    description: "Smaller, well-defined unit of work or technical task"
-  - name: "type:spike"
-    color: "f7c6c7"
-    description: "Time-boxed investigation to reduce uncertainty or explore solutions"
+  - name: 'type:docs'
+    color: '0e8a16'
+    description: 'Documentation improvements or additions'
+  - name: 'type:design'
+    color: 'fbca04'
+    description: 'Design or UX work'
+  - name: 'type:security'
+    color: 'b60205'
+    description: 'Security vulnerability or improvement'
+  - name: 'type:performance'
+    color: 'e11d21'
+    description: 'Performance optimization or issue'
+  - name: 'type:refactor'
+    color: 'bfd4f2'
+    description: 'Code restructuring without changing external behavior'
+  - name: 'type:test'
+    color: 'c2e0c6'
+    description: 'Adding or modifying tests'
+  - name: 'type:ci-cd'
+    color: '0052cc'
+    description: 'Continuous Integration/Continuous Deployment related work'
+  - name: 'type:chore'
+    color: 'fef2c0'
+    description: 'Routine tasks, maintenance, tooling'
+  - name: 'type:epic'
+    color: '6f42c1'
+    description: 'Large body of work encompassing multiple stories/tasks'
+  - name: 'type:story'
+    color: '006b75'
+    description: 'User-focused functionality with clear acceptance criteria'
+  - name: 'type:task'
+    color: '5319e7'
+    description: 'Smaller, well-defined unit of work or technical task'
+  - name: 'type:spike'
+    color: 'f7c6c7'
+    description: 'Time-boxed investigation to reduce uncertainty or explore solutions'
 
   # Priority
-  - name: "priority:P0"
-    color: "e11d21"
-    description: "Critical - Do now (Blocker)"
-  - name: "priority:P1"
-    color: "eb6420"
-    description: "High - Do soon (Important)"
-  - name: "priority:P2"
-    color: "fbca04"
-    description: "Medium - Do eventually (Nice to have)"
-  - name: "priority:P3"
-    color: "009800"
-    description: "Low - Maybe do someday (Icebox)"
+  - name: 'priority:P0'
+    color: 'e11d21'
+    description: 'Critical - Do now (Blocker)'
+  - name: 'priority:P1'
+    color: 'eb6420'
+    description: 'High - Do soon (Important)'
+  - name: 'priority:P2'
+    color: 'fbca04'
+    description: 'Medium - Do eventually (Nice to have)'
+  - name: 'priority:P3'
+    color: '009800'
+    description: 'Low - Maybe do someday (Icebox)'
 
   # Severity
-  - name: "severity:critical"
-    color: "e11d21"
-    description: "Complete failure/blocker - system unusable"
-  - name: "severity:high"
-    color: "eb6420"
-    description: "Major issue - significant functionality broken"
-  - name: "severity:medium"
-    color: "fbca04"
-    description: "Moderate issue - minor functionality impaired"
-  - name: "severity:low"
-    color: "009800"
-    description: "Minor issue - cosmetic or easily worked around"
+  - name: 'severity:critical'
+    color: 'e11d21'
+    description: 'Complete failure/blocker - system unusable'
+  - name: 'severity:high'
+    color: 'eb6420'
+    description: 'Major issue - significant functionality broken'
+  - name: 'severity:medium'
+    color: 'fbca04'
+    description: 'Moderate issue - minor functionality impaired'
+  - name: 'severity:low'
+    color: '009800'
+    description: 'Minor issue - cosmetic or easily worked around'
 
   # Size/Effort
-  - name: "size:XS"
-    color: "b60205"
-    description: "Extra Small - 1/2 day or less"
-  - name: "size:S"
-    color: "d93f0b"
-    description: "Small - 1-2 days"
-  - name: "size:M"
-    color: "e11d21"
-    description: "Medium - 3-5 days"
-  - name: "size:L"
-    color: "eb6420"
-    description: "Large - 1-2 weeks"
-  - name: "size:XL"
-    color: "fbca04"
-    description: "Extra Large - 2+ weeks (Consider splitting)"
+  - name: 'size:XS'
+    color: 'b60205'
+    description: 'Extra Small - 1/2 day or less'
+  - name: 'size:S'
+    color: 'd93f0b'
+    description: 'Small - 1-2 days'
+  - name: 'size:M'
+    color: 'e11d21'
+    description: 'Medium - 3-5 days'
+  - name: 'size:L'
+    color: 'eb6420'
+    description: 'Large - 1-2 weeks'
+  - name: 'size:XL'
+    color: 'fbca04'
+    description: 'Extra Large - 2+ weeks (Consider splitting)'
 
   # Status
-  - name: "status:needs-triage"
-    color: "e11d21"
-    description: "Newly created, requires initial assessment"
-  - name: "status:needs-refinement"
-    color: "eb6420"
-    description: "Requires more detail, AC, estimation before starting"
-  - name: "status:ready"
-    color: "009800"
-    description: "Fully refined, prioritized, and ready for work"
-  - name: "status:in-progress"
-    color: "006b75"
-    description: "Actively being worked on"
-  - name: "status:blocked"
-    color: "e11d21"
-    description: "Work prevented by dependency or external factor"
-  - name: "status:needs-review"
-    color: "fbca04"
-    description: "Work completed, awaiting feedback/merge"
-  - name: "status:done"
-    color: "009800"
-    description: "Completed and merged/closed"
-  - name: "status:wontfix"
-    color: "ffffff"
-    description: "Acknowledged but will not be addressed"
-  - name: "status:duplicate"
-    color: "cfd3d7"
-    description: "Exact replica of an existing issue"
-  - name: "status:invalid"
-    color: "e4e669"
-    description: "Not a valid issue or no longer relevant"
+  - name: 'status:needs-triage'
+    color: 'e11d21'
+    description: 'Newly created, requires initial assessment'
+  - name: 'status:needs-refinement'
+    color: 'eb6420'
+    description: 'Requires more detail, AC, estimation before starting'
+  - name: 'status:ready'
+    color: '009800'
+    description: 'Fully refined, prioritized, and ready for work'
+  - name: 'status:in-progress'
+    color: '006b75'
+    description: 'Actively being worked on'
+  - name: 'status:blocked'
+    color: 'e11d21'
+    description: 'Work prevented by dependency or external factor'
+  - name: 'status:needs-review'
+    color: 'fbca04'
+    description: 'Work completed, awaiting feedback/merge'
+  - name: 'status:done'
+    color: '009800'
+    description: 'Completed and merged/closed'
+  - name: 'status:wontfix'
+    color: 'ffffff'
+    description: 'Acknowledged but will not be addressed'
+  - name: 'status:duplicate'
+    color: 'cfd3d7'
+    description: 'Exact replica of an existing issue'
+  - name: 'status:invalid'
+    color: 'e4e669'
+    description: 'Not a valid issue or no longer relevant'
 
   # Area/Track
-  - name: "area:platform"
-    color: "0052cc"
-    description: "Core platform services and infrastructure"
-  - name: "area:ui"
-    color: "0e8a16"
-    description: "User Interface (web/desktop)"
-  - name: "area:api"
-    color: "5319e7"
-    description: "Application Programming Interface"
-  - name: "area:db"
-    color: "1f7a1f"
-    description: "Database schema, queries, migrations"
-  - name: "area:algorithms"
-    color: "6f42c1"
-    description: "Flake detection, scoring, classification logic"
-  - name: "area:ingestion"
-    color: "d93f0b"
-    description: "Test report parsing and ingestion pipeline"
-  - name: "area:integration"
-    color: "2ea043"
-    description: "CI/CD, third-party service connectors"
-  - name: "area:infra"
-    color: "006b75"
-    description: "DevOps, deployment, infrastructure as code"
-  - name: "area:security"
-    color: "b60205"
-    description: "Authentication, authorization, data protection"
-  - name: "area:performance"
-    color: "e11d21"
-    description: "Speed, scalability, resource optimization"
+  - name: 'area:platform'
+    color: '0052cc'
+    description: 'Core platform services and infrastructure'
+  - name: 'area:ui'
+    color: '0e8a16'
+    description: 'User Interface (web/desktop)'
+  - name: 'area:api'
+    color: '5319e7'
+    description: 'Application Programming Interface'
+  - name: 'area:db'
+    color: '1f7a1f'
+    description: 'Database schema, queries, migrations'
+  - name: 'area:algorithms'
+    color: '6f42c1'
+    description: 'Flake detection, scoring, classification logic'
+  - name: 'area:ingestion'
+    color: 'd93f0b'
+    description: 'Test report parsing and ingestion pipeline'
+  - name: 'area:integration'
+    color: '2ea043'
+    description: 'CI/CD, third-party service connectors'
+  - name: 'area:infra'
+    color: '006b75'
+    description: 'DevOps, deployment, infrastructure as code'
+  - name: 'area:security'
+    color: 'b60205'
+    description: 'Authentication, authorization, data protection'
+  - name: 'area:performance'
+    color: 'e11d21'
+    description: 'Speed, scalability, resource optimization'
 
   # Gates
-  - name: "gate:G0"
-    color: "0052cc"
-    description: "Foundation Gate (Setup, DB, CI/CD)"
-  - name: "gate:GA"
-    color: "0e8a16"
-    description: "Security Foundation Gate"
-  - name: "gate:GB"
-    color: "fbca04"
-    description: "Core Platform Gate"
-  - name: "gate:GC"
-    color: "e11d21"
-    description: "MVP (General Availability) Gate"
-  - name: "gate:GD"
-    color: "6f42c1"
-    description: "Post-MVP (Expansion) Gate"
+  - name: 'gate:G0'
+    color: '0052cc'
+    description: 'Foundation Gate (Setup, DB, CI/CD)'
+  - name: 'gate:GA'
+    color: '0e8a16'
+    description: 'Security Foundation Gate'
+  - name: 'gate:GB'
+    color: 'fbca04'
+    description: 'Core Platform Gate'
+  - name: 'gate:GC'
+    color: 'e11d21'
+    description: 'MVP (General Availability) Gate'
+  - name: 'gate:GD'
+    color: '6f42c1'
+    description: 'Post-MVP (Expansion) Gate'
 
   # Personas
-  - name: "persona:dev"
-    color: "006b75"
-    description: "Developer (CI/CD engineer, API consumer)"
-  - name: "persona:user"
-    color: "0e8a16"
-    description: "End User (developer viewing dashboard)"
-  - name: "persona:admin"
-    color: "5319e7"
-    description: "Administrator (managing repos, users, settings)"
-  - name: "persona:ops"
-    color: "0052cc"
-    description: "Operations/SRE (deploying, monitoring, infra)"
-  - name: "persona:sec"
-    color: "b60205"
-    description: "Security Engineer (auditing, compliance)"
-  - name: "persona:contributor"
-    color: "2ea043"
-    description: "Open Source Contributor"
+  - name: 'persona:dev'
+    color: '006b75'
+    description: 'Developer (CI/CD engineer, API consumer)'
+  - name: 'persona:user'
+    color: '0e8a16'
+    description: 'End User (developer viewing dashboard)'
+  - name: 'persona:admin'
+    color: '5319e7'
+    description: 'Administrator (managing repos, users, settings)'
+  - name: 'persona:ops'
+    color: '0052cc'
+    description: 'Operations/SRE (deploying, monitoring, infra)'
+  - name: 'persona:sec'
+    color: 'b60205'
+    description: 'Security Engineer (auditing, compliance)'
+  - name: 'persona:contributor'
+    color: '2ea043'
+    description: 'Open Source Contributor'
 
   # Meta
-  - name: "good-first-issue"
-    color: "7057ff"
-    description: "Good for newcomers - easy entry point"
-  - name: "help-wanted"
-    color: "008672"
-    description: "Extra attention needed - community help welcome"
-  - name: "breaking-change"
-    color: "d73a4a"
-    description: "Introduces breaking changes to API or behavior"
-  - name: "dependencies"
-    color: "0366d6"
-    description: "Pull requests that update a dependency file"
+  - name: 'good-first-issue'
+    color: '7057ff'
+    description: 'Good for newcomers - easy entry point'
+  - name: 'help-wanted'
+    color: '008672'
+    description: 'Extra attention needed - community help welcome'
+  - name: 'breaking-change'
+    color: 'd73a4a'
+    description: 'Introduces breaking changes to API or behavior'
+  - name: 'dependencies'
+    color: '0366d6'
+    description: 'Pull requests that update a dependency file'

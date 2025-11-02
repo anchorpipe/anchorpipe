@@ -22,10 +22,7 @@ export default [
       'apps/web/.next/**',
     ],
     rules: {
-      '@next/next/no-html-link-for-pages': [
-        'error',
-        'apps/web/src',
-      ],
+      '@next/next/no-html-link-for-pages': ['error', 'apps/web/src'],
     },
   },
 ];

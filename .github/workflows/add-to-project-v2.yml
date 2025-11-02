@@ -11,6 +11,7 @@ permissions:
   issues: write
   pull-requests: write
   repository-projects: write
+  organization-projects: write
 
 jobs:
   add-to-project:

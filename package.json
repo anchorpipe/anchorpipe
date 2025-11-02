@@ -14,16 +14,23 @@
     "build": "nx run-many -t build --all",
     "affected:lint": "nx affected -t lint",
     "affected:test": "nx affected -t test",
-    "affected:build": "nx affected -t build"
+    "affected:build": "nx affected -t build",
+    "db:generate": "cd libs/database && npm run db:generate",
+    "db:migrate": "cd libs/database && npm run db:migrate",
+    "db:migrate:deploy": "cd libs/database && npm run db:migrate:deploy",
+    "db:studio": "cd libs/database && npm run db:studio",
+    "db:seed": "cd libs/database && npm run db:seed"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
     "@nx/js": "^20.0.0",
     "@nx/next": "^20.0.0",
     "@nx/node": "^20.0.0",
+    "@prisma/client": "^6.18.0",
     "eslint": "^9.0.0",
     "nx": "^20.0.0",
     "prettier": "^3.3.2",
+    "prisma": "^6.18.0",
     "typescript": "^5.6.2"
   }
 }

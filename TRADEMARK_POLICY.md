@@ -35,6 +35,7 @@ You may NOT:
 ## Domain Names
 
 You may not register domains containing "anchorpipe" that:
+
 - Create confusion about affiliation
 - Compete with official anchorpipe domains
 - Mislead users about the source of content
@@ -46,6 +47,7 @@ For commercial use of trademarks (including in product names, marketing material
 ## Fair Use
 
 This policy does not restrict fair use for:
+
 - News reporting and commentary
 - Academic research and education
 - Comparative advertising (where legally permitted)
