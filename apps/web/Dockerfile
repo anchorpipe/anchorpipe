@@ -42,11 +42,14 @@ RUN npm ci --legacy-peer-deps
 COPY apps/web ./apps/web
 COPY libs/database ./libs/database
 
-# Set working directory to web app
-WORKDIR /app/apps/web
+# Set working directory to database library for Prisma generation
+WORKDIR /app/libs/database
 
 # Generate Prisma Client
-RUN cd ../../libs/database && npm run db:generate
+RUN npm run db:generate
+
+# Set working directory back to web app
+WORKDIR /app/apps/web
 
 # Build Next.js application
 RUN npm run build
