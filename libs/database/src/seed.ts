@@ -1,8 +1,8 @@
 /**
  * Database Seed Script
- * 
+ *
  * Seeds the database with initial data for development and testing.
- * 
+ *
  * Usage: npm run db:seed
  */
 

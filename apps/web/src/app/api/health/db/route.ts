@@ -2,9 +2,9 @@ import { NextResponse } from 'next/server';
 
 /**
  * Database Health Check Endpoint
- * 
+ *
  * GET /api/health/db
- * 
+ *
  * Returns the health status of the database connection.
  * During build time, returns a 503 status.
  */
