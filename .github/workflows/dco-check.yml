@@ -14,22 +14,39 @@ jobs:
       
       - name: Verify DCO
         run: |
+          set -e
+          echo "Checking DCO sign-off for commits..."
+          
           FAILED_COMMITS=""
-          for commit in $(git rev-list origin/${{ github.base_ref }}..HEAD); do
-            if ! git log -1 --format="%B" "$commit" | grep -q "^Signed-off-by:"; then
+          BASE_REF="${GITHUB_BASE_REF:-main}"
+          
+          echo "Base ref: $BASE_REF"
+          echo "Head SHA: ${{ github.event.pull_request.head.sha || github.sha }}"
+          
+          for commit in $(git rev-list origin/$BASE_REF..HEAD); do
+            echo "Checking commit: $commit"
+            COMMIT_MSG=$(git log -1 --format="%B" "$commit")
+            
+            if echo "$COMMIT_MSG" | grep -q "^Signed-off-by:"; then
+              echo "✅ Commit $commit has DCO sign-off"
+            else
+              echo "❌ Commit $commit is missing DCO sign-off"
               FAILED_COMMITS="$FAILED_COMMITS $commit"
             fi
           done
           
           if [ -n "$FAILED_COMMITS" ]; then
+            echo ""
             echo "❌ The following commits are missing DCO sign-off:"
             for commit in $FAILED_COMMITS; do
-              echo "  - $commit: $(git log -1 --format='%s' $commit)"
+              SUBJECT=$(git log -1 --format='%s' "$commit")
+              echo "  - $commit: $SUBJECT"
             done
             echo ""
             echo "Please sign off your commits using: git commit --amend -s"
             echo "See CONTRIBUTING.md for details."
             exit 1
           else
+            echo ""
             echo "✅ All commits are properly signed off."
           fi
