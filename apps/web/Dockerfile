@@ -50,7 +50,7 @@ RUN rm -rf ./libs/database/src ./libs/database/prisma ./libs/database/tsconfig.j
 # Copy database library contents explicitly
 COPY libs/database/prisma ./libs/database/prisma
 COPY libs/database/src ./libs/database/src
-COPY libs/database/tsconfig.json ./libs/database/tsconfig.json 2>/dev/null || true
+COPY libs/database/tsconfig.json ./libs/database/tsconfig.json
 
 # Set working directory to database library for Prisma generation
 WORKDIR /app/libs/database
@@ -94,5 +94,5 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["node", "apps/web/server.js"]
+CMD ["node", "server.js"]
 
