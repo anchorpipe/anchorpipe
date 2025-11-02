@@ -1,15 +1,15 @@
-name: "🎯 Epic"
-description: "Track large initiatives with outcomes, metrics, dependencies, and risks"
-title: "[EPIC] "
-labels: ["type:epic", "status:needs-planning"]
+name: '🎯 Epic'
+description: 'Track large initiatives with outcomes, metrics, dependencies, and risks'
+title: '[EPIC] '
+labels: ['type:epic', 'status:needs-planning']
 body:
   - type: markdown
     attributes:
       value: |
         ## Epic Planning Template 🎯
-        
+
         Use this template to plan and track large initiatives that span multiple stories or tasks.
-        
+
         **What is an Epic?**
         - A large body of work that can be broken down into smaller stories
         - Typically takes multiple sprints to complete
@@ -24,16 +24,16 @@ body:
       placeholder: |
         **Vision:**
         Describe the big picture and why this epic matters...
-        
+
         **Key Outcomes:**
         1. Outcome 1: ...
         2. Outcome 2: ...
         3. Outcome 3: ...
-        
+
         **In Scope:**
         - Item 1
         - Item 2
-        
+
         **Out of Scope:**
         - Item 1
         - Item 2
@@ -49,11 +49,11 @@ body:
         **Quantitative Metrics:**
         - Metric 1: [e.g., Reduce load time by 50%]
         - Metric 2: [e.g., Increase test coverage to 90%]
-        
+
         **Qualitative Signals:**
         - Signal 1: [e.g., Positive user feedback]
         - Signal 2: [e.g., Reduced support tickets]
-        
+
         **Target Date:** YYYY-MM-DD
     validations:
       required: true
@@ -67,10 +67,10 @@ body:
         **Target Users:**
         - User segment 1
         - User segment 2
-        
+
         **User Value:**
         Describe how users will benefit...
-        
+
         **User Stories:**
         - As a [user], I can [action] so that [benefit]
         - As a [user], I can [action] so that [benefit]
@@ -86,11 +86,11 @@ body:
         **Upstream Dependencies (blockers):**
         - #123: Description
         - External dependency: Description
-        
+
         **Downstream Dependencies (blocks):**
         - #456: Description
         - Team/project: Description
-        
+
         **Cross-team Coordination:**
         - Team 1: What they need to provide
         - Team 2: What they need to provide
@@ -114,15 +114,15 @@ body:
       placeholder: |
         **Architecture:**
         Describe the high-level architecture...
-        
+
         **Key Technical Decisions:**
         1. Decision 1: Rationale
         2. Decision 2: Rationale
-        
+
         **Technology Stack:**
         - Technology 1
         - Technology 2
-        
+
         **Design Documents:**
         - Link to RFC or design doc
 
@@ -136,7 +136,7 @@ body:
         - [ ] #XXX: Story 2 title
         - [ ] #XXX: Story 3 title
         - [ ] Task: Additional work item
-        
+
         **Estimated Total Effort:** X story points or X weeks
 
   - type: dropdown
@@ -178,7 +178,7 @@ body:
     attributes:
       label: Target Iteration/Sprint
       description: Target sprint or iteration (e.g., 2024-W15)
-      placeholder: "YYYY-Www"
+      placeholder: 'YYYY-Www'
 
   - type: textarea
     id: stakeholders
@@ -209,7 +209,7 @@ body:
     attributes:
       label: Additional Notes
       description: Any additional context, links, or references.
-      placeholder: "Add any other relevant information..."
+      placeholder: 'Add any other relevant information...'
 
   - type: checkboxes
     id: checklist

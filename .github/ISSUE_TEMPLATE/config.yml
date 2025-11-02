@@ -7,27 +7,27 @@ contact_links:
   - name: 💬 Q&A Discussion
     url: https://github.com/rick1330/flakeradar/discussions/categories/q-a
     about: Ask questions, get help from the community, and share knowledge
-  
+
   - name: 💡 Ideas & Feature Requests
     url: https://github.com/rick1330/flakeradar/discussions/categories/ideas
     about: Share ideas and suggestions for new features or improvements
-  
+
   - name: 📋 RFCs (Request for Comments)
     url: https://github.com/rick1330/flakeradar/discussions/categories/rfcs
     about: Propose and discuss major architectural changes or technical decisions
-  
+
   - name: 📢 Announcements
     url: https://github.com/rick1330/flakeradar/discussions/categories/announcements
     about: Stay updated with project announcements, releases, and important updates
-  
+
   - name: 🎨 Show & Tell
     url: https://github.com/rick1330/flakeradar/discussions/categories/show-and-tell
     about: Share what you've built with FlakeRadar and inspire others
-  
+
   - name: 🐛 Security Vulnerabilities
     url: https://github.com/rick1330/flakeradar/security/advisories/new
     about: Report security vulnerabilities privately (do not create public issues)
-  
+
   - name: 📚 Documentation
     url: https://github.com/rick1330/flakeradar/tree/main/docs
     about: Browse comprehensive documentation, guides, and API references

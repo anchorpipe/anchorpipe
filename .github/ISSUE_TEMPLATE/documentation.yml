@@ -1,15 +1,15 @@
-name: "📚 Documentation"
-description: "Request documentation improvements or report documentation issues"
-title: "[DOCS] "
-labels: ["type:docs", "status:needs-triage"]
+name: '📚 Documentation'
+description: 'Request documentation improvements or report documentation issues'
+title: '[DOCS] '
+labels: ['type:docs', 'status:needs-triage']
 body:
   - type: markdown
     attributes:
       value: |
         ## Documentation Issue 📚
-        
+
         Help us improve FlakeRadar's documentation!
-        
+
         **Types of documentation issues:**
         - Missing documentation
         - Incorrect or outdated information
@@ -59,7 +59,7 @@ body:
     attributes:
       label: Documentation Location
       description: URL or file path to the documentation in question.
-      placeholder: "https://... or docs/path/to/file.md"
+      placeholder: 'https://... or docs/path/to/file.md'
     validations:
       required: true
 
@@ -71,10 +71,10 @@ body:
       placeholder: |
         **Current state:**
         Describe what's currently in the documentation...
-        
+
         **Problem:**
         Explain what's wrong or missing...
-        
+
         **Expected:**
         Describe what should be documented or how it should be improved...
     validations:
@@ -87,7 +87,7 @@ body:
       description: If you have a specific suggestion, provide it here.
       placeholder: |
         Provide your suggested text, examples, or improvements...
-        
+
         You can use markdown formatting.
 
   - type: dropdown
@@ -115,7 +115,7 @@ body:
     attributes:
       label: Additional Context
       description: Any other relevant information.
-      placeholder: "Screenshots, related issues, external references..."
+      placeholder: 'Screenshots, related issues, external references...'
 
   - type: checkboxes
     id: checklist
