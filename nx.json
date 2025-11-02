@@ -18,6 +18,13 @@
     },
     "lint": {
       "cache": true
+    },
+    "dev": {
+      "cache": false
     }
+  },
+  "workspaceLayout": {
+    "appsDir": "apps",
+    "libsDir": "libs"
   }
 }
