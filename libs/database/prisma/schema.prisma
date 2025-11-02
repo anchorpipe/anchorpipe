@@ -1,0 +1,229 @@
+// anchorpipe Database Schema
+// Generated for PostgreSQL 16+
+// See: docs/program/02-architecture.md Section 6
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// Core Entities
+// ============================================
+
+model Repo {
+  id            String         @id @default(uuid())
+  ghId          BigInt?        @unique @map("gh_id") // GitHub repository ID
+  name          String
+  owner         String
+  defaultBranch String         @default("main") @map("default_branch")
+  visibility    RepoVisibility @default(public)
+  config        Json? // Repository configuration (JSONB)
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+
+  // Relations
+  testCases         TestCase[]
+  testRuns          TestRun[]
+  ownerMaps         OwnerMap[]
+  telemetryEvents   TelemetryEvent[]
+  repositoryConfigs RepositoryConfig[]
+  notifications     Notification[]
+
+  @@index([ghId])
+  @@map("repos")
+}
+
+enum RepoVisibility {
+  public
+  private
+}
+
+model User {
+  id             String    @id @default(uuid())
+  githubId       String?   @unique @map("github_id")
+  githubLogin    String?   @map("github_login")
+  email          String?
+  name           String?
+  createdAt      DateTime  @default(now()) @map("created_at")
+  lastLoginAt    DateTime? @map("last_login_at")
+  telemetryOptIn Boolean   @default(false) @map("telemetry_opt_in")
+  preferences    Json? // User preferences (JSONB)
+
+  // Relations
+  telemetryEvents TelemetryEvent[]
+
+  @@index([githubId])
+  @@map("users")
+}
+
+model TestCase {
+  id                String   @id @default(uuid())
+  repoId            String   @map("repo_id")
+  path              String // File path
+  name              String // Test name
+  framework         String   @default("unknown") // jest, pytest, junit, playwright, etc.
+  tags              String[] // Test tags
+  description       String?
+  lastFailureReason String?  @map("last_failure_reason")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  repo       Repo        @relation(fields: [repoId], references: [id], onDelete: Cascade)
+  testRuns   TestRun[]
+  flakeScore FlakeScore?
+
+  @@unique([repoId, path, name, framework])
+  @@index([repoId])
+  @@map("test_cases")
+}
+
+model TestRun {
+  id              String        @id @default(uuid())
+  testCaseId      String        @map("test_case_id")
+  repoId          String        @map("repo_id")
+  commitSha       String        @map("commit_sha") // 40-char SHA
+  status          TestRunStatus
+  durationMs      Int?          @map("duration_ms")
+  startedAt       DateTime      @map("started_at")
+  rerunCount      Int           @default(0) @map("rerun_count")
+  failureDetails  String?       @map("failure_details")
+  environmentHash String?       @map("environment_hash") // Hash of CI environment
+  createdAt       DateTime      @default(now()) @map("created_at")
+
+  // Relations
+  testCase TestCase @relation(fields: [testCaseId], references: [id], onDelete: Cascade)
+  repo     Repo     @relation(fields: [repoId], references: [id], onDelete: Cascade)
+
+  @@index([repoId, startedAt(sort: Desc)])
+  @@index([testCaseId, startedAt(sort: Desc)])
+  @@index([environmentHash])
+  @@index([commitSha])
+  @@map("test_runs")
+}
+
+enum TestRunStatus {
+  pass
+  fail
+  skip
+}
+
+model FlakeScore {
+  id               String   @id @default(uuid())
+  testCaseId       String   @unique @map("test_case_id")
+  windowN          Int      @default(50) @map("window_n") // Lookback window
+  passRate         Float    @map("pass_rate")
+  volatility       Float
+  recencyFail      Float    @map("recency_fail")
+  clustering       Float
+  score            Int // 0-100 flake score
+  class            String   @default("stable") // stable, flaky, highly_flaky
+  mlPredictionData Json?    @map("ml_prediction_data") // ML model outputs (JSONB)
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  testCase TestCase @relation(fields: [testCaseId], references: [id], onDelete: Cascade)
+
+  // Note: Partial index for score >= 60 (highly flaky) should be created manually via raw SQL:
+  // CREATE INDEX idx_flake_scores_highly_flaky ON flake_scores(score) WHERE score >= 60;
+
+  @@index([score])
+  @@map("flake_scores")
+}
+
+model OwnerMap {
+  id              String      @id @default(uuid())
+  repoId          String      @map("repo_id")
+  pattern         String // CODEOWNERS pattern or heuristic pattern
+  owner           String // GitHub username/team
+  source          OwnerSource @default(manual)
+  confidenceScore Float?      @map("confidence_score")
+  createdAt       DateTime    @default(now()) @map("created_at")
+
+  // Relations
+  repo Repo @relation(fields: [repoId], references: [id], onDelete: Cascade)
+
+  @@index([repoId, pattern])
+  @@map("owner_maps")
+}
+
+enum OwnerSource {
+  CODEOWNERS
+  manual
+  heuristic
+}
+
+model TelemetryEvent {
+  id             String   @id @default(uuid())
+  repoId         String?  @map("repo_id")
+  userId         String?  @map("user_id")
+  eventType      String   @map("event_type")
+  eventData      Json?    @map("event_data") // Event payload (JSONB)
+  eventTimestamp DateTime @default(now()) @map("event_timestamp")
+
+  // Relations
+  repo Repo? @relation(fields: [repoId], references: [id], onDelete: SetNull)
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([eventType, eventTimestamp(sort: Desc)])
+  @@index([repoId])
+  @@index([userId])
+  @@index([eventTimestamp(sort: Desc)])
+  @@map("telemetry_events")
+}
+
+model RepositoryConfig {
+  id               String   @id @default(uuid())
+  repoId           String   @unique @map("repo_id")
+  config           Json // Repository-specific configuration (JSONB)
+  retentionDays    Int?     @default(30) @map("retention_days")
+  scoringThreshold Int?     @default(60) @map("scoring_threshold")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  repo Repo @relation(fields: [repoId], references: [id], onDelete: Cascade)
+
+  @@map("repository_configs")
+}
+
+model Notification {
+  id        String               @id @default(uuid())
+  repoId    String               @map("repo_id")
+  type      NotificationType
+  title     String
+  message   String
+  severity  NotificationSeverity @default(info)
+  read      Boolean              @default(false)
+  actionUrl String?              @map("action_url")
+  metadata  Json? // Additional notification data (JSONB)
+  createdAt DateTime             @default(now()) @map("created_at")
+  readAt    DateTime?            @map("read_at")
+
+  // Relations
+  repo Repo @relation(fields: [repoId], references: [id], onDelete: Cascade)
+
+  @@index([repoId, createdAt(sort: Desc)])
+  @@index([read, createdAt(sort: Desc)])
+  @@map("notifications")
+}
+
+enum NotificationType {
+  flake_detected
+  score_threshold_breach
+  system_alert
+  ci_integration
+  other
+}
+
+enum NotificationSeverity {
+  info
+  warning
+  error
+  critical
+}

@@ -113,11 +113,13 @@ Potential enterprise features (subject to market research):
 #### IP Ownership Structure
 
 **Current (Phase 1)**:
+
 - Project owner holds IP
 - Contributors grant commercial use rights via IP assignment policy
 - Clear documentation of rights and ownership
 
 **Future (Phase 2 - Foundation)**:
+
 - Foundation holds open-source IP
 - Commercial entity licenses from foundation
 - Clear separation of open-source and commercial IP
@@ -128,10 +130,12 @@ See [FOUNDATION_PLAN.md](FOUNDATION_PLAN.md) for detailed foundation structure.
 #### Legal Entity Structure
 
 **Current**:
+
 - Single entity structure
 - Project owner retains all IP rights
 
 **Future**:
+
 - Foundation (non-profit) holds open-source IP
 - Commercial entity (corporation) holds enterprise IP
 - Clear licensing between entities
@@ -140,12 +144,14 @@ See [FOUNDATION_PLAN.md](FOUNDATION_PLAN.md) for detailed foundation structure.
 ### Investor Readiness
 
 #### IP Clarity
+
 - ✅ All contributions documented with IP assignment
 - ✅ Clear commercial use rights from contributors
 - ✅ No contributor IP claims
 - ✅ Clean chain of title for all code
 
 #### Community as Asset
+
 - ✅ Quantified community metrics
 - ✅ Clear contributor recognition and rewards framework
 - ✅ Demonstrated community-driven innovation
@@ -182,18 +188,21 @@ See [CONTRIBUTOR_REWARDS.md](CONTRIBUTOR_REWARDS.md) for contributor recognition
 ## Timeline (Tentative)
 
 ### Phase 1: Open Source Launch (Current - Gate D)
+
 - Build strong open-source foundation
 - Grow community
 - Validate product-market fit
 - Establish project reputation
 
 ### Phase 2: Enterprise Validation (Post-Gate D)
+
 - Market research on enterprise needs
 - Design enterprise feature set
 - Beta test with select organizations
 - Refine pricing model
 
 ### Phase 3: Commercial Launch (12-18 months post-launch)
+
 - Launch commercial offering
 - Hire enterprise support team
 - Expand enterprise features
@@ -202,12 +211,14 @@ See [CONTRIBUTOR_REWARDS.md](CONTRIBUTOR_REWARDS.md) for contributor recognition
 ## Success Metrics
 
 ### Open Source Health
+
 - 500+ GitHub stars
 - 50+ active contributors
 - 1000+ repositories integrated
 - Strong community engagement
 
 ### Commercial Validation
+
 - Enterprise feature requests from community
 - Pilot customers expressing interest
 - Clear demand signal
@@ -239,6 +250,7 @@ A: Not before community launch and validation (post-Gate D). Timeline depends on
 ---
 
 **Note**: This strategy is subject to change based on:
+
 - Community feedback
 - Market conditions
 - Project maturity

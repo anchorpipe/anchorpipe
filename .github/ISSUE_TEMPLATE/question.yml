@@ -1,18 +1,18 @@
-name: "❓ Question / Support"
-description: "Ask a question or request support (consider using Discussions first)"
-title: "[QUESTION] "
-labels: ["type:question", "status:needs-triage"]
+name: '❓ Question / Support'
+description: 'Ask a question or request support (consider using Discussions first)'
+title: '[QUESTION] '
+labels: ['type:question', 'status:needs-triage']
 body:
   - type: markdown
     attributes:
       value: |
         ## Question / Support Request ❓
-        
+
         **Before asking here, please consider:**
         - 📚 Check the [documentation](https://github.com/rick1330/flakeradar/tree/main/docs)
         - 💬 Ask in [Discussions Q&A](https://github.com/rick1330/flakeradar/discussions/categories/q-a)
         - 🔍 Search existing issues and discussions
-        
+
         Use this form for questions that might reveal bugs or need to be tracked as issues.
 
   - type: dropdown
@@ -40,10 +40,10 @@ body:
       placeholder: |
         **What I'm trying to do:**
         Describe what you're trying to accomplish...
-        
+
         **My question:**
         State your specific question...
-        
+
         **What I've tried:**
         Describe what you've already attempted...
     validations:
@@ -59,7 +59,7 @@ body:
         - OS: ...
         - FlakeRadar version: ...
         - Relevant configuration: ...
-        
+
         **Use case:**
         Describe your specific use case or scenario...
 
@@ -81,7 +81,7 @@ body:
       description: Any other relevant information, code snippets, or screenshots.
       placeholder: |
         Code snippets, error messages, screenshots, etc.
-        
+
         ```typescript
         // Your code here
         ```

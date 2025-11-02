@@ -12,6 +12,7 @@ As anchorpipe grows, we plan to establish a foundation or non-profit entity to h
 ## Why a Foundation Structure?
 
 ### Benefits
+
 1. **IP Protection**: Foundation holds open-source IP, protecting it from commercial interests
 2. **Community Governance**: Ensures community voice in project direction
 3. **Legal Separation**: Clear separation between open-source and commercial activities
@@ -19,6 +20,7 @@ As anchorpipe grows, we plan to establish a foundation or non-profit entity to h
 5. **Sustainability**: Foundation ensures project survives beyond individual ownership
 
 ### Examples
+
 - **Linux Foundation**: Kubernetes, CNCF projects
 - **Apache Software Foundation**: Many Apache projects
 - **Mozilla Foundation**: Firefox and related projects
@@ -27,18 +29,21 @@ As anchorpipe grows, we plan to establish a foundation or non-profit entity to h
 ## Planned Structure
 
 ### Phase 1: Current Structure (Now)
+
 - **Project Owner**: BDFL governance model
 - **License**: AGPL v3
 - **IP**: Held by project owner
 - **Commercial Rights**: Retained by project owner
 
 ### Phase 2: Foundation Formation (12-18 months)
+
 - **Open-Source Foundation**: Non-profit entity (501(c)(3) or equivalent)
 - **IP Transfer**: Open-source code transferred to foundation
 - **Governance**: Foundation board with community representation
 - **Commercial License**: Foundation licenses to commercial entity
 
 ### Phase 3: Dual-Entity Structure (18-24 months)
+
 ```
 anchorpipe Foundation (Non-Profit)
 ├── Holds: Open-source IP (AGPL v3)
@@ -56,12 +61,14 @@ anchorpipe Inc. (Commercial)
 ## Foundation Governance
 
 ### Board Structure (Planned)
+
 - **Community Representatives**: 3-5 seats for elected community members
 - **Technical Leaders**: 2-3 seats for core maintainers
 - **Founder/Original Owner**: 1-2 seats
 - **Independent Members**: 1-2 seats for industry experts
 
 ### Decision-Making
+
 - **Open-Source Direction**: Foundation board decides
 - **License Changes**: Requires foundation board approval
 - **Major Features**: Community input through RFCs
@@ -70,18 +77,21 @@ anchorpipe Inc. (Commercial)
 ## IP Structure
 
 ### Foundation Holds
+
 - ✅ All open-source code (AGPL v3)
 - ✅ Project trademarks (in partnership)
 - ✅ Open-source documentation
 - ✅ Community contributions (via IP assignment)
 
 ### Commercial Entity Holds
+
 - ✅ Enterprise feature code (proprietary)
 - ✅ Commercial trademarks (licensed from foundation)
 - ✅ Commercial documentation
 - ✅ Proprietary algorithms (if any)
 
 ### License Flow
+
 ```
 Contributors → Foundation (AGPL v3)
                       ↓
@@ -93,16 +103,19 @@ Contributors → Foundation (AGPL v3)
 ## Timeline
 
 ### Year 1: Foundation Planning
+
 - Q1-Q2: Legal structure research
 - Q3-Q4: Foundation incorporation planning
 
 ### Year 2: Foundation Formation
+
 - Q1: Incorporate foundation
 - Q2: Transfer IP to foundation
 - Q3: Establish governance board
 - Q4: First foundation board meeting
 
 ### Year 3+: Mature Foundation
+
 - Ongoing governance
 - Community elections
 - Commercial license management
@@ -110,12 +123,14 @@ Contributors → Foundation (AGPL v3)
 ## Benefits to Contributors
 
 ### Protection
+
 - ✅ Open-source code protected in foundation
 - ✅ Can't be closed-source by commercial entity
 - ✅ Community has governance voice
 - ✅ License terms protected by foundation
 
 ### Opportunities
+
 - ✅ Foundation board positions
 - ✅ Community leadership roles
 - ✅ Input on project direction
@@ -124,12 +139,14 @@ Contributors → Foundation (AGPL v3)
 ## Commercial Entity Relationship
 
 ### How They Work Together
+
 1. **Foundation**: Holds open-source IP, ensures open-source nature
 2. **Commercial Entity**: Licenses open-source code, adds enterprise features
 3. **Revenue Sharing**: Commercial entity supports foundation financially
 4. **Governance Separation**: Foundation independent, commercial entity separate board
 
 ### Revenue Model
+
 - **Commercial License Fees**: Shared with foundation (percentage)
 - **Foundation Support**: Commercial entity provides funding
 - **Grants and Donations**: Foundation can accept donations
@@ -138,16 +155,19 @@ Contributors → Foundation (AGPL v3)
 ## Legal Structure Options
 
 ### Option 1: 501(c)(3) Non-Profit (US)
+
 - Tax-exempt status
 - Can accept donations
 - Standard structure for open-source foundations
 
 ### Option 2: Foundation Under Linux Foundation
+
 - Leverage existing infrastructure
 - Access to legal and administrative support
 - Shared resources
 
 ### Option 3: International Foundation
+
 - If founders are outside US
 - Consider jurisdiction carefully
 - May need multiple entities
@@ -155,6 +175,7 @@ Contributors → Foundation (AGPL v3)
 ## Implementation Requirements
 
 ### Before Foundation Formation
+
 1. ✅ Clear IP assignment from all contributors (IP_ASSIGNMENT.md)
 2. ✅ Documented governance model (GOVERNANCE.md)
 3. ✅ Commercial strategy defined (COMMERCIAL_STRATEGY.md)
@@ -162,6 +183,7 @@ Contributors → Foundation (AGPL v3)
 5. ⏳ Revenue to support foundation operations
 
 ### Legal Requirements
+
 - Legal counsel for structure design
 - Tax advice for foundation type
 - IP transfer documentation
@@ -176,6 +198,7 @@ Contributors → Foundation (AGPL v3)
 ## Updates
 
 This plan will evolve based on:
+
 - Project growth and maturity
 - Legal and tax considerations
 - Community input

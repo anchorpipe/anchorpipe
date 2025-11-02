@@ -23,6 +23,5 @@ jobs:
               repo: context.repo.repo,
               state: 'closed'
             });
-            
-            core.info(`Closed issue #${context.issue.number} (marked as status:done)`);
 
+            core.info(`Closed issue #${context.issue.number} (marked as status:done)`);

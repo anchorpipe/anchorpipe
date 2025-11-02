@@ -5,6 +5,7 @@ This directory contains public-facing documentation for the anchorpipe project.
 ## Documentation Structure
 
 ### `/docs/` (This Directory)
+
 **Public Documentation** - Built with Docusaurus (deployment details TBD)
 
 - **User Guides**: How to use anchorpipe
@@ -14,6 +15,7 @@ This directory contains public-facing documentation for the anchorpipe project.
 - **Tutorials**: Step-by-step guides
 
 ### `/docs/internal/` (Internal Documentation)
+
 **Internal/Planning Documentation** - For maintainers and core contributors
 
 - **Program Documentation**: PRD, Architecture, Quality Handbook
@@ -24,6 +26,7 @@ This directory contains public-facing documentation for the anchorpipe project.
 > Note: Internal docs moved from `anchorpipe_guide_docs/` for better organization.
 
 ### `/docs/adr/` (Architecture Decisions)
+
 **Public ADRs** - Major architectural decisions visible to community
 
 - Currently: `0001-core-backend-stack.md` through `0012-failure-details-privacy.md`
@@ -32,6 +35,7 @@ This directory contains public-facing documentation for the anchorpipe project.
 ## Documentation Site
 
 The public documentation site is built with Docusaurus and deployed to:
+
 - **Production**: Documentation site (coming soon)
 - **Preview**: Vercel preview deployments for PRs
 
@@ -56,6 +60,7 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines on contributing.
 ## Access Levels
 
 ### Public (Anyone)
+
 - `/docs/` - All public documentation
 - `/docs/adr/` - Architecture decisions (public)
 - `/LICENSE` - AGPL v3 license
@@ -63,6 +68,7 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines on contributing.
 - `/README.md` - Project overview
 
 ### Internal (Maintainers)
+
 - `/docs/internal/` - Planning and internal documentation
 - `/docs/internal/adr/` - Internal ADRs (if any)
 - `/GOVERNANCE.md` - Project governance
