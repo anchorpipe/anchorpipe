@@ -114,7 +114,7 @@ Contributors are recognized in release notes, contributors list, and project doc
 
 ## 🗺️ Roadmap
 
-See our [GitHub Projects](https://github.com/orgs/anchorpipe/projects/3) board for the complete roadmap and issue tracking.
+See our [GitHub Projects](https://github.com/orgs/anchorpipe/projects/3/views/2) board for the complete roadmap and issue tracking.
 
 **Gates**:
 - **G0** (Foundation): Repository setup, DB schema, CI/CD, Auth
