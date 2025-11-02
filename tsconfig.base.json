@@ -18,5 +18,6 @@
       "@anchorpipe/*": ["libs/*/src"],
       "@apps/*": ["apps/*"]
     }
-  }
+  },
+  "exclude": ["apps/**", "node_modules", "dist", ".next"]
 }

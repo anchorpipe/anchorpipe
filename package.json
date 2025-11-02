@@ -32,5 +32,13 @@
     "prettier": "^3.3.2",
     "prisma": "^6.18.0",
     "typescript": "^5.6.2"
+  },
+  "overrides": {
+    "styled-jsx": {
+      "react": "^18.3.1",
+      "react-dom": "^18.3.1"
+    },
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0"
   }
 }
