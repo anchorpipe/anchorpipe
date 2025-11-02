@@ -10,6 +10,7 @@ permissions:
   contents: read
   issues: write
   pull-requests: write
+  repository-projects: write
 
 jobs:
   add-to-project:
@@ -25,7 +26,7 @@ jobs:
           # Or: https://github.com/users/USERNAME/projects/PROJECT_NUMBER
           project-url: ${{ secrets.PROJECT_V2_URL || 'https://github.com/orgs/anchorpipe/projects/3' }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          
+
       - name: Add triage label for new issues
         if: github.event_name == 'issues'
         uses: actions/github-script@v7
