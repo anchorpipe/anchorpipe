@@ -32,3 +32,4 @@ jobs:
             } else {
               core.info(`Issue #${context.issue.number} already has a status label`);
             }
+
