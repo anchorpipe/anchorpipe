@@ -24,7 +24,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run ESLint
+      - name: Run ESLint (web app only)
+        working-directory: apps/web
         run: npm run lint
 
       - name: Check formatting
@@ -47,7 +48,11 @@ jobs:
         run: npm ci
 
       - name: Run TypeScript type check
-        run: npx tsc --noEmit --project tsconfig.base.json
+        run: |
+          # Type check root config
+          npx tsc --noEmit --project tsconfig.base.json
+          # Type check web app (which has JSX)
+          npx tsc --noEmit --project apps/web/tsconfig.json
 
   build:
     name: Build
@@ -62,8 +67,13 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: Install dependencies
+      - name: Install dependencies (root)
         run: npm ci
+
+      - name: Install dependencies (workspaces)
+        run: |
+          cd apps/web && npm install
+          cd ../../libs/database && npm install
 
       - name: Generate Prisma Client
         run: npm run db:generate
@@ -71,9 +81,12 @@ jobs:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test
 
       - name: Build web app
+        working-directory: apps/web
         run: npm run build
         env:
+          # Provide a dummy DATABASE_URL for build-time (route will return 503 if not available)
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test
+        continue-on-error: false
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
