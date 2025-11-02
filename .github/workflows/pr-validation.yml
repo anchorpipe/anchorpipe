@@ -1,0 +1,64 @@
+name: PR Validation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+jobs:
+  validate:
+    name: Validate PR
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate PR requirements
+        run: |
+          echo "Checking PR requirements..."
+
+          # Check that PR has a linked issue
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          PR_BODY="${{ github.event.pull_request.body }}"
+
+          if ! echo "$PR_BODY" | grep -qE "(#\d+|closes|fixes|resolves)"; then
+            echo "⚠️  PR should link to an issue (use #issue-number, closes #issue, or fixes #issue)"
+            echo "This is a warning, not a blocker."
+          fi
+
+          # Check that PR title follows Conventional Commits (optional but recommended)
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          if ! echo "$PR_TITLE" | grep -qE "^(feat|fix|docs|style|refactor|perf|test|chore|ci|build|revert)(\(.+\))?:"; then
+            echo "⚠️  PR title should follow Conventional Commits format"
+            echo "Example: feat(web): add user authentication"
+            echo "This is a warning, not a blocker."
+          fi
+
+          echo "✅ PR validation checks complete"
+
+      - name: Check branch name
+        run: |
+          BRANCH_NAME="${{ github.head_ref }}"
+
+          # Check if branch follows naming convention (optional)
+          if [[ ! "$BRANCH_NAME" =~ ^(feat|fix|docs|chore|refactor|perf|test|ci|build)/.+ ]]; then
+            echo "⚠️  Branch name doesn't follow convention (feat/fix/docs/chore/refactor/perf/test/ci/build)/description"
+            echo "Current branch: $BRANCH_NAME"
+            echo "This is a warning, not a blocker."
+          else
+            echo "✅ Branch name follows convention"
+          fi
+
+      - name: Check for large files
+        run: |
+          echo "Checking for large files..."
+          LARGE_FILES=$(find . -type f -size +1M ! -path './.git/*' ! -path './node_modules/*' ! -path './.next/*' ! -path './coverage/*' ! -path './dist/*' 2>/dev/null | head -10)
+
+          if [ -n "$LARGE_FILES" ]; then
+            echo "⚠️  Large files detected (>1MB):"
+            echo "$LARGE_FILES"
+            echo "Consider using Git LFS for large files or excluding them from the repo."
+          else
+            echo "✅ No large files detected"
+          fi
