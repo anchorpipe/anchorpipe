@@ -5,6 +5,7 @@ This guide documents the branch protection rules that need to be configured for 
 ## Overview
 
 Based on our documentation:
+
 - **09-release-ops.md**: "trunk-based on main; short-lived feature branches; rebase/linear history; protected main"
 - **08-quality-handbook.md**: "Two-person review for security-sensitive areas; CODEOWNERS approvals required"
 - **06-compliance.md**: "branch protections" as part of SDLC security
@@ -14,11 +15,13 @@ Based on our documentation:
 Configure these rules in: **GitHub Repository Settings → Branches → Branch protection rules → Add rule**
 
 ### Branch Name Pattern
+
 - **Pattern**: `main`
 
 ### Settings to Enable
 
 #### 1. ✅ Require a pull request before merging
+
 - **Required approvals**: `1` (minimum)
 - **Require review from Code Owners**: ✅ **Enabled**
   - This ensures CODEOWNERS file is respected
@@ -28,6 +31,7 @@ Configure these rules in: **GitHub Repository Settings → Branches → Branch p
 - **Require last pusher to be a different person than the last reviewer**: ✅ **Enabled** (if team grows)
 
 #### 2. ✅ Require status checks to pass before merging
+
 - **Required status checks** (select these):
   - `CI / lint` ✅
   - `CI / typecheck` ✅
@@ -40,37 +44,45 @@ Configure these rules in: **GitHub Repository Settings → Branches → Branch p
 - **Strict status checks**: ✅ **Enabled**
 
 #### 3. ✅ Require conversation resolution before merging
+
 - **Enabled**: ✅
   - Ensures all PR review comments are addressed
 
 #### 4. ✅ Require signed commits
+
 - **Enabled**: ✅
   - Works in conjunction with DCO check
   - Note: Our DCO check workflow already validates sign-off, but this provides additional protection
 
 #### 5. ✅ Require linear history
+
 - **Enabled**: ✅
   - Enforces rebase/linear history (no merge commits)
   - Aligns with "rebase/linear history" requirement in 09-release-ops.md
 
 #### 6. ✅ Include administrators
+
 - **Enabled**: ✅
   - Applies rules to repository admins as well
 
 #### 7. ⚠️ Do NOT allow force pushes
+
 - **Enabled**: ✅ (block force pushes)
   - Protects branch integrity
 
 #### 8. ⚠️ Do NOT allow deletions
+
 - **Enabled**: ✅ (block deletions)
   - Prevents accidental branch deletion
 
 ## Optional Settings
 
 ### Allow specified actors to bypass required pull requests
+
 - Leave **disabled** unless you have specific automation needs
 
 ### Lock branch
+
 - Leave **disabled** unless dealing with security incidents
 
 ## Workflow Status Checks Required
@@ -78,6 +90,7 @@ Configure these rules in: **GitHub Repository Settings → Branches → Branch p
 After workflows are created and run, add these to the required status checks list:
 
 ### Critical (Must Pass)
+
 1. **CI / lint** - ESLint and formatting checks
 2. **CI / typecheck** - TypeScript compilation
 3. **CI / build** - Application build
@@ -85,9 +98,11 @@ After workflows are created and run, add these to the required status checks lis
 5. **CodeQL Analysis / Analyze** - Security scanning
 
 ### Optional (Warning Only)
+
 6. **PR Validation / Validate PR** - PR requirement checks (can be warning)
 
 ### Future (When Tests Are Added)
+
 - **CI / test-unit** - Unit tests
 - **CI / test-integration** - Integration tests
 
@@ -165,4 +180,3 @@ After setting up branch protection:
 - Existing PRs may need to be updated to meet new requirements
 - Workflow status check names must match exactly (case-sensitive)
 - CODEOWNERS changes themselves require CODEOWNERS approval (when enabled)
-

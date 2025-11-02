@@ -1,8 +1,8 @@
 /**
  * anchorpipe Database Client
- * 
+ *
  * Exports the Prisma client instance and database connection utilities.
- * 
+ *
  * @module @anchorpipe/database
  */
 
