@@ -12,14 +12,16 @@ permissions:
   pull-requests: write
   repository-projects: write
 
-jobs:
-  add-to-project:
-    runs-on: ubuntu-latest
-    # Skip if issue/PR is created by automation (bot label)
-    if: |
-      (github.event_name == 'issues' && !contains(github.event.issue.labels.*.name, 'bot')) ||
-      (github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'bot'))
-    steps:
+    jobs:
+      add-to-project:
+        runs-on: ubuntu-latest
+        # Skip if issue/PR is created by automation (bot label)
+        if: |
+          (github.event_name == 'issues' && !contains(github.event.issue.labels.*.name, 'bot')) ||
+          (github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'bot'))
+        env:
+          PROJECT_V2_URL: ${{ secrets.PROJECT_V2_URL }}
+        steps:
       - name: Checkout code
         uses: actions/checkout@v4
 

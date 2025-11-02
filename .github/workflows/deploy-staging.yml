@@ -54,4 +54,3 @@ jobs:
       #   run: |
       #     # Health check verification
       #     curl -f https://staging.anchorpipe.dev/api/health || exit 1
-
