@@ -19,6 +19,7 @@ pnpm-debug.log*
 # Environment files
 .env
 .env.*
+!.env.example
 
 # Build outputs / dist
 .dist/
@@ -32,3 +33,17 @@ build/
 Thumbs.db
 .idea/
 .vscode/
+!.vscode/settings.json
+!.devcontainer/
+
+# Logs
+logs/
+*.log
+
+# Testing
+coverage/
+.nyc_output/
+
+# Temporary files
+tmp/
+temp/

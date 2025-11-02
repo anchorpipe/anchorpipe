@@ -2,7 +2,10 @@
   "name": "anchorpipe",
   "version": "0.1.0",
   "private": true,
-  "workspaces": ["apps/*", "libs/*"],
+  "workspaces": [
+    "apps/*",
+    "libs/*"
+  ],
   "scripts": {
     "nx": "nx",
     "format": "prettier --write .",
@@ -14,12 +17,13 @@
     "affected:build": "nx affected -t build"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
     "@nx/js": "^20.0.0",
-    "@nx/node": "^20.0.0",
     "@nx/next": "^20.0.0",
-    "nx": "^20.0.0",
-    "typescript": "^5.6.2",
+    "@nx/node": "^20.0.0",
     "eslint": "^9.0.0",
-    "prettier": "^3.3.2"
+    "nx": "^20.0.0",
+    "prettier": "^3.3.2",
+    "typescript": "^5.6.2"
   }
 }
