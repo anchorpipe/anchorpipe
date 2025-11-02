@@ -70,8 +70,9 @@ jobs:
 
       - name: Install dependencies (workspaces)
         run: |
-          cd apps/web && npm install
-          cd ../../libs/database && npm install
+          # Install workspace dependencies
+          cd apps/web && npm install --legacy-peer-deps
+          cd ../../libs/database && npm install --legacy-peer-deps
 
       - name: Generate Prisma Client
         run: npm run db:generate
