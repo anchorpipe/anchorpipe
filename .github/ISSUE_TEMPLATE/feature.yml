@@ -1,15 +1,15 @@
-name: "✨ Feature Request"
-description: "Suggest a new feature or enhancement for FlakeRadar"
-title: "[FEATURE] "
-labels: ["type:feature", "status:needs-triage"]
+name: '✨ Feature Request'
+description: 'Suggest a new feature or enhancement for FlakeRadar'
+title: '[FEATURE] '
+labels: ['type:feature', 'status:needs-triage']
 body:
   - type: markdown
     attributes:
       value: |
         ## Thank you for suggesting a feature! ✨
-        
+
         We appreciate your ideas for improving FlakeRadar. Please provide as much detail as possible.
-        
+
         **Before submitting:**
         - Check if a similar feature request already exists
         - Consider if this aligns with the project's goals
@@ -38,7 +38,7 @@ body:
       description: What problem does this feature solve? Who is affected?
       placeholder: |
         As a [user type], I want [goal] so that [benefit].
-        
+
         Currently, [describe the pain point or limitation]...
     validations:
       required: true
@@ -50,7 +50,7 @@ body:
       description: Describe your proposed solution in detail.
       placeholder: |
         Describe how you envision this feature working...
-        
+
         Include:
         - User interface changes (if applicable)
         - API changes (if applicable)
@@ -64,7 +64,7 @@ body:
     attributes:
       label: Alternatives Considered
       description: What alternative solutions or features have you considered?
-      placeholder: "Describe alternative approaches and why they might not be as good..."
+      placeholder: 'Describe alternative approaches and why they might not be as good...'
 
   - type: textarea
     id: use_cases
@@ -118,7 +118,7 @@ body:
       description: |
         Provide mockups, diagrams, or examples from other tools.
         Tip: You can attach images by dragging and dropping them here.
-      placeholder: "Add mockups, wireframes, or links to similar implementations..."
+      placeholder: 'Add mockups, wireframes, or links to similar implementations...'
 
   - type: textarea
     id: technical_notes
@@ -146,7 +146,7 @@ body:
     attributes:
       label: Additional Context
       description: Add any other context, links, or references.
-      placeholder: "Links to relevant discussions, documentation, or external resources..."
+      placeholder: 'Links to relevant discussions, documentation, or external resources...'
 
   - type: checkboxes
     id: checklist
