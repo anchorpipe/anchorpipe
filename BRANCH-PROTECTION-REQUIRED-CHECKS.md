@@ -38,19 +38,21 @@ For the `main` branch, configure branch protection to require the following chec
 ### Troubleshooting
 
 If a check shows as "Expected" but hasn't run:
+
 - The check might only be configured for `push` events
 - Update the workflow to run on `pull_request` events as well
 - Or remove it from required checks if it's not critical
 
 If you see duplicate checks:
+
 - Ensure workflow `name:` fields are unique
 - Check that jobs aren't running twice (on PR and push separately)
 
 ## Current Workflow Configuration
 
 All workflows are now configured to run on both `pull_request` and `push` events:
+
 - ✅ `ci.yml` - Runs on PR and push
 - ✅ `dco-check.yml` - Runs on PR and push
 - ✅ `codeql.yml` - Runs on PR and push
 - ✅ `pr-validation.yml` - Runs on PR only (intentional)
-

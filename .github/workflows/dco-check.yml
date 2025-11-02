@@ -8,6 +8,7 @@ on:
 
 jobs:
   dco:
+    name: Verify DCO
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
