@@ -1,15 +1,15 @@
-name: "📖 User Story"
-description: "Define user-centric work with persona, problem, acceptance criteria, and NFRs"
-title: "[STORY] "
-labels: ["type:feature", "status:needs-refinement"]
+name: '📖 User Story'
+description: 'Define user-centric work with persona, problem, acceptance criteria, and NFRs'
+title: '[STORY] '
+labels: ['type:feature', 'status:needs-refinement']
 body:
   - type: markdown
     attributes:
       value: |
         ## User Story Template 📖
-        
+
         Use this template to define user-centric work items with clear acceptance criteria.
-        
+
         **What is a User Story?**
         - Describes a feature from the user's perspective
         - Includes acceptance criteria for definition of done
@@ -63,7 +63,7 @@ body:
         **As a** [persona],
         **I want to** [capability],
         **So that** [benefit/value].
-        
+
         **Context:**
         Provide additional context about why this is needed...
     validations:
@@ -80,12 +80,12 @@ body:
         - **When** [action taken]
         - **Then** [expected outcome]
         - **And** [additional expectation]
-        
+
         **Scenario 2:** [Scenario name]
         - **Given** [initial context]
         - **When** [action taken]
         - **Then** [expected outcome]
-        
+
         **Additional Criteria:**
         - [ ] Criterion 1
         - [ ] Criterion 2
@@ -99,14 +99,14 @@ body:
       label: Non-Functional Requirements
       description: Consider these quality attributes and best practices.
       options:
-        - label: "Accessibility: WCAG 2.2 AA compliance considered"
+        - label: 'Accessibility: WCAG 2.2 AA compliance considered'
         - label: "Performance: Meets performance budget (bundle <100KB gzipped, Core Web Vitals 'Good')"
-        - label: "Security: Security review completed (input validation, CSP, CSRF/origin checks, rate limiting)"
-        - label: "Usability: User experience reviewed and validated"
-        - label: "Testability: Unit and integration tests included"
-        - label: "Documentation: User-facing documentation updated"
-        - label: "Observability: Logging and monitoring instrumented"
-        - label: "Internationalization: i18n/l10n considered if applicable"
+        - label: 'Security: Security review completed (input validation, CSP, CSRF/origin checks, rate limiting)'
+        - label: 'Usability: User experience reviewed and validated'
+        - label: 'Testability: Unit and integration tests included'
+        - label: 'Documentation: User-facing documentation updated'
+        - label: 'Observability: Logging and monitoring instrumented'
+        - label: 'Internationalization: i18n/l10n considered if applicable'
     validations:
       required: true
 
@@ -154,14 +154,14 @@ body:
     attributes:
       label: Parent Epic
       description: Link to the parent epic if this story is part of one.
-      placeholder: "#123"
+      placeholder: '#123'
 
   - type: input
     id: design
     attributes:
       label: Design / Documentation Link
       description: Link to designs, mockups, or technical documentation.
-      placeholder: "https://..."
+      placeholder: 'https://...'
 
   - type: textarea
     id: technical_notes
@@ -172,14 +172,14 @@ body:
         **Technical Approach:**
         - Approach detail 1
         - Approach detail 2
-        
+
         **API Changes:**
         - Change 1
         - Change 2
-        
+
         **Database Changes:**
         - Schema change 1
-        
+
         **Dependencies:**
         - Dependency 1
         - Dependency 2
@@ -193,7 +193,7 @@ body:
         **Manual Test Scenarios:**
         1. Test scenario 1
         2. Test scenario 2
-        
+
         **Automated Tests:**
         - Unit tests: ...
         - Integration tests: ...
@@ -204,7 +204,7 @@ body:
     attributes:
       label: Additional Notes
       description: Any additional context, edge cases, or considerations.
-      placeholder: "Add any other relevant information..."
+      placeholder: 'Add any other relevant information...'
 
   - type: checkboxes
     id: definition_of_ready

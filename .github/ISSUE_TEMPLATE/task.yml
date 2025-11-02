@@ -1,15 +1,15 @@
-name: "✅ Task"
-description: "Track smaller work items, chores, or technical tasks"
-title: "[TASK] "
-labels: ["type:task", "status:needs-triage"]
+name: '✅ Task'
+description: 'Track smaller work items, chores, or technical tasks'
+title: '[TASK] '
+labels: ['type:task', 'status:needs-triage']
 body:
   - type: markdown
     attributes:
       value: |
         ## Task Template ✅
-        
+
         Use this template for smaller work items that don't fit the user story format.
-        
+
         **Examples of tasks:**
         - Technical debt cleanup
         - Refactoring work
@@ -45,10 +45,10 @@ body:
       placeholder: |
         **What needs to be done:**
         Describe the task in detail...
-        
+
         **Why this is needed:**
         Explain the rationale or benefit...
-        
+
         **Context:**
         Provide any additional context...
     validations:
@@ -124,10 +124,10 @@ body:
         **Files to modify:**
         - file1.ts
         - file2.ts
-        
+
         **Dependencies:**
         - Dependency 1
-        
+
         **Risks:**
         - Risk 1
 
@@ -136,14 +136,14 @@ body:
     attributes:
       label: Related Issues/PRs
       description: Link to related issues or pull requests.
-      placeholder: "#123, #456"
+      placeholder: '#123, #456'
 
   - type: textarea
     id: notes
     attributes:
       label: Additional Notes
       description: Any other relevant information.
-      placeholder: "Add any other context..."
+      placeholder: 'Add any other context...'
 
   - type: checkboxes
     id: checklist

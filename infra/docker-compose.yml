@@ -4,7 +4,7 @@ services:
     container_name: anchorpipe_db
     restart: unless-stopped
     ports:
-      - "15432:5432"
+      - '15432:5432'
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -17,15 +17,15 @@ services:
     container_name: anchorpipe_redis
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - '6379:6379'
 
   mq:
     image: rabbitmq:3-management
     container_name: anchorpipe_mq
     restart: unless-stopped
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - '5672:5672'
+      - '15672:15672'
 
   storage:
     image: minio/minio:latest
@@ -36,8 +36,8 @@ services:
       MINIO_ROOT_PASSWORD: minioadminpassword
     command: server /data --console-address ":9001"
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - '9000:9000'
+      - '9001:9001'
     volumes:
       - minio_data:/data
 

@@ -21,6 +21,7 @@ Instead, please report them via one of the following methods:
 ### What to Include
 
 Please include:
+
 - Description of the vulnerability
 - Steps to reproduce
 - Potential impact
@@ -36,6 +37,7 @@ Please include:
 ## Security Severity Levels
 
 ### Critical
+
 - Remote code execution
 - SQL injection
 - Authentication bypass
@@ -43,6 +45,7 @@ Please include:
 - **Resolution Target**: 24-48 hours
 
 ### High
+
 - Privilege escalation
 - Cross-site scripting (XSS)
 - CSRF with significant impact
@@ -50,12 +53,14 @@ Please include:
 - **Resolution Target**: 7 days
 
 ### Medium
+
 - Information disclosure
 - Denial of service
 - CSRF with limited impact
 - **Resolution Target**: 30 days
 
 ### Low
+
 - Security best practices violations
 - Minor information leaks
 - **Resolution Target**: Next release
@@ -87,6 +92,7 @@ We appreciate responsible disclosure. We will:
 ## Security Updates
 
 Security updates are released through:
+
 - GitHub Security Advisories
 - Release notes with security sections
 - Security mailing list (coming soon)
@@ -101,6 +107,7 @@ Security updates are released through:
 ## Security Audit
 
 We conduct regular security audits:
+
 - **Automated**: Weekly via CodeQL and Dependabot
 - **Manual**: Before major releases
 - **External**: Planned for Gate D (pre-launch)
