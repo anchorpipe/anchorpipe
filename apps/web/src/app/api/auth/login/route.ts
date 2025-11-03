@@ -10,7 +10,9 @@ const prisma = new PrismaClient();
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const email = String(body?.email || '').trim().toLowerCase();
+    const email = String(body?.email || '')
+      .trim()
+      .toLowerCase();
     if (!email || !email.includes('@')) {
       return NextResponse.json({ error: 'Invalid email' }, { status: 400 });
     }
