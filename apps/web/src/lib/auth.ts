@@ -13,7 +13,10 @@ function getSecret(): Uint8Array {
   return new TextEncoder().encode(secret);
 }
 
-export async function createSessionJwt(payload: JWTPayload, ttlSeconds = 60 * 60 * 24 * 7): Promise<string> {
+export async function createSessionJwt(
+  payload: JWTPayload,
+  ttlSeconds = 60 * 60 * 24 * 7
+): Promise<string> {
   const secret = getSecret();
   const now = Math.floor(Date.now() / 1000);
   return await new SignJWT(payload)
@@ -54,5 +57,3 @@ export async function readSession(): Promise<JWTPayload | null> {
   if (!token) return null;
   return await verifySessionJwt(token);
 }
-
-
