@@ -10,6 +10,7 @@ permissions:
   contents: read
   issues: write
   pull-requests: write
+  # use PAT via PROJECT_V2_TOKEN instead of projects permission
 
 jobs:
   add-to-project:
