@@ -1,31 +1,6 @@
 {
-  "root": true,
-  "extends": ["next/core-web-vitals", "next/typescript"],
-  "rules": {
-    "no-unused-expressions": "off",
-    "@typescript-eslint/no-unused-expressions": [
-      "error",
-      {
-        "allowShortCircuit": true,
-        "allowTernary": true,
-        "allowTaggedTemplates": true
-      }
-    ]
-  },
-  "overrides": [
-    {
-      "files": ["*.ts", "*.tsx"],
-      "rules": {
-        "no-unused-expressions": "off",
-        "@typescript-eslint/no-unused-expressions": [
-          "error",
-          {
-            "allowShortCircuit": true,
-            "allowTernary": true,
-            "allowTaggedTemplates": true
-          }
-        ]
-      }
-    }
-  ]
+  "extends": ["../../.eslintrc.json"],
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  }
 }
