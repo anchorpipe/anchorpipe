@@ -15,16 +15,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid email' }, { status: 400 });
     }
 
-    const user = await prisma.user.upsert({
-      where: { email },
-      update: { lastLoginAt: new Date() },
-      create: { email },
-    });
+    const existing = await prisma.user.findFirst({ where: { email } });
+    const user = existing
+      ? await prisma.user.update({ where: { id: existing.id }, data: { lastLoginAt: new Date() } })
+      : await prisma.user.create({ data: { email } });
 
     const token = await createSessionJwt({ sub: user.id, email: user.email || undefined });
     await setSessionCookie(token);
     return NextResponse.json({ ok: true });
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: 'Unexpected error' }, { status: 500 });
   }
 }
