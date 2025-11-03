@@ -1,9 +1,0 @@
-node_modules
-dist
-.next
-coverage
-build
-*.config.js
-*.config.mjs
-*.config.ts
-.nx
