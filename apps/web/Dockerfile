@@ -13,7 +13,7 @@ COPY libs/database/package.json ./libs/database/
 COPY libs/mq/package.json ./libs/mq/
 
 # Install all dependencies at repo root (single install)
-RUN npm ci --legacy-peer-deps
+RUN npm install --legacy-peer-deps
 
 # Stage 2: Builder
 FROM node:20-alpine AS builder
