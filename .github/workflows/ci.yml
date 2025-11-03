@@ -85,6 +85,7 @@ jobs:
         env:
           # Provide a dummy DATABASE_URL for build-time (route will return 503 if not available)
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test
+          AUTH_SECRET: test-auth-secret-change-me
         continue-on-error: false
 
       - name: Upload build artifacts
