@@ -11,21 +11,19 @@ COPY package.json package-lock.json ./
 COPY apps/web/package.json ./apps/web/
 COPY libs/database/package.json ./libs/database/
 
-# Install dependencies
-RUN npm ci --only=production --legacy-peer-deps
+# Install all dependencies
+RUN npm ci --legacy-peer-deps
 
 # Stage 2: Builder
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-# Copy package files (for dependency installation)
+# Copy dependency installation from previous stage
+COPY --from=deps /app/node_modules ./node_modules
 COPY package.json package-lock.json ./
 COPY apps/web/package.json ./apps/web/
 COPY libs/database/package.json ./libs/database/
 COPY tsconfig.base.json ./
-
-# Install all dependencies (including dev)
-RUN npm ci --legacy-peer-deps
 
 # Copy ALL source code (must happen after npm ci for workspaces)
 # Copy web app source
