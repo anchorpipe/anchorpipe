@@ -57,6 +57,9 @@ WORKDIR /app/apps/web
 # Build Next.js application
 RUN npm run build
 
+# Verify the output of the build
+RUN ls -la
+
 # Stage 3: Runner
 FROM node:20-alpine AS runner
 WORKDIR /app
