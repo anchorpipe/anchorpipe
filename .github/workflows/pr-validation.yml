@@ -19,9 +19,9 @@ jobs:
         run: |
           echo "Checking PR requirements..."
 
-          # Check that PR has a linked issue
+          # Load PR metadata safely from event payload (avoid shell injection)
           PR_NUMBER="${{ github.event.pull_request.number }}"
-          PR_BODY="${{ github.event.pull_request.body }}"
+          PR_BODY="$(jq -r '.pull_request.body // ""' "$GITHUB_EVENT_PATH")"
 
           if ! echo "$PR_BODY" | grep -qE "(#\d+|closes|fixes|resolves)"; then
             echo "⚠️  PR should link to an issue (use #issue-number, closes #issue, or fixes #issue)"
