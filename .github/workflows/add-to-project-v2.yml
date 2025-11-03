@@ -2,7 +2,7 @@ name: Add to Project V2
 
 on:
   issues:
-    types: [opened, reopened]
+    types: [opened, reopened, labeled]
   pull_request:
     types: [opened, reopened]
 
@@ -10,7 +10,7 @@ permissions:
   contents: read
   issues: write
   pull-requests: write
-  projects: write
+  # use PAT via PROJECT_V2_TOKEN instead of projects permission
 
 jobs:
   add-to-project:
@@ -21,25 +21,28 @@ jobs:
       (github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'bot'))
     env:
       PROJECT_V2_URL: ${{ secrets.PROJECT_V2_URL }}
+      PROJECT_V2_TOKEN: ${{ secrets.PROJECT_V2_TOKEN }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Validate Project V2 URL
-        if: env.PROJECT_V2_URL == ''
+      - name: Validate Project V2 configuration
+        if: env.PROJECT_V2_URL == '' || env.PROJECT_V2_TOKEN == ''
         run: |
-          echo "⚠️  WARNING: PROJECT_V2_URL secret is not set."
-          echo "Skipping adding to Project V2. Set the secret in repository or organization settings."
-          echo "Expected format: https://github.com/orgs/anchorpipe/projects/NUMBER"
+          echo "⚠️  WARNING: Missing Project V2 configuration."
+          if [ -z "$PROJECT_V2_URL" ]; then echo "- PROJECT_V2_URL is not set"; fi
+          if [ -z "$PROJECT_V2_TOKEN" ]; then echo "- PROJECT_V2_TOKEN is not set (PAT with access to org Projects v2)"; fi
+          echo "Skipping adding to Project V2."
+          echo "Expected URL: https://github.com/orgs/anchorpipe/projects/NUMBER"
 
       - name: Add issue/PR to Project V2
-        if: env.PROJECT_V2_URL != ''
+        if: env.PROJECT_V2_URL != '' && env.PROJECT_V2_TOKEN != ''
         uses: actions/add-to-project@v0.6.1
         with:
           # Project URL for organization project
           # Format: https://github.com/orgs/ORG_NAME/projects/PROJECT_NUMBER
           project-url: ${{ secrets.PROJECT_V2_URL }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.PROJECT_V2_TOKEN }}
           # Organization projects require owner field
           owner: anchorpipe
           # Repository name
