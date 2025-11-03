@@ -10,12 +10,12 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@anchorpipe/database": "*",
+    "cookie": "^0.6.0",
+    "jose": "^5.10.0",
     "next": "^14.2.15",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "cookie": "^0.6.0",
-    "jose": "^5.9.6",
-    "@anchorpipe/database": "*"
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
