@@ -10,6 +10,7 @@ RUN apk add --no-cache libc6-compat
 COPY package.json package-lock.json ./
 COPY apps/web/package.json ./apps/web/
 COPY libs/database/package.json ./libs/database/
+COPY libs/mq/package.json ./libs/mq/
 
 # Install all dependencies at repo root (single install)
 RUN npm ci --legacy-peer-deps
@@ -24,6 +25,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY package.json package-lock.json ./
 COPY apps/web/package.json ./apps/web/
 COPY libs/database/package.json ./libs/database/
+COPY libs/mq/package.json ./libs/mq/
 COPY tsconfig.base.json ./
 
 # (No additional npm ci commands here; reuse installed deps)
@@ -40,6 +42,9 @@ RUN rm -rf ./libs/database/src ./libs/database/prisma ./libs/database/tsconfig.j
 COPY libs/database/prisma ./libs/database/prisma
 COPY libs/database/src ./libs/database/src
 COPY libs/database/tsconfig.json ./libs/database/tsconfig.json
+
+# Copy mq library contents
+COPY libs/mq/src ./libs/mq/src
 
 # Set working directory to database library for Prisma generation
 WORKDIR /app/libs/database
