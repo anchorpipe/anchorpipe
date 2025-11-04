@@ -53,3 +53,8 @@ export async function GET() {
   });
   return res;
 }
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 09c3e80 (feat(bff): add /api/status and /api/version (ST-71))
