@@ -5,9 +5,12 @@ export const runtime = 'nodejs';
 
 async function check(path: string): Promise<boolean> {
   try {
-    const res = await fetch(`${process.env.INTERNAL_SELF_BASE_URL || 'http://localhost:3000'}${path}`, {
-      cache: 'no-store',
-    });
+    const res = await fetch(
+      `${process.env.INTERNAL_SELF_BASE_URL || 'http://localhost:3000'}${path}`,
+      {
+        cache: 'no-store',
+      }
+    );
     if (!res.ok) return false;
     const json = await res.json();
     return Boolean(json?.ok);
@@ -35,5 +38,3 @@ export async function GET() {
     { status: ok ? 200 : 503 }
   );
 }
-
-
