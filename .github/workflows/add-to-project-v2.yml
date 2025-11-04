@@ -37,7 +37,7 @@ jobs:
 
       - name: Add issue/PR to Project V2
         if: env.PROJECT_V2_URL != '' && env.PROJECT_V2_TOKEN != ''
-        uses: actions/add-to-project@v0.6.1
+        uses: actions/add-to-project@v1.0.2
         with:
           # Project URL for organization project
           # Format: https://github.com/orgs/ORG_NAME/projects/PROJECT_NUMBER
