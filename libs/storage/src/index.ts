@@ -35,13 +35,15 @@ export async function ensureBucketExists(client: Client, bucketName: string): Pr
   }
 }
 
-export async function uploadFile(
-  client: Client,
-  bucketName: string,
-  objectName: string,
-  data: Buffer | string,
-  contentType?: string
-): Promise<void> {
+export type UploadFileOptions = {
+  bucketName: string;
+  objectName: string;
+  data: Buffer | string;
+  contentType?: string;
+};
+
+export async function uploadFile(client: Client, options: UploadFileOptions): Promise<void> {
+  const { bucketName, objectName, data, contentType } = options;
   await ensureBucketExists(client, bucketName);
   const buffer = typeof data === 'string' ? Buffer.from(data, 'utf-8') : data;
   await client.putObject(bucketName, objectName, buffer, buffer.length, {
