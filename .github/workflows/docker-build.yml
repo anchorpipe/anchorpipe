@@ -66,10 +66,17 @@ jobs:
           build-args: |
             BUILDKIT_INLINE_CACHE=1
 
+      - name: Get image tag for Trivy
+        id: trivy-tag
+        run: |
+          TAGS="${{ steps.meta.outputs.tags }}"
+          FIRST_TAG=$(echo "$TAGS" | head -n 1)
+          echo "tag=$FIRST_TAG" >> $GITHUB_OUTPUT
+
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.30.0
         with:
-          image-ref: ${{ steps.meta.outputs.tags }}
+          image-ref: ${{ steps.trivy-tag.outputs.tag }}
           format: 'sarif'
           output: 'trivy-results.sarif'
           severity: 'CRITICAL,HIGH'
