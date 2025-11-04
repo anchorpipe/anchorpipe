@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@anchorpipe/database';
 import { createSessionJwt, setSessionCookie } from '@/lib/auth';
-import { hashPassword, verifyPassword } from '@/lib/password';
+import { hashPassword } from '@/lib/password';
 import { validateEmail, validatePassword } from '@/lib/validation';
 import { rateLimit } from '@/lib/rate-limit';
 
