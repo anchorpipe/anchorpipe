@@ -21,7 +21,9 @@ export default function LoginPage() {
       try {
         const data: { error?: string } = await res.json();
         if (data?.error) message = data.error;
-      } catch {}
+      } catch {
+        // Ignore JSON parsing errors
+      }
       setStatus(message);
     }
   }

@@ -17,5 +17,3 @@ export async function GET() {
     return NextResponse.json({ ok: false, error: 'connect_failed' }, { status: 503 });
   }
 }
-
-
