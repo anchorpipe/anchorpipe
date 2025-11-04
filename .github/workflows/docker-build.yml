@@ -20,6 +20,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      security-events: write
 
     steps:
       - name: Checkout code
@@ -52,6 +53,7 @@ jobs:
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
+        id: build
         with:
           context: .
           file: ./apps/web/Dockerfile
@@ -60,8 +62,33 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          load: ${{ github.event_name == 'pull_request' }}
           build-args: |
             BUILDKIT_INLINE_CACHE=1
+
+      - name: Get image tag for Trivy
+        id: trivy-tag
+        run: |
+          TAGS="${{ steps.meta.outputs.tags }}"
+          FIRST_TAG=$(echo "$TAGS" | head -n 1)
+          echo "tag=$FIRST_TAG" >> $GITHUB_OUTPUT
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.30.0
+        continue-on-error: true
+        with:
+          image-ref: ${{ steps.trivy-tag.outputs.tag }}
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '1'
+          ignore-unfixed: false
+
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
 
   build-backend:
     name: Build Backend Image
