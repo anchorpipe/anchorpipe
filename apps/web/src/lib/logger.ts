@@ -49,4 +49,3 @@ export function nowMs() {
 export function durationMs(start: number) {
   return Date.now() - start;
 }
-

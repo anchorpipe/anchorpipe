@@ -2,7 +2,10 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-  const reqId = request.headers.get('x-request-id') || (globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`);
+  const reqId =
+    request.headers.get('x-request-id') ||
+    globalThis.crypto?.randomUUID?.() ||
+    `${Date.now()}-${Math.random()}`;
   const { pathname } = request.nextUrl;
   if (pathname.startsWith('/dashboard')) {
     const hasSession = request.cookies.get('ap_session');

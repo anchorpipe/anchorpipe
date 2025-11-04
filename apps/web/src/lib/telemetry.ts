@@ -24,4 +24,3 @@ export async function recordTelemetry(event: TelemetryEvent) {
 export function isTelemetryEnabled() {
   return enabled;
 }
-
