@@ -18,7 +18,9 @@ export async function GET() {
   const res = NextResponse.json({ name, version });
   const dur = durationMs(start);
   logger.info('GET /api/version end', { requestId, status: 200, durationMs: dur });
-  httpRequestDurationMs.labels({ route: '/api/version', method: 'GET', status: '200' }).observe(dur);
+  httpRequestDurationMs
+    .labels({ route: '/api/version', method: 'GET', status: '200' })
+    .observe(dur);
   recordTelemetry({ eventType: 'api.version', requestId, properties: { durationMs: dur } });
   return res;
 }
