@@ -15,7 +15,7 @@
     "@anchorpipe/database": "*",
     "prom-client": "^15.1.3",
     "cookie": "^0.6.0",
-    "jose": "^5.10.0",
+    "jose": "^6.1.0",
     "next": "^14.2.15",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
