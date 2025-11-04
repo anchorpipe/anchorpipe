@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { logger, nowMs, durationMs } from '@/lib/logger';
+import { httpRequestDurationMs } from '@/lib/metrics';
 import { recordTelemetry } from '@/lib/telemetry';
 // Import app package.json (apps/web/package.json)
 
@@ -17,6 +18,7 @@ export async function GET() {
   const res = NextResponse.json({ name, version });
   const dur = durationMs(start);
   logger.info('GET /api/version end', { requestId, status: 200, durationMs: dur });
+  httpRequestDurationMs.labels({ route: '/api/version', method: 'GET', status: '200' }).observe(dur);
   recordTelemetry({ eventType: 'api.version', requestId, properties: { durationMs: dur } });
   return res;
 }
