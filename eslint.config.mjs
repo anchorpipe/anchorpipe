@@ -5,13 +5,7 @@ import js from '@eslint/js';
 export default [
   // Ignore build artifacts and vendor directories
   {
-    ignores: [
-      '**/node_modules/**',
-      '**/dist/**',
-      '**/.next/**',
-      '**/coverage/**',
-      '**/.turbo/**',
-    ],
+    ignores: ['**/node_modules/**', '**/dist/**', '**/.next/**', '**/coverage/**', '**/.turbo/**'],
   },
   // Base JS rules
   js.configs.recommended,
@@ -32,10 +26,11 @@ export default [
     rules: {
       'no-undef': 'off',
       'no-unused-vars': 'off',
-      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
       '@typescript-eslint/no-explicit-any': 'off',
     },
   },
 ];
-
-
