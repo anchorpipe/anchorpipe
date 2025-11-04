@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
 export async function GET() {
-  const h = headers();
+  const h = await headers();
   const requestId = h.get('x-request-id') || undefined;
   const start = nowMs();
   logger.info('GET /api/version start', { requestId });
