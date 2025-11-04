@@ -19,7 +19,8 @@
     "db:migrate": "cd libs/database && npm run db:migrate",
     "db:migrate:deploy": "cd libs/database && npm run db:migrate:deploy",
     "db:studio": "cd libs/database && npm run db:studio",
-    "db:seed": "cd libs/database && npm run db:seed"
+    "db:seed": "cd libs/database && npm run db:seed",
+    "openapi:validate": "swagger-cli validate apps/web/public/openapi.yaml"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
@@ -31,7 +32,8 @@
     "nx": "^20.0.0",
     "prettier": "^3.3.2",
     "prisma": "^6.18.0",
-    "typescript": "^5.6.2"
+    "typescript": "^5.6.2",
+    "swagger-cli": "^4.0.4"
   },
   "overrides": {
     "styled-jsx": {
