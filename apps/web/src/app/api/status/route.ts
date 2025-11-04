@@ -1,4 +1,7 @@
 import { NextResponse } from 'next/server';
+import { headers } from 'next/headers';
+import { logger, nowMs, durationMs } from '@/lib/logger';
+import { recordTelemetry } from '@/lib/telemetry';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -20,13 +23,17 @@ async function check(path: string): Promise<boolean> {
 }
 
 export async function GET() {
+  const h = headers();
+  const requestId = h.get('x-request-id') || undefined;
+  const start = nowMs();
+  logger.info('GET /api/status start', { requestId });
   const [dbOk, mqOk, storageOk] = await Promise.all([
     check('/api/health/db'),
     check('/api/health/mq'),
     check('/api/health/storage'),
   ]);
   const ok = dbOk && mqOk && storageOk;
-  return NextResponse.json(
+  const res = NextResponse.json(
     {
       ok,
       services: {
@@ -37,4 +44,12 @@ export async function GET() {
     },
     { status: ok ? 200 : 503 }
   );
+  const dur = durationMs(start);
+  logger.info('GET /api/status end', { requestId, status: ok ? 200 : 503, durationMs: dur });
+  recordTelemetry({
+    eventType: 'api.status',
+    requestId,
+    properties: { ok, dbOk, mqOk, storageOk, durationMs: dur },
+  });
+  return res;
 }
