@@ -1,0 +1,52 @@
+openapi: 3.1.0
+info:
+  title: AnchorPipe BFF API
+  version: 0.1.0
+  description: OpenAPI specification for initial BFF endpoints.
+servers:
+  - url: http://localhost:3000
+paths:
+  /api/status:
+    get:
+      summary: Aggregate service health
+      description: Returns overall health status based on DB, MQ, and Storage health checks.
+      responses:
+        '200':
+          description: All dependencies are healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+        '503':
+          description: One or more dependencies are unhealthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: false
+  /api/version:
+    get:
+      summary: Application version
+      description: Returns application name and version derived from environment variables.
+      responses:
+        '200':
+          description: Version payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    example: anchorpipe
+                  version:
+                    type: string
+                    example: 0.1.0
+
