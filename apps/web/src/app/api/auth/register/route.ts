@@ -30,18 +30,27 @@ export async function POST(request: Request) {
     // Validation
     const emailError = validateEmail(email);
     if (emailError) {
-      return NextResponse.json({ error: emailError }, { status: 400, headers: rateLimitResult.headers });
+      return NextResponse.json(
+        { error: emailError },
+        { status: 400, headers: rateLimitResult.headers }
+      );
     }
 
     const passwordError = validatePassword(password);
     if (passwordError) {
-      return NextResponse.json({ error: passwordError }, { status: 400, headers: rateLimitResult.headers });
+      return NextResponse.json(
+        { error: passwordError },
+        { status: 400, headers: rateLimitResult.headers }
+      );
     }
 
     // Check if user already exists
     const existing = await prisma.user.findFirst({ where: { email } });
     if (existing) {
-      return NextResponse.json({ error: 'User with this email already exists' }, { status: 409, headers: rateLimitResult.headers });
+      return NextResponse.json(
+        { error: 'User with this email already exists' },
+        { status: 409, headers: rateLimitResult.headers }
+      );
     }
 
     // Hash password and create user
