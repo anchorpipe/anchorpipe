@@ -42,11 +42,7 @@ jobs:
           # Project URL for organization project
           # Format: https://github.com/orgs/ORG_NAME/projects/PROJECT_NUMBER
           project-url: ${{ secrets.PROJECT_V2_URL }}
-          github-token: ${{ secrets.PROJECT_V2_TOKEN }}
-          # Organization projects require owner field
-          owner: anchorpipe
-          # Repository name
-          repository: ${{ github.repository }}
+          github-token: ${{ env.PROJECT_V2_TOKEN }}
 
       - name: Add triage label for new issues
         if: github.event_name == 'issues'
