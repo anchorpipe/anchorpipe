@@ -10,17 +10,19 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@anchorpipe/storage": "*",
-    "@anchorpipe/mq": "*",
     "@anchorpipe/database": "*",
-    "prom-client": "^15.1.3",
+    "@anchorpipe/mq": "*",
+    "@anchorpipe/storage": "*",
+    "bcryptjs": "^3.0.3",
     "cookie": "^0.6.0",
     "jose": "^5.10.0",
     "next": "^14.2.15",
+    "prom-client": "^15.1.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^22.10.2",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
