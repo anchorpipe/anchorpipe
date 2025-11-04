@@ -85,6 +85,11 @@ jobs:
           # Provide a dummy DATABASE_URL for build-time (route will return 503 if not available)
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test
           AUTH_SECRET: test-auth-secret-change-me
+          MINIO_ENDPOINT: localhost
+          MINIO_PORT: '9000'
+          MINIO_USE_SSL: 'false'
+          MINIO_ACCESS_KEY: minioadmin
+          MINIO_SECRET_KEY: minioadminpassword
         continue-on-error: false
 
       - name: Upload build artifacts

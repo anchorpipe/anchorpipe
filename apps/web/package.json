@@ -10,6 +10,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@anchorpipe/storage": "*",
     "@anchorpipe/mq": "*",
     "@anchorpipe/database": "*",
     "cookie": "^0.6.0",
