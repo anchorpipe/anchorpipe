@@ -19,5 +19,3 @@ export async function GET() {
     return NextResponse.json({ ok: false }, { status: 503 });
   }
 }
-
-

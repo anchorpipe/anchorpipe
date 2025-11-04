@@ -27,5 +27,3 @@ export async function checkMinioHealth(client: Client): Promise<boolean> {
     return false;
   }
 }
-
-
