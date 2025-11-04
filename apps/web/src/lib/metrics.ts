@@ -18,4 +18,3 @@ export async function metricsText(): Promise<string> {
 }
 
 export { register };
-
