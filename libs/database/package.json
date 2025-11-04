@@ -10,7 +10,8 @@
     "db:migrate": "prisma migrate dev",
     "db:migrate:deploy": "prisma migrate deploy",
     "db:studio": "prisma studio",
-    "db:seed": "tsx src/seed.ts"
+    "db:seed": "tsx src/seed.ts",
+    "db:health": "tsx src/health-check.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.0.0"
