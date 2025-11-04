@@ -38,8 +38,3 @@ export async function GET() {
     { status: ok ? 200 : 503 }
   );
 }
-<<<<<<< HEAD
-=======
-
-
->>>>>>> 09c3e80 (feat(bff): add /api/status and /api/version (ST-71))
