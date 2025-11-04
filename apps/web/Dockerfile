@@ -1,6 +1,6 @@
 # Multi-stage Dockerfile for Next.js web application
 # Stage 1: Dependencies
-FROM node:20-alpine AS deps
+FROM node:25-alpine AS deps
 WORKDIR /app
 
 # Install dependencies needed for native modules
@@ -17,7 +17,7 @@ COPY libs/storage/package.json ./libs/storage/
 RUN npm install --legacy-peer-deps
 
 # Stage 2: Builder
-FROM node:20-alpine AS builder
+FROM node:25-alpine AS builder
 WORKDIR /app
 
 # Copy dependency installation from previous stage
@@ -68,7 +68,7 @@ WORKDIR /app/apps/web
 RUN npm run build
 
 # Stage 3: Runner
-FROM node:20-alpine AS runner
+FROM node:25-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
