@@ -101,6 +101,25 @@ jobs:
             apps/web/.next/
             libs/database/node_modules/.prisma/
 
+  openapi-validate:
+    name: openapi-validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Validate OpenAPI spec
+        run: npm run openapi:validate
+
   # TODO: Add test jobs when tests are implemented
   # test-unit:
   #   name: Unit Tests
