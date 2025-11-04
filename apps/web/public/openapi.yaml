@@ -10,6 +10,13 @@ paths:
     get:
       summary: Aggregate service health
       description: Returns overall health status based on DB, MQ, and Storage health checks.
+      parameters:
+        - in: header
+          name: x-request-id
+          required: false
+          schema:
+            type: string
+          description: Correlation ID propagated by middleware
       responses:
         '200':
           description: All dependencies are healthy
@@ -35,6 +42,13 @@ paths:
     get:
       summary: Application version
       description: Returns application name and version derived from environment variables.
+      parameters:
+        - in: header
+          name: x-request-id
+          required: false
+          schema:
+            type: string
+          description: Correlation ID propagated by middleware
       responses:
         '200':
           description: Version payload
