@@ -15,7 +15,7 @@
     "@anchorpipe/storage": "*",
     "bcryptjs": "^3.0.3",
     "cookie": "^0.6.0",
-    "jose": "^5.10.0",
+    "jose": "^6.1.0",
     "next": "^14.2.15",
     "prom-client": "^15.1.3",
     "react": "^18.3.1",
