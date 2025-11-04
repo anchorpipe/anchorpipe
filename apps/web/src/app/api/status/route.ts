@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { logger, nowMs, durationMs } from '@/lib/logger';
+import { httpRequestDurationMs } from '@/lib/metrics';
 import { recordTelemetry } from '@/lib/telemetry';
 
 export const dynamic = 'force-dynamic';
@@ -46,6 +47,9 @@ export async function GET() {
   );
   const dur = durationMs(start);
   logger.info('GET /api/status end', { requestId, status: ok ? 200 : 503, durationMs: dur });
+  httpRequestDurationMs
+    .labels({ route: '/api/status', method: 'GET', status: String(ok ? 200 : 503) })
+    .observe(dur);
   recordTelemetry({
     eventType: 'api.status',
     requestId,
