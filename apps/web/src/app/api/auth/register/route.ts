@@ -30,18 +30,18 @@ export async function POST(request: Request) {
     // Validation
     const emailError = validateEmail(email);
     if (emailError) {
-      return NextResponse.json({ error: emailError }, { status: 400 });
+      return NextResponse.json({ error: emailError }, { status: 400, headers: rateLimitResult.headers });
     }
 
     const passwordError = validatePassword(password);
     if (passwordError) {
-      return NextResponse.json({ error: passwordError }, { status: 400 });
+      return NextResponse.json({ error: passwordError }, { status: 400, headers: rateLimitResult.headers });
     }
 
     // Check if user already exists
     const existing = await prisma.user.findFirst({ where: { email } });
     if (existing) {
-      return NextResponse.json({ error: 'User already exists' }, { status: 409 });
+      return NextResponse.json({ error: 'User with this email already exists' }, { status: 409, headers: rateLimitResult.headers });
     }
 
     // Hash password and create user
@@ -60,7 +60,7 @@ export async function POST(request: Request) {
     const token = await createSessionJwt({ sub: user.id, email: user.email || undefined });
     await setSessionCookie(token);
 
-    return NextResponse.json({ ok: true, userId: user.id }, { headers: rateLimitResult.headers });
+    return NextResponse.json({ ok: true }, { status: 201, headers: rateLimitResult.headers });
   } catch (error) {
     console.error('Registration error:', error);
     return NextResponse.json({ error: 'Unexpected error' }, { status: 500 });
