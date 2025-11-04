@@ -117,7 +117,8 @@ jobs:
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
-      - name: Validate OpenAPI spec
+      - name: Validate OpenAPI spec (if present)
+        if: ${{ hashFiles('apps/web/public/openapi.yaml') != '' }}
         run: npm run openapi:validate
 
   # TODO: Add test jobs when tests are implemented
