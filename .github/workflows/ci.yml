@@ -135,18 +135,22 @@ jobs:
         run: npm run db:generate
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test
+        working-directory: libs/database
 
       - name: Run database migrations
         run: npm run db:migrate:deploy
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test
+        working-directory: libs/database
 
       - name: Verify database health
-        run: |
-          cd libs/database
-          npx tsx -e "import { healthCheck } from './src/index.js'; healthCheck().then(ok => { if (!ok) { console.error('❌ DB health check failed'); process.exit(1); } console.log('✅ DB health check passed'); })"
+        run: npm run db:health
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test
+        working-directory: libs/database
+
+      - name: Install PostgreSQL client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
 
       - name: Verify schema tables exist
         run: |
