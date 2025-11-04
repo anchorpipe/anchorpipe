@@ -63,12 +63,16 @@ Write-Host "✅ Found General category: $($categoryGeneral.name) (ID: $($categor
 Write-Host "✅ Found Announcements category: $($categoryAnnouncements.name) (ID: $($categoryAnnouncements.id))" -ForegroundColor Green
 Write-Host ""
 
-# Base directory for discussion content
+# Note: Discussion content files are not stored in the repo
+# They should be created as needed or provided as parameters
+# This script reads from .github/discussions/ if it exists, otherwise expects content to be provided
 $discussionsDir = Join-Path $PSScriptRoot ".." ".github" "discussions"
 
 if (-not (Test-Path $discussionsDir)) {
-    Write-Host "❌ Discussions directory not found: $discussionsDir" -ForegroundColor Red
-    exit 1
+    Write-Host "⚠️  Discussions directory not found: $discussionsDir" -ForegroundColor Yellow
+    Write-Host "   Content files should be provided or created as needed" -ForegroundColor Yellow
+    Write-Host "   All initial discussions have already been created on GitHub" -ForegroundColor Yellow
+    exit 0
 }
 
 function Create-Discussion {
