@@ -22,11 +22,10 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install --legacy-peer-deps
 
-      - name: Run ESLint (web app only)
-        working-directory: apps/web
-        run: npm run lint
+      - name: Run ESLint (root, target web app)
+        run: npx eslint apps/web
 
       - name: Check formatting
         run: npx prettier --check .
@@ -45,7 +44,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install --legacy-peer-deps
 
       - name: Run TypeScript type check
         run: |
@@ -66,7 +65,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies (root)
-        run: npm ci
+        run: npm install --legacy-peer-deps
 
       - name: Install dependencies (workspaces)
         run: |
