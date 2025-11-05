@@ -1,6 +1,6 @@
 # Intellectual Property Assignment and Commercial Use Rights
 
-**Last Updated**: 2025-01-XX  
+**Last Updated**: 11-05-2025
 **Purpose**: Clarify IP rights for contributions and commercial use
 
 ## Overview
