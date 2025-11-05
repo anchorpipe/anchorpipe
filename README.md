@@ -37,7 +37,8 @@ Deliver a world-class, open-source platform for flaky test management that is CI
 2. **Set up environment**
 
    ```bash
-   cp .env.example .env  # Create .env file
+   # Create .env with DATABASE_URL for Prisma
+   echo DATABASE_URL=postgresql://postgres:postgres@localhost:15432/anchorpipe_dev > .env
    docker compose up -d  # Start local services (Postgres, Redis, RabbitMQ, MinIO)
    ```
 
@@ -77,12 +78,18 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 ## 📋 Project Status
 
-**Current Phase**: Foundation (Gate G0)
+**Current Phase**: Security Foundation (Gate GA)
 
-- ✅ Legal and governance foundation complete
-- ✅ Project V2 board configured
-- ✅ Development environment setup
-- ⏳ Core platform development (in progress)
+- ✅ **Foundation (Gate G0) - COMPLETE!**
+  - ✅ Repository setup and development environment
+  - ✅ PostgreSQL schema and migrations
+  - ✅ CI/CD pipeline (GitHub Actions)
+  - ✅ Basic authentication system (registration, login, rate limiting)
+  - ✅ API Gateway / BFF endpoints
+  - ✅ Message queue (RabbitMQ) integration
+  - ✅ Object storage (S3-compatible) setup
+  - ✅ Basic telemetry and logging (Prometheus metrics)
+- 🎯 **Security Foundation (Gate GA) - Next**
 
 ## 📖 License
 
@@ -96,6 +103,20 @@ See [LICENSE](LICENSE) for details.
 ## 🛡️ Security
 
 Please report security vulnerabilities privately. See [SECURITY.md](SECURITY.md) for details.
+
+### Default Security Headers (GA: ST-204)
+
+The web app sets baseline security headers globally and a conservative Content-Security-Policy (CSP) on API routes via `apps/web/src/middleware.ts`:
+
+- `X-Content-Type-Options: nosniff`
+- `X-Frame-Options: DENY`
+- `Referrer-Policy: no-referrer`
+- `Permissions-Policy: geolocation=(), microphone=(), camera=()`
+- `Cross-Origin-Opener-Policy: same-origin`
+- `Cross-Origin-Resource-Policy: same-origin`
+- API CSP (summary): `default-src 'none'; frame-ancestors 'none'; object-src 'none'; form-action 'self'` with minimal allowances for `img`, `script`, `style`, `connect`, `font`.
+
+These provide immediate OWASP-aligned hardening without impacting development. Adjust CSP as needed when adding external resources.
 
 ## 📞 Support
 

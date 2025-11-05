@@ -24,9 +24,32 @@ export function middleware(request: NextRequest) {
     },
   });
   res.headers.set('x-request-id', reqId);
+  // Set baseline security headers across the app
+  res.headers.set('x-content-type-options', 'nosniff');
+  res.headers.set('x-frame-options', 'DENY');
+  res.headers.set('referrer-policy', 'no-referrer');
+  res.headers.set('permissions-policy', 'geolocation=(), microphone=(), camera=()');
+  res.headers.set('cross-origin-opener-policy', 'same-origin');
+  res.headers.set('cross-origin-resource-policy', 'same-origin');
+  // Apply a conservative CSP for API routes to avoid breaking Next dev UI
+  if (pathname.startsWith('/api/')) {
+    const csp = [
+      "default-src 'none'",
+      "base-uri 'self'",
+      "frame-ancestors 'none'",
+      "img-src 'self' data:",
+      "script-src 'self'",
+      "style-src 'self' 'unsafe-inline'",
+      "connect-src 'self'",
+      "font-src 'self' data:",
+      "object-src 'none'",
+      "form-action 'self'",
+    ].join('; ');
+    res.headers.set('content-security-policy', csp);
+  }
   return res;
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*'],
+  matcher: ['/:path*'],
 };
