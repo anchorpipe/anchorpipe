@@ -31,7 +31,53 @@ export function sanitizeObject<T extends Record<string, unknown>>(obj: T): T {
  */
 export interface ValidationError {
   error: string;
-  details?: z.ZodError['errors'];
+  details?: z.ZodError['issues'];
+}
+
+/**
+ * Parse JSON from request body
+ */
+async function parseJsonBody(
+  request: Request
+): Promise<{ success: true; body: unknown } | { success: false; error: ValidationError }> {
+  try {
+    const body = await request.json();
+    return { success: true, body };
+  } catch {
+    return {
+      success: false,
+      error: { error: 'Invalid JSON in request body' },
+    };
+  }
+}
+
+/**
+ * Validate parsed body against Zod schema
+ */
+function validateBody<T>(
+  body: unknown,
+  schema: z.ZodSchema<T>
+): { success: true; data: T } | { success: false; error: ValidationError } {
+  try {
+    const parsed = schema.parse(body);
+    return { success: true, data: parsed };
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      const firstIssue = error.issues[0];
+      return {
+        success: false,
+        error: {
+          error: firstIssue?.message || 'Validation failed',
+          details: process.env.NODE_ENV === 'development' ? error.issues : undefined,
+        },
+      };
+    }
+    console.error('Unexpected validation error:', error);
+    return {
+      success: false,
+      error: { error: 'Invalid request body' },
+    };
+  }
 }
 
 /**
@@ -42,41 +88,12 @@ export async function validateRequest<T>(
   request: Request,
   schema: z.ZodSchema<T>
 ): Promise<{ success: true; data: T } | { success: false; error: ValidationError }> {
-  try {
-    let body: unknown;
-    try {
-      body = await request.json();
-    } catch (jsonError) {
-      return {
-        success: false,
-        error: { error: 'Invalid JSON in request body' },
-      };
-    }
-
-    try {
-      const parsed = schema.parse(body);
-      return { success: true, data: parsed };
-    } catch (validationError) {
-      if (validationError instanceof z.ZodError) {
-        const firstError = validationError.errors[0];
-        return {
-          success: false,
-          error: {
-            error: firstError?.message || 'Validation failed',
-            details: process.env.NODE_ENV === 'development' ? validationError.errors : undefined,
-          },
-        };
-      }
-      throw validationError; // Re-throw non-Zod errors
-    }
-  } catch (error) {
-    // Catch-all for unexpected errors
-    console.error('Validation error:', error);
-    return {
-      success: false,
-      error: { error: 'Invalid request body' },
-    };
+  const jsonResult = await parseJsonBody(request);
+  if (!jsonResult.success) {
+    return jsonResult;
   }
+
+  return validateBody(jsonResult.body, schema);
 }
 
 /**
