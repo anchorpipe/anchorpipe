@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import { PrismaClient } from '@anchorpipe/database';
 import { createSessionJwt, setSessionCookie } from '@/lib/auth';
 import { hashPassword } from '@/lib/password';
-import { validateEmail, validatePassword } from '@/lib/validation';
+import { validateRequest } from '@/lib/validation';
+import { registerSchema } from '@/lib/schemas/auth';
 import { rateLimit } from '@/lib/rate-limit';
 
 export const dynamic = 'force-dynamic';
@@ -21,28 +22,19 @@ export async function POST(request: Request) {
       );
     }
 
-    const body = await request.json();
-    const email = String(body?.email || '')
-      .trim()
-      .toLowerCase();
-    const password = String(body?.password || '');
-
-    // Validation
-    const emailError = validateEmail(email);
-    if (emailError) {
+    // Validate request body with Zod schema
+    const validation = await validateRequest(request, registerSchema);
+    if (!validation.success) {
       return NextResponse.json(
-        { error: emailError },
+        {
+          error: validation.error.error,
+          details: validation.error.details,
+        },
         { status: 400, headers: rateLimitResult.headers }
       );
     }
 
-    const passwordError = validatePassword(password);
-    if (passwordError) {
-      return NextResponse.json(
-        { error: passwordError },
-        { status: 400, headers: rateLimitResult.headers }
-      );
-    }
+    const { email, password } = validation.data;
 
     // Check if user already exists
     const existing = await prisma.user.findFirst({ where: { email } });
