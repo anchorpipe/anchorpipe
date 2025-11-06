@@ -1,0 +1,15 @@
+---
+description: Epic and Issue Template Guidelines
+globs:
+  - '.github/ISSUE_TEMPLATE/**'
+alwaysApply: false
+---
+
+# Anchorpipe Epic/Issue Template Rules
+
+- Epic structure: Title, description, goals, acceptance criteria, dependencies, timeline.
+- Issue templates: Use GitHub issue forms; require labels (type, gate, area, priority).
+- Link to PRD/Architecture docs; reference related ADRs; include persona and JTBD.
+- Acceptance criteria: Specific, testable, linked to quality budgets (a11y, perf, security).
+- Dependencies: List blocking issues; identify gate requirements; track in project board.
+- Engineering tickets: Include technical approach, risks, rollback plan, test strategy.

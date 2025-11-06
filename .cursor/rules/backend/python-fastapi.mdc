@@ -1,0 +1,15 @@
+---
+description: Python FastAPI Best Practices
+globs:
+  - 'services/**/*.py'
+alwaysApply: false
+---
+
+# Anchorpipe Python FastAPI Rules
+
+- Best practices: Use Pydantic for validation; async/await for I/O; type hints everywhere.
+- Scalable API: Use dependency injection; separate routes from business logic; use background tasks.
+- Error handling: Custom exception handlers; structured error responses; proper HTTP status codes.
+- Testing: Use TestClient; pytest fixtures; mock external dependencies.
+- Performance: Use async database drivers; connection pooling; cache expensive operations.
+- Security: Validate all inputs; sanitize outputs; use security headers; rate limiting.

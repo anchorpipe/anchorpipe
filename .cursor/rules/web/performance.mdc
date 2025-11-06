@@ -1,0 +1,13 @@
+---
+description: Performance and Theming
+globs:
+  - 'apps/web/**'
+alwaysApply: false
+---
+
+# Anchorpipe Performance & Theming
+
+- Entry bundle <100KB gz; enforce route-level code splitting; remove unused deps.
+- RSC-first, Suspense/streaming; prefetch sensibly; cache via ISR/ETag where applicable.
+- Responsive: fluid typography, responsive spacing, responsive images.
+- Themes: light/dark/high-contrast parity; no contrast regressions when switching.

@@ -1,0 +1,17 @@
+---
+description: PR Template and Review Requirements
+globs:
+  - '.github/PULL_REQUEST_TEMPLATE.md'
+  - '.github/workflows/**'
+alwaysApply: false
+---
+
+# Anchorpipe PR Template Rules
+
+- DCO: Every commit MUST include Signed-off-by. Use `git commit -s -m "type(scope): msg"`.
+- Conventional Commits: Enforce types (feat, fix, docs, ci, chore, perf, refactor, test, build) and scopes: web, infra, services/ingestion, services/scoring, docs, ci.
+- Link issues: Include ST-### and epics; add `gate:*`, `type:*`, `area:*`, `priority:*` labels.
+- CI gates MUST be green: lint, typecheck, build, db-health, openapi-validate, DCO, CodeQL, link-check.
+- Security invariants: Do not weaken CSP/headers; keep Zod validation at edges; preserve CSRF/origin checks and rate limits.
+- Budgets: Entry bundle < 100KB gz; WCAG 2.2 AA on polished pages; provide ADR if exceeding.
+- Required PR sections: Summary; Linked Issues; Risk & Rollback; Tests & Evidence; Security/Privacy; Docs updated.

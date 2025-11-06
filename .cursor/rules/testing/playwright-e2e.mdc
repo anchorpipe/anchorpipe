@@ -1,0 +1,18 @@
+---
+description: Playwright E2E Testing
+globs:
+  - '**/*.e2e.ts'
+  - '**/*.e2e.spec.ts'
+  - 'apps/web/**/e2e/**'
+alwaysApply: false
+---
+
+# Anchorpipe Playwright E2E Testing Rules
+
+- Thin critical paths only; avoid testing implementation details.
+- Use page object model for reusable selectors and actions.
+- Wait for elements with `waitFor` or `locator.waitFor()`; avoid hard-coded sleeps.
+- Test user journeys, not individual components; focus on happy paths and critical error flows.
+- Parallel execution where possible; isolate tests (clean state between runs).
+- Screenshots/videos on failure; trace viewer for debugging.
+- Respect a11y: test with screen readers; verify keyboard navigation; check ARIA attributes.

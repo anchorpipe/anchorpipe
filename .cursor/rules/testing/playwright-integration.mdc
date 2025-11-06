@@ -1,0 +1,16 @@
+---
+description: Playwright Integration Testing
+globs:
+  - '**/*.integration.ts'
+  - '**/*.integration.spec.ts'
+alwaysApply: false
+---
+
+# Anchorpipe Playwright Integration Testing Rules
+
+- Test service boundaries: API endpoints, database interactions, message queue flows.
+- Use test databases with migrations; clean up after tests; use transactions where possible.
+- Mock external services (GitHub API, S3); use test doubles for message queues.
+- Test error scenarios: network failures, rate limits, invalid inputs.
+- Verify idempotency, retries, and backpressure handling.
+- Include correlation IDs in test assertions for traceability.

@@ -1,0 +1,16 @@
+---
+description: Scoring Service Specific Rules
+globs:
+  - 'services/scoring/**'
+alwaysApply: false
+---
+
+# Anchorpipe Scoring Service Rules
+
+- Consume from MQ with controlled prefetch; idempotent processing using message keys.
+- Compute rolling metrics (pass_rate, volatility, recency_fail, clustering); composite score F (0–100) with configurable weights.
+- Handle reruns: weight initial fail even if rerun passes (default 0.5).
+- Expose explainability data per test (factor breakdowns) and persist in `FlakeScore.ml_prediction_data`.
+- Batch DB writes; index hot paths; avoid N+1; measure p95 update latencies.
+- Publish PR bot signals after score updates; respect GitHub API rate limits in downstream consumer.
+- ML integration via MCP (future) must be optional and explainable; provide fallback heuristics.

@@ -1,0 +1,17 @@
+---
+description: Ingestion Service Specific Rules
+globs:
+  - 'services/ingestion/**'
+alwaysApply: false
+---
+
+# Anchorpipe Ingestion Service Rules
+
+- Accepts multipart/JSON up to 50MB; stream parse XML/JSON; cap per-request size.
+- Require `Authorization: Bearer <repo_token>` and `X-FR-Sig` HMAC; verify body hash before enqueue.
+- Compute idempotency key from (repo_id, commit_sha, run_id, framework); upsert not insert-only.
+- Publish parsed items to MQ with durable, persistent messages; include correlation ids.
+- Store minimal metadata in DB; upload large artifacts to object storage with signed URLs.
+- Return 200 with runId + summary (tests_parsed, flaky_candidates) within p95 < 500ms for ≤50MB (async offload).
+- Rate limit per repo; backoff on 429 with `Retry-After`.
+- Strict schema validation and field allow-lists; reject unknowns.

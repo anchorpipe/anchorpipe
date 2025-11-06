@@ -1,0 +1,16 @@
+---
+description: Conventional Commits + DCO Requirements
+globs:
+  - '**/*.md'
+  - '.github/**'
+alwaysApply: true
+---
+
+# Anchorpipe Conventional Commits + DCO
+
+- Use Conventional Commits:
+  - `<type>(<scope>): <description>`
+  - Types: feat, fix, docs, style, refactor, perf, test, build, ci, chore.
+  - Common scopes: web, infra, services/ingestion, services/scoring, docs, ci.
+- DCO required on every commit. Example: `git commit -s -m "feat(web): add CSP for /api routes"`.
+- Use BREAKING CHANGE footer or `!` when applicable.
