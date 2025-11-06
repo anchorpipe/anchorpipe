@@ -1,0 +1,16 @@
+---
+description: Gherkin-Style Testing Documentation
+globs:
+  - '**/*.feature'
+  - '**/*.gherkin'
+alwaysApply: false
+---
+
+# Anchorpipe Gherkin Testing Rules
+
+- Use Gherkin for acceptance criteria; link to user stories (ST-###).
+- Structure: Feature → Scenario → Given/When/Then; keep scenarios focused.
+- Language: Plain English; avoid technical jargon; use domain language.
+- Reusability: Extract common steps; use backgrounds for shared setup.
+- Examples: Use scenario outlines with examples for data-driven tests.
+- Integration: Link Gherkin to Playwright tests; generate test cases from features.

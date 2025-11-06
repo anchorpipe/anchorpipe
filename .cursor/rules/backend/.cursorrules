@@ -1,0 +1,41 @@
+# Anchorpipe Backend Rules (Ingestion, Scoring, API/BFF)
+
+- Auth & Integrity
+  - Ingestion endpoints require repo token + HMAC `X-FR-Sig` (SHA-256 over payload).
+  - Verify idempotency via composite key (repo_id, commit_sha, run_id, framework).
+  - Reject unsigned/invalid requests with clear errors; constant-time comparisons.
+
+- Rate Limiting & Throttling
+  - Token bucket per repo; default 500 req/hour; include `Retry-After` on 429.
+  - Backpressure: respect queue depth; use DLQ and redrive policies.
+
+- Messaging
+  - RabbitMQ (MVP): prefetch limits, durable queues, per-message ack, DLX configured.
+  - Encapsulate publish/consume in adapters to enable future Kafka migration.
+
+- Data & Storage
+  - Postgres: proper indexes (see Architecture/ERD), partition hot tables when needed.
+  - Object storage (S3-compatible) for large/raw artifacts; avoid bloating DB.
+  - Retention: TestRun 30d (configurable); TelemetryEvent 30d; aggregates 2y.
+
+- Security & Privacy
+  - Never log secrets/tokens; structured logs with redaction.
+  - Enforce TLS 1.2+; AES-256 at rest; KMS-managed keys.
+  - Redact `failure_details` per ADR-0012; PII minimization; honor DNT.
+
+- API Quality
+  - REST-first with OpenAPI; validate inputs (Zod/JSON schema); reject unknown fields.
+  - Version endpoints; include ETag/Last-Modified for cacheable reads.
+
+- Observability
+  - Metrics: RED/USE; trace propagation (ingestion→scoring→API).
+  - Correlate by request id; include repo_id (hashed) in context.
+
+- Performance
+  - Ingestion: streaming parse (O(bytes)); bounded memory; constant allocations.
+  - Scoring: process 10k updates ≤2s; batch; idempotent consumers.
+
+- Change Management
+  - Material changes to auth, rate limits, schema, or retention require ADR link in PR.
+
+

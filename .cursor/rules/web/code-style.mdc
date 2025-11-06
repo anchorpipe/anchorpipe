@@ -1,0 +1,16 @@
+---
+description: Code Style Consistency
+globs:
+  - 'apps/web/**'
+  - 'packages/**'
+alwaysApply: false
+---
+
+# Anchorpipe Code Style Consistency
+
+- Formatting: Use Prettier; run on save; enforce in CI.
+- Linting: ESLint with TypeScript plugin; fix auto-fixable issues.
+- Imports: Absolute imports for packages; relative for local files; organize by type.
+- File naming: kebab-case for files; PascalCase for components; camelCase for utilities.
+- Component organization: One component per file; colocate related files (component + test + styles).
+- Consistent patterns: Use established patterns from codebase; avoid introducing new styles without team discussion.

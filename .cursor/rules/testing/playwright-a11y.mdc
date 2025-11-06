@@ -1,0 +1,17 @@
+---
+description: Playwright Accessibility Testing
+globs:
+  - '**/*.a11y.ts'
+  - '**/*.a11y.spec.ts'
+alwaysApply: false
+---
+
+# Anchorpipe Playwright A11y Testing Rules
+
+- Run axe-core via `@axe-core/playwright` on all polished pages.
+- Test keyboard navigation: Tab order, Enter/ESC behavior, focus management.
+- Screen reader testing: Use `page.getByRole()` and semantic selectors.
+- Color contrast: Verify WCAG 2.2 AA (4.5:1) for text; AAA (7:1) where targeted.
+- Form accessibility: Labels, error messages, aria-live regions.
+- Motion: Test with `prefers-reduced-motion` enabled.
+- Block merge on critical violations (A11y-0); track medium/low with timeline.

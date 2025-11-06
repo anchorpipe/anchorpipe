@@ -1,0 +1,17 @@
+---
+description: TanStack Query (React Query) Patterns
+globs:
+  - 'apps/web/**/*.tsx'
+  - 'apps/web/**/*.ts'
+alwaysApply: false
+---
+
+# Anchorpipe React Query Rules
+
+- Use TanStack Query for server state; local state for UI state.
+- Configure `staleTime` and `cacheTime` appropriately; avoid over-fetching.
+- Request de-duping: Let React Query handle duplicate requests automatically.
+- Error handling: Use error boundaries; provide user-friendly error messages.
+- Loading states: Use `isLoading` and `isFetching` appropriately; show skeletons, not spinners.
+- Mutations: Use optimistic updates where safe; invalidate queries after mutations.
+- Pagination: Use `useInfiniteQuery` for infinite scroll; `useQuery` with page params for numbered pages.

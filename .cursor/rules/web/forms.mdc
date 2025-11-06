@@ -1,0 +1,13 @@
+---
+description: Forms and Error Handling
+globs:
+  - 'apps/web/**/*.tsx'
+alwaysApply: false
+---
+
+# Anchorpipe Forms & Error States
+
+- Validate with Zod; sanitize strings; reject unknown fields.
+- Labels and helper text required; show inline errors and aria-live updates.
+- Error copy must be actionable; provide recovery guidance where possible.
+- Keyboard-first: focus management, Enter/ESC behavior, no key traps.

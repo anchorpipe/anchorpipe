@@ -1,0 +1,16 @@
+---
+description: Go Backend Service Guidelines
+globs:
+  - 'services/**/*.go'
+alwaysApply: false
+---
+
+# Anchorpipe Go Backend Rules
+
+- Scalability: Design for horizontal scaling; use connection pooling; avoid global state.
+- REST API: Use ServeMux or Gin/Echo; follow RESTful conventions; version endpoints.
+- Error handling: Return structured errors; use error wrapping; log with context.
+- Concurrency: Use goroutines judiciously; prefer channels for communication; avoid race conditions.
+- Testing: Table-driven tests; use testify for assertions; benchmark critical paths.
+- Code organization: Package by feature; clear interfaces; minimal dependencies.
+- Performance: Profile before optimizing; use pprof; measure, don't guess.

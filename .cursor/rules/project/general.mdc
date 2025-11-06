@@ -1,0 +1,14 @@
+---
+description: Project-wide Rules and Standards
+globs:
+  - '**/*'
+alwaysApply: true
+---
+
+# Anchorpipe Project-wide Rules
+
+- Security: enforce CSP, default security headers; validate inputs (Zod) at edges; CSRF/origin checks; HMAC (X-FR-Sig) for ingestion; idempotency keys; rate limiting.
+- CI: required checks (lint, typecheck, build, db-health, openapi-validate, DCO, CodeQL, link-check) must pass.
+- Docs: update user and program docs when behavior/config changes.
+- Labels: suggest and verify taxonomy (`type:*`, `gate:*`, `area:*`, `priority:*`).
+- ADRs: material changes to architecture/security/perf budgets require ADR link in PR.

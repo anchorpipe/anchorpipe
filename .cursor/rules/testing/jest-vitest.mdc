@@ -1,0 +1,19 @@
+---
+description: Unit Testing with Jest/Vitest
+globs:
+  - '**/*.test.ts'
+  - '**/*.test.tsx'
+  - '**/*.spec.ts'
+  - '**/*.spec.tsx'
+alwaysApply: false
+---
+
+# Anchorpipe Unit Testing Rules (Jest/Vitest)
+
+- Coverage targets: packages ≥90%; apps ≥80% lines; critical surfaces explicitly listed and higher.
+- Test structure: Arrange-Act-Assert; descriptive test names; one assertion per test when possible.
+- Mocking: Mock external dependencies (APIs, DB, file system); use MSW for HTTP mocking.
+- Flakes in our tests: auto-rerun once with quarantine tagging; flag root-cause tickets; do not ignore persistent failures.
+- Property-based tests for algorithms (fast-check); golden files for parsers; benchmark suite with thresholds.
+- Deterministic seeding for random data; avoid time-dependent tests without mocking.
+- Test organization: group related tests; use describe blocks for test suites.

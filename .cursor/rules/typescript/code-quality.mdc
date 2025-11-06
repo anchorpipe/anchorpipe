@@ -1,0 +1,19 @@
+---
+description: TypeScript/JavaScript Code Quality
+globs:
+  - '**/*.ts'
+  - '**/*.tsx'
+  - '**/*.js'
+  - '**/*.jsx'
+alwaysApply: false
+---
+
+# Anchorpipe TypeScript/JavaScript Code Quality
+
+- Strong typing: Avoid `any`; use `unknown` for truly unknown types; prefer type inference where clear.
+- Interface guidelines: Prefer interfaces for object shapes; use types for unions/intersections.
+- Function length: Keep functions focused; extract complex logic; max ~50 lines per function.
+- DRY principle: Extract repeated patterns; use shared utilities; avoid copy-paste code.
+- Error handling: Use Result types or try/catch consistently; never swallow errors silently.
+- Async/await: Prefer over raw promises; handle errors properly; avoid promise chains.
+- Naming: camelCase for variables/functions; PascalCase for types/classes; UPPER_CASE for constants.

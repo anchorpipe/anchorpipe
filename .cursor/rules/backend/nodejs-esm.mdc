@@ -1,0 +1,16 @@
+---
+description: ES Module Node.js Guidelines
+globs:
+  - 'services/**/*.js'
+  - 'services/**/*.mjs'
+alwaysApply: false
+---
+
+# Anchorpipe ES Module Node.js Rules
+
+- Use ES modules (`import`/`export`); avoid CommonJS (`require`/`module.exports`).
+- Package.json: Set `"type": "module"`; use `.mjs` extension if needed.
+- Async/await: Prefer over callbacks; handle errors properly; use Promise.all for parallel operations.
+- Environment variables: Validate with Zod; provide defaults for dev; never commit secrets.
+- Error handling: Use custom error classes; provide context; log appropriately.
+- Testing: Use ES module-compatible test runners; mock ES modules correctly.

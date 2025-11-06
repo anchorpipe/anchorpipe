@@ -1,0 +1,33 @@
+---
+description: Hosting and Deployment Infrastructure
+globs:
+  - 'infra/**'
+  - '.github/workflows/**'
+alwaysApply: false
+---
+
+# Anchorpipe Infrastructure Rules
+
+- Hosting & Deployment
+  - Vercel: apps/web and apps/docs; PR previews; production on main.
+  - Render: API/worker/DB/Redis only if selected via ADR; use render.yaml; deploy hooks from GH Actions.
+  - Secrets: GitHub Environments + platform dashboards; never commit; document key mapping.
+
+- Infrastructure as Code
+  - Terraform: modular structure; environment-specific configs; state locking.
+  - K8s (future): HPA, liveness/readiness, secrets/CSI; document in ADR before adoption.
+
+- Object Storage
+  - S3-compatible (MinIO dev, cloud S3 prod); lifecycle policies per ADR-0011.
+  - Signed URLs for uploads; prefix-based purge for repo deletion.
+
+- Database
+  - Postgres: managed instances; connection pooling (PgBouncer); read replicas when needed.
+  - Migrations: zero-downtime strategies; backup before breaking changes.
+
+- Monitoring & Observability
+  - Metrics: RED/USE; tracing (OpenTelemetry); structured logs with correlation IDs.
+  - Dashboards: latency histograms, queue depth, error rates, CWV trends.
+
+- Cost Controls
+  - S3 lifecycle policies; dev preview TTL; CI concurrency limits; cache package installs.

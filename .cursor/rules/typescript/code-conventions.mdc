@@ -1,0 +1,18 @@
+---
+description: TypeScript Code Conventions
+globs:
+  - '**/*.ts'
+  - '**/*.tsx'
+alwaysApply: false
+---
+
+# Anchorpipe TypeScript Code Conventions
+
+- Use strict mode; enable all strict checks in tsconfig.
+- Prefer const over let; avoid var entirely.
+- Use optional chaining (`?.`) and nullish coalescing (`??`) appropriately.
+- Destructure objects/arrays for clarity; avoid deep nesting.
+- Use enums or const objects for constants; prefer const objects for better tree-shaking.
+- Import organization: external → internal → relative; group by type.
+- Export explicitly; use named exports over default when possible.
+- Comments: Explain why, not what; use JSDoc for public APIs.

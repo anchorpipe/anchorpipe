@@ -1,0 +1,17 @@
+---
+description: Design System and Component Guidelines
+globs:
+  - 'apps/web/**/*.tsx'
+  - 'packages/ui/**'
+alwaysApply: false
+---
+
+# Anchorpipe Design System Rules
+
+- Use Radix primitives + shadcn patterns; no ad-hoc components for primitives.
+- Component tiers: primitives → base → composite; document usage and a11y notes.
+- Tokens: colors, typography, spacing, motion; use tokens, not hard-coded values.
+- Theming: support light/dark/high-contrast; avoid contrast regressions.
+- Iconography: clarity/consistency/context; prefer curated set; avoid mixed stroke styles.
+- Typography: follow defined scale; line-height/letter-spacing per spec; code uses monospace.
+- Version components semantically; breaking changes require migration notes.
