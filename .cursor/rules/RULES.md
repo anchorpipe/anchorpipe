@@ -25,12 +25,14 @@ This directory contains all Cursor AI rules organized by concern area. Rules use
 ## Rules by Category
 
 ### GitHub (`github/`)
+
 - `pr-template.mdc` - PR requirements, DCO, labels, CI gates
 - `commit-messages.mdc` - Conventional Commits + DCO
 - `code-quality.mdc` - Review standards, security, budgets
 - `epic-template.mdc` - Epic and issue template guidelines
 
 ### Web (`web/`)
+
 - `nextjs-app-router.mdc` - Next.js App Router guidelines
 - `accessibility.mdc` - WCAG 2.2 standards
 - `design-system.mdc` - Component system, tokens, theming
@@ -43,6 +45,7 @@ This directory contains all Cursor AI rules organized by concern area. Rules use
 - `code-style.mdc` - Code style consistency
 
 ### Backend (`backend/`)
+
 - `general.mdc` - General backend service rules
 - `ingestion.mdc` - Ingestion service specific
 - `scoring.mdc` - Scoring service specific
@@ -52,27 +55,33 @@ This directory contains all Cursor AI rules organized by concern area. Rules use
 - `api-client.mdc` - API client patterns (Axios/Fetch)
 
 ### Infrastructure (`infra/`)
+
 - `docker.mdc` - Docker and containerization
 - `hosting.mdc` - Vercel, Render, object storage, database
 
 ### Scripts (`scripts/`)
+
 - `general.mdc` - Shell scripts and automation
 
 ### Testing (`testing/`)
+
 - `jest-vitest.mdc` - Unit testing with Jest/Vitest
 - `playwright-e2e.mdc` - Playwright E2E testing
 - `playwright-a11y.mdc` - Playwright accessibility testing
 - `playwright-integration.mdc` - Playwright integration testing
 
 ### TypeScript (`typescript/`)
+
 - `code-quality.mdc` - TypeScript/JavaScript code quality
 - `code-conventions.mdc` - TypeScript code conventions
 
 ### Documentation (`docs/`)
+
 - `documentation.mdc` - Documentation standards
 - `gherkin.mdc` - Gherkin-style testing documentation
 
 ### Project (`project/`)
+
 - `general.mdc` - Project-wide rules (security, CI, docs, labels, ADRs)
 
 ## Usage
@@ -82,10 +91,10 @@ Rules automatically apply based on `globs` patterns in their frontmatter. Rules 
 ## Alignment
 
 All rules align with:
+
 - PRD (01-prd.md)
 - Architecture (02-architecture.md)
 - UI Design (03-ui-design.md)
 - Quality Handbook (08-quality-handbook.md)
 - Release & Operations (09-release-ops.md)
 - ADRs in `adr/` directory
-
