@@ -31,6 +31,10 @@ export function middleware(request: NextRequest) {
   res.headers.set('permissions-policy', 'geolocation=(), microphone=(), camera=()');
   res.headers.set('cross-origin-opener-policy', 'same-origin');
   res.headers.set('cross-origin-resource-policy', 'same-origin');
+  // Encourage HTTPS in production via HSTS (handled by edge/proxy ideally)
+  if (process.env.NODE_ENV === 'production') {
+    res.headers.set('strict-transport-security', 'max-age=31536000; includeSubDomains; preload');
+  }
   // Apply a conservative CSP for API routes to avoid breaking Next dev UI
   if (pathname.startsWith('/api/')) {
     const csp = [
