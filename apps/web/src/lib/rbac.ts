@@ -11,7 +11,7 @@ export enum RepoRole {
 export type PermissionAction = 'read' | 'write' | 'manage' | 'admin';
 
 // Permission subjects
-export type PermissionSubject = 'repo' | 'test_case' | 'test_run' | 'config' | 'role';
+export type PermissionSubject = 'repo' | 'test_case' | 'test_run' | 'config' | 'role' | 'audit';
 
 export type AppAbility = PureAbility<[PermissionAction, PermissionSubject]>;
 
@@ -27,7 +27,7 @@ function defineAbilitiesFor(role: RepoRole | null) {
   switch (role) {
     case RepoRole.ADMIN:
       // Admins can do everything
-      can('read', ['repo', 'test_case', 'test_run', 'config', 'role']);
+      can('read', ['repo', 'test_case', 'test_run', 'config', 'role', 'audit']);
       can('write', ['repo', 'test_case', 'test_run', 'config']);
       can('manage', ['repo', 'test_case', 'test_run', 'config']);
       can('admin', ['role', 'config']);
