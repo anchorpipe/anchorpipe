@@ -1,10 +1,16 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@anchorpipe/database';
 import { createSessionJwt, setSessionCookie } from '@/lib/auth';
 import { hashPassword } from '@/lib/password';
 import { validateRequest } from '@/lib/validation';
 import { registerSchema } from '@/lib/schemas/auth';
 import { rateLimit } from '@/lib/rate-limit';
+import {
+  AUDIT_ACTIONS,
+  AUDIT_SUBJECTS,
+  extractRequestContext,
+  writeAuditLog,
+} from '@/lib/audit-service';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -35,10 +41,21 @@ export async function POST(request: Request) {
     }
 
     const { email, password } = validation.data;
+    const context = extractRequestContext(request as unknown as NextRequest);
 
     // Check if user already exists
     const existing = await prisma.user.findFirst({ where: { email } });
     if (existing) {
+      await writeAuditLog({
+        actorId: existing.id,
+        action: AUDIT_ACTIONS.loginFailure,
+        subject: AUDIT_SUBJECTS.security,
+        subjectId: existing.id,
+        description: 'Registration blocked: email already exists.',
+        metadata: { email },
+        ipAddress: context.ipAddress,
+        userAgent: context.userAgent,
+      });
       return NextResponse.json(
         { error: 'User with this email already exists' },
         { status: 409, headers: rateLimitResult.headers }
@@ -60,6 +77,17 @@ export async function POST(request: Request) {
     // Create session
     const token = await createSessionJwt({ sub: user.id, email: user.email || undefined });
     await setSessionCookie(token);
+
+    await writeAuditLog({
+      actorId: user.id,
+      action: AUDIT_ACTIONS.userCreated,
+      subject: AUDIT_SUBJECTS.user,
+      subjectId: user.id,
+      description: 'User account registered.',
+      metadata: { email },
+      ipAddress: context.ipAddress,
+      userAgent: context.userAgent,
+    });
 
     return NextResponse.json({ ok: true }, { status: 201, headers: rateLimitResult.headers });
   } catch (error) {

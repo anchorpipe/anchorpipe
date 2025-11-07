@@ -4,6 +4,9 @@ import { requireAuthz } from '@/lib/authz';
 import { assignRole, removeRole, getRepoUsers } from '@/lib/rbac-service';
 import { RepoRole } from '@/lib/rbac';
 import { validateRequest } from '@/lib/validation';
+import { extractRequestContext } from '@/lib/audit-service';
+
+export const dynamic = 'force-dynamic';
 
 const assignRoleSchema = z.object({
   userId: z.string().uuid(),
@@ -66,7 +69,7 @@ export async function POST(
     }
 
     const { userId, role } = validation.data;
-    await assignRole(context.userId, userId, repoId, role);
+    await assignRole(context.userId, userId, repoId, role, extractRequestContext(request));
 
     return NextResponse.json({
       message: 'Role assigned successfully',
@@ -109,7 +112,7 @@ export async function DELETE(
     }
 
     const { userId } = validation.data;
-    await removeRole(context.userId, userId, repoId);
+    await removeRole(context.userId, userId, repoId, extractRequestContext(request));
 
     return NextResponse.json({
       message: 'Role removed successfully',
