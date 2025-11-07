@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requestDataExport } from '@/lib/dsr-service';
 import { readSession } from '@/lib/auth';
+import { extractRequestContext } from '@/lib/audit-service';
 
-export async function POST(_request: NextRequest) {
+export const dynamic = 'force-dynamic';
+
+export async function POST(request: NextRequest) {
   try {
     const session = await readSession();
     const userId = session?.sub as string | undefined;
@@ -11,7 +14,7 @@ export async function POST(_request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const dsr = await requestDataExport(userId);
+    const dsr = await requestDataExport(userId, extractRequestContext(request));
 
     return NextResponse.json({
       requestId: dsr.id,

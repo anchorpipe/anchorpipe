@@ -63,6 +63,7 @@ model User {
   roleAuditLogsAsActor  RoleAuditLog[]       @relation("RoleAuditActor")
   roleAuditLogsAsTarget RoleAuditLog[]       @relation("RoleAuditTarget")
   dataSubjectRequests   DataSubjectRequest[]
+  auditLogs             AuditLog[]           @relation("AuditActor")
 
   @@index([githubId])
   @@map("users")
@@ -380,4 +381,54 @@ model RoleAuditLog {
   @@index([repoId])
   @@index([createdAt(sort: Desc)])
   @@map("role_audit_logs")
+}
+
+// ============================================
+// General Audit Logging
+// ============================================
+
+enum AuditAction {
+  login_success
+  login_failure
+  user_created
+  role_assigned
+  role_removed
+  dsr_export_request
+  dsr_export_download
+  dsr_deletion_request
+  config_updated
+  token_created
+  token_revoked
+  other
+}
+
+enum AuditSubject {
+  user
+  repo
+  dsr
+  configuration
+  security
+  session
+  token
+  system
+}
+
+model AuditLog {
+  id          String       @id @default(uuid())
+  actorId     String?      @map("actor_id")
+  action      AuditAction
+  subject     AuditSubject
+  subjectId   String?      @map("subject_id")
+  description String?
+  metadata    Json?
+  ipAddress   String?      @map("ip_address")
+  userAgent   String?      @map("user_agent")
+  createdAt   DateTime     @default(now()) @map("created_at")
+
+  // Relations
+  actor User? @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([subject, subjectId])
+  @@index([createdAt])
+  @@map("audit_logs")
 }

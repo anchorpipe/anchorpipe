@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { requestDataDeletion } from '@/lib/dsr-service';
 import { readSession } from '@/lib/auth';
+import { extractRequestContext } from '@/lib/audit-service';
 
 const deletionSchema = z
   .object({
@@ -9,29 +10,57 @@ const deletionSchema = z
   })
   .optional();
 
-export async function POST(request: NextRequest) {
-  try {
-    const session = await readSession();
-    const userId = session?.sub as string | undefined;
+export const dynamic = 'force-dynamic';
 
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+async function authenticate() {
+  const session = await readSession();
+  const userId = session?.sub as string | undefined;
 
-    const body = await request.json().catch(() => ({}));
-    const parsed = deletionSchema.safeParse(body);
+  if (!userId) {
+    return {
+      error: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }),
+      userId: null,
+    };
+  }
 
-    if (!parsed.success) {
-      return NextResponse.json(
+  return { userId };
+}
+
+function parseRequestBody(body: unknown) {
+  const parsed = deletionSchema.safeParse(body ?? {});
+  if (!parsed.success) {
+    return {
+      error: NextResponse.json(
         {
           error: 'Invalid request',
           details: parsed.error.flatten(),
         },
         { status: 400 }
-      );
+      ),
+      data: null,
+    };
+  }
+  return { data: parsed.data };
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const { userId, error: authError } = await authenticate();
+    if (authError || !userId) {
+      return authError as NextResponse;
     }
 
-    const dsr = await requestDataDeletion(userId, parsed.data?.reason);
+    const body = await request.json().catch(() => ({}));
+    const { data: validated, error: parseError } = parseRequestBody(body);
+    if (parseError) {
+      return parseError as NextResponse;
+    }
+
+    const dsr = await requestDataDeletion(
+      userId,
+      validated?.reason,
+      extractRequestContext(request)
+    );
 
     return NextResponse.json({
       requestId: dsr?.id,

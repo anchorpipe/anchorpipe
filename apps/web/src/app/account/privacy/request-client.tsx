@@ -1,5 +1,7 @@
 'use client';
 
+// cspell:ignore anchorpipe
+
 import { useState } from 'react';
 
 type SerializedRequest = {

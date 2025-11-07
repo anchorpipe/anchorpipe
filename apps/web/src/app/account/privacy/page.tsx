@@ -3,6 +3,31 @@ import { readSession } from '@/lib/auth';
 import { listDataSubjectRequests } from '@/lib/dsr-service';
 import DsrClient from './request-client';
 
+export const dynamic = 'force-dynamic';
+
+function serializeRequest(request: any) {
+  const serializeDate = (value: unknown) =>
+    value instanceof Date ? value.toISOString() : ((value as string | null | undefined) ?? null);
+
+  return {
+    id: request.id,
+    type: request.type,
+    status: request.status,
+    requestedAt: serializeDate(request.requestedAt),
+    processedAt: serializeDate(request.processedAt),
+    dueAt: serializeDate(request.dueAt),
+    confirmationSentAt: serializeDate(request.confirmationSentAt),
+    metadata: request.metadata ?? null,
+    events: (request.events ?? []).map((event: any) => ({
+      id: event.id,
+      status: event.status,
+      message: event.message,
+      createdAt: serializeDate(event.createdAt),
+    })),
+    exportAvailable: Boolean(request.exportData),
+  };
+}
+
 export default async function PrivacyPage() {
   const session = await readSession();
   const userId = session?.sub as string | undefined;
@@ -12,24 +37,7 @@ export default async function PrivacyPage() {
   }
 
   const requests = (await listDataSubjectRequests(userId)) as unknown as any[];
-
-  const serialized = requests.map((request: any) => ({
-    id: request.id,
-    type: request.type,
-    status: request.status,
-    requestedAt: request.requestedAt?.toISOString?.() ?? request.requestedAt,
-    processedAt: request.processedAt?.toISOString?.() ?? request.processedAt,
-    dueAt: request.dueAt?.toISOString?.() ?? request.dueAt,
-    confirmationSentAt: request.confirmationSentAt?.toISOString?.() ?? request.confirmationSentAt,
-    metadata: request.metadata ?? null,
-    events: request.events.map((event: any) => ({
-      id: event.id,
-      status: event.status,
-      message: event.message,
-      createdAt: event.createdAt?.toISOString?.() ?? event.createdAt,
-    })),
-    exportAvailable: Boolean(request.exportData),
-  }));
+  const serialized = requests.map(serializeRequest);
 
   return <DsrClient initialRequests={serialized} />;
 }

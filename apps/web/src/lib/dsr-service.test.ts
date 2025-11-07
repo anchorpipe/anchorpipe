@@ -1,10 +1,11 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import {
   getExportPayload,
   listDataSubjectRequests,
   requestDataDeletion,
   requestDataExport,
 } from './dsr-service';
+import { writeAuditLog } from './audit-service';
 
 vi.mock('@anchorpipe/database', () => {
   const mockPrisma = {
@@ -44,8 +45,21 @@ vi.mock('@anchorpipe/database', () => {
   };
 });
 
+vi.mock('./audit-service', () => ({
+  AUDIT_ACTIONS: {
+    dsrExportRequest: 'dsr_export_request',
+    dsrDeletionRequest: 'dsr_deletion_request',
+    dsrExportDownload: 'dsr_export_download',
+  },
+  AUDIT_SUBJECTS: {
+    dsr: 'dsr',
+  },
+  writeAuditLog: vi.fn(),
+}));
+
 describe('DSR Service', () => {
   let prismaMock: any;
+  const mockWriteAuditLog = writeAuditLog as unknown as Mock;
 
   beforeEach(async () => {
     vi.clearAllMocks();
@@ -111,6 +125,12 @@ describe('DSR Service', () => {
         })
       );
       expect(request.status).toBe('completed');
+      expect(mockWriteAuditLog).toHaveBeenCalledWith(
+        expect.objectContaining({
+          action: 'dsr_export_request',
+          subject: 'dsr',
+        })
+      );
     });
   });
 
@@ -151,6 +171,17 @@ describe('DSR Service', () => {
       });
       expect(prismaMock.telemetryEvent.create).toHaveBeenCalled();
       expect(result?.status).toBe('completed');
+      expect(mockWriteAuditLog).toHaveBeenCalledWith(
+        expect.objectContaining({
+          action: 'dsr_deletion_request',
+          subject: 'dsr',
+        })
+      );
+      expect(mockWriteAuditLog).toHaveBeenCalledWith(
+        expect.objectContaining({
+          metadata: expect.objectContaining({ status: 'completed' }),
+        })
+      );
     });
   });
 
