@@ -34,7 +34,12 @@ async function recordEvent(requestId: string, status: DsrStatus, message: string
   });
 }
 
-async function queueConfirmationTelemetry(userId: string, requestId: string, type: DsrType, status: DsrStatus) {
+async function queueConfirmationTelemetry(
+  userId: string,
+  requestId: string,
+  type: DsrType,
+  status: DsrStatus
+) {
   try {
     await prismaWithDsr.telemetryEvent.create({
       data: {
@@ -255,7 +260,11 @@ export async function requestDataDeletion(userId: string, reason?: string): Prom
     }),
   ]);
 
-  await recordEvent(request.id, DSR_STATUS.completed, 'Personal data redacted; deletion completed.');
+  await recordEvent(
+    request.id,
+    DSR_STATUS.completed,
+    'Personal data redacted; deletion completed.'
+  );
   await queueConfirmationTelemetry(userId, request.id, DSR_TYPE.deletion, DSR_STATUS.completed);
 
   const updated = await prismaWithDsr.dataSubjectRequest.findUnique({
