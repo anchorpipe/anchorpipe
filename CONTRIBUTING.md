@@ -97,11 +97,29 @@ See [docs/contributing/coding-standards.md](docs/contributing/coding-standards.m
 ## Project Structure
 
 - `apps/` - Applications (web, CLI, desktop)
-- `libs/` - Shared libraries and packages
+- `libs/` - Shared libraries and packages (Nx default; intentionally not named `packages/`)
 - `services/` - Backend services (ingestion, scoring)
 - `docs/` - Public documentation (Docusaurus)
 - `docs/internal/` - Internal documentation (planning, ADRs)
 - `.github/` - GitHub workflows and templates
+
+## Naming & Directory Conventions
+
+Follow the repository structure guidance in [`anchorpipe_guide_docs/impo/repo-structure-guide.md`](anchorpipe_guide_docs/impo/repo-structure-guide.md):
+
+- **Directories**: `kebab-case` (e.g., `test-report-parsers/`, `role-audit/`).
+- **TypeScript/JavaScript files**: `camelCase` (e.g., `rbacService.ts`); export defaults avoided unless necessary.
+- **Rust/Python files**: `snake_case` per language norms.
+- **Scripts**: `kebab-case` for shell (`deploy.sh`), `snake_case` for Python (`db_migrate.py`).
+- **ADRs**: `NNNN-title-words-separated-by-hyphens.md` (see [`adr/README.md`](adr/README.md)).
+- **Tests**: colocate next to source with `.test.ts` suffix or within `__tests__/`.
+- **README expectation**: Each top-level directory (`apps/<name>`, `libs/<name>`, `services/<name>`, `infra/`) must include a `README.md` documenting purpose, setup, and operational notes.
+
+When creating new libraries or services:
+
+1. Use Nx generators where available (`nx g @nx/node:lib my-lib`).
+2. Respect workspace aliases (`@anchorpipe/*`).
+3. Update this section if new naming rules are introduced.
 
 ## Areas for Contribution
 

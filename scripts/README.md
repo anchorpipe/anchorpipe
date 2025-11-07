@@ -1,44 +1,46 @@
-# Scripts Directory
+# Scripts
 
-This directory contains utility scripts for ongoing project management.
+Automation and operational tooling for anchorpipe. Scripts are grouped by domain to keep maintenance simple and to align with the repository structure guide.
 
-## Available Scripts
+```
+scripts/
+├── github/            # GitHub automation + repository hygiene
+├── maintenance/       # One-off cleanup and project maintenance utilities
+├── rbac/              # RBAC API test harness and setup helpers
+└── README.md
+```
 
-### Utility Scripts (Active)
+## Directory Overview
 
-- **`labels-sync.ps1`** - Sync labels from `.github/labels.yml` to GitHub repository
-  - Usage: `.\scripts\labels-sync.ps1`
-  - Keeps repository labels in sync with source of truth
+### `github/`
 
-- **`analyze-labels.ps1`** - Analyze existing labels and their usage
-  - Usage: `.\scripts\analyze-labels.ps1`
-  - Useful for understanding label usage patterns
+- `analyze-labels.ps1` — Audits GitHub labels and usage statistics.
+- `labels-sync.ps1` — Synchronizes labels from `.github/labels.yml` to the hosted repo.
 
-- **`cleanup-project-v2-docs.ps1`** - Clean up temporary Project V2 documentation
-  - Usage: `.\scripts\cleanup-project-v2-docs.ps1`
-  - Removes obsolete setup documentation files
+### `maintenance/`
 
-## Archived Scripts
+- `archive-setup-scripts.ps1` — Moves legacy Project V2 setup scripts into the archive folder.
+- `cleanup-project-v2-docs.ps1` — Removes temporary documentation created during the Project V2 bootstrapping phase.
 
-One-time setup scripts have been moved to `tempo-local/used-scripts/` for reference:
+### `rbac/`
 
-- Issue addition scripts
-- Field creation and population scripts
-- Mapping and linking scripts
-- Setup and configuration scripts
-
-These scripts were used during the Project V2 setup phase and are no longer needed for daily operations.
+- `setup-rbac-test.js` / `setup-rbac-test.ps1` — Bootstraps test data (users, repos, roles) for RBAC scenarios.
+- `test-rbac-api.sh` / `test-rbac-api.ps1` — Exercise RBAC endpoints for regression checks.
+- `RBAC-TESTING-GUIDE.md` — Manual testing playbook describing the full flow.
 
 ## Usage
 
-To run a script:
+- PowerShell: `pwsh -File scripts/<subdir>/<script>.ps1`
+- Bash: `bash scripts/<subdir>/<script>.sh`
+- Node: `node scripts/<subdir>/<script>.js`
 
-```powershell
-.\scripts\<script-name>.ps1
-```
+Scripts are expected to be idempotent where possible and include inline comments describing parameters. Cross-platform equivalents are provided when practical (e.g., PowerShell and Bash versions for RBAC tests).
 
-Most scripts accept parameters. Check the script's help or source code for details.
+## Adding a New Script
 
----
+1. Choose or create the appropriate subdirectory (prefer reusing an existing domain).
+2. Use `kebab-case` for filenames (e.g., `sync-metrics.sh`).
+3. Include a short header comment describing purpose and arguments.
+4. Update this README with the new script and instructions.
 
-**Note**: If you need to reference the archived setup scripts, they are available in `tempo-local/used-scripts/`.
+Archived one-off setup helpers remain in `tempo-local/used-scripts/` for historical reference.
