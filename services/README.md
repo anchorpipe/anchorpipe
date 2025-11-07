@@ -4,12 +4,12 @@ This directory hosts independently deployable backend services for anchorpipe. E
 
 ## Planned Services
 
-| Service | Language | Purpose | Status |
-| --- | --- | --- | --- |
-| `ingestion/` | Rust/Go | Accept test run payloads, normalize results, push to MQ | Planned (ST-401) |
-| `mcp/` | Go/Python | ML & scoring pipeline for flake analysis | Planned (ST-303) |
-| `notification/` | Node/Go | Deliver notifications to Slack/email/webhooks | Planned |
-| `scheduler/` | Node/Go | Background jobs (rollups, cleanups) | Planned |
+| Service         | Language  | Purpose                                                 | Status           |
+| --------------- | --------- | ------------------------------------------------------- | ---------------- |
+| `ingestion/`    | Rust/Go   | Accept test run payloads, normalize results, push to MQ | Planned (ST-401) |
+| `mcp/`          | Go/Python | ML & scoring pipeline for flake analysis                | Planned (ST-303) |
+| `notification/` | Node/Go   | Deliver notifications to Slack/email/webhooks           | Planned          |
+| `scheduler/`    | Node/Go   | Background jobs (rollups, cleanups)                     | Planned          |
 
 ## Directory Expectations
 

@@ -39,14 +39,14 @@ await uploadFile(client, {
 
 ## Provided Helpers
 
-| Function | Description |
-| --- | --- |
-| `createMinioClient(config)` | Returns a configured MinIO client. |
-| `checkMinioHealth(client)` | Lightweight health-check by listing buckets. |
-| `ensureBucketExists(client, bucket)` | Idempotently creates a bucket (us-east-1 region default). |
-| `uploadFile(client, options)` | Uploads data (Buffer/String) ensuring bucket exists. |
-| `downloadFile(client, bucket, object)` | Downloads object and returns a `Buffer`. |
-| `deleteFile(client, bucket, object)` | Removes object from storage. |
+| Function                               | Description                                               |
+| -------------------------------------- | --------------------------------------------------------- |
+| `createMinioClient(config)`            | Returns a configured MinIO client.                        |
+| `checkMinioHealth(client)`             | Lightweight health-check by listing buckets.              |
+| `ensureBucketExists(client, bucket)`   | Idempotently creates a bucket (us-east-1 region default). |
+| `uploadFile(client, options)`          | Uploads data (Buffer/String) ensuring bucket exists.      |
+| `downloadFile(client, bucket, object)` | Downloads object and returns a `Buffer`.                  |
+| `deleteFile(client, bucket, object)`   | Removes object from storage.                              |
 
 ## Conventions
 
