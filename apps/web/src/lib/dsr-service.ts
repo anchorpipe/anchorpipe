@@ -1,4 +1,5 @@
 import { prisma } from '@anchorpipe/database';
+import { AUDIT_ACTIONS, AUDIT_SUBJECTS, RequestContext, writeAuditLog } from './audit-service';
 
 const prismaWithDsr = prisma as any;
 const DEFAULT_SLA_DAYS = parseInt(process.env.DSR_SLA_DAYS ?? '30', 10);
@@ -17,6 +18,37 @@ const DSR_TYPE = {
 
 type DsrStatus = (typeof DSR_STATUS)[keyof typeof DSR_STATUS];
 type DsrType = (typeof DSR_TYPE)[keyof typeof DSR_TYPE];
+
+interface DsrExportPayload {
+  user: {
+    id: string;
+    email: string | null;
+    githubLogin: string | null;
+    name: string | null;
+    telemetryOptIn: boolean;
+    createdAt: Date;
+    preferences: unknown;
+  };
+  repoRoles: Array<{
+    repoId: string;
+    role: string;
+    assignedBy: string | null;
+    createdAt: Date;
+    repo: {
+      id: string;
+      name: string;
+      owner: string;
+    };
+  }>;
+  roleAuditLogs: Array<{
+    actingAs: 'actor' | 'target';
+    repoId: string;
+    action: string;
+    oldRole: string | null;
+    newRole: string | null;
+    createdAt: Date;
+  }>;
+}
 
 function addDays(base: Date, days: number): Date {
   const clone = new Date(base.getTime());
@@ -79,11 +111,8 @@ export async function listDataSubjectRequests(userId: string): Promise<any[]> {
   })) as any[];
 }
 
-export async function requestDataExport(userId: string): Promise<any> {
-  const now = new Date();
-  const dueAt = addDays(now, DEFAULT_SLA_DAYS);
-
-  const user = await prismaWithDsr.user.findUnique({
+async function fetchUserForExport(userId: string) {
+  return prismaWithDsr.user.findUnique({
     where: { id: userId },
     include: {
       repoRoles: {
@@ -107,12 +136,10 @@ export async function requestDataExport(userId: string): Promise<any> {
       },
     },
   });
+}
 
-  if (!user) {
-    throw new Error('User not found');
-  }
-
-  const exportPayload = {
+function buildExportPayload(user: any): DsrExportPayload {
+  return {
     user: {
       id: user.id,
       email: user.email,
@@ -131,7 +158,7 @@ export async function requestDataExport(userId: string): Promise<any> {
     })),
     roleAuditLogs: [
       ...user.roleAuditLogsAsActor.map((entry: any) => ({
-        actingAs: 'actor',
+        actingAs: 'actor' as const,
         repoId: entry.repoId,
         action: entry.action,
         oldRole: entry.oldRole,
@@ -139,7 +166,7 @@ export async function requestDataExport(userId: string): Promise<any> {
         createdAt: entry.createdAt,
       })),
       ...user.roleAuditLogsAsTarget.map((entry: any) => ({
-        actingAs: 'target',
+        actingAs: 'target' as const,
         repoId: entry.repoId,
         action: entry.action,
         oldRole: entry.oldRole,
@@ -148,8 +175,15 @@ export async function requestDataExport(userId: string): Promise<any> {
       })),
     ],
   };
+}
 
-  const request = await prismaWithDsr.dataSubjectRequest.create({
+async function createExportRequest(
+  userId: string,
+  payload: DsrExportPayload,
+  dueAt: Date,
+  now: Date
+) {
+  return prismaWithDsr.dataSubjectRequest.create({
     data: {
       userId,
       type: DSR_TYPE.export,
@@ -157,7 +191,7 @@ export async function requestDataExport(userId: string): Promise<any> {
       dueAt,
       processedAt: now,
       confirmationSentAt: now,
-      exportData: exportPayload,
+      exportData: payload,
       events: {
         create: [
           {
@@ -181,13 +215,78 @@ export async function requestDataExport(userId: string): Promise<any> {
       },
     },
   });
+}
+
+async function logExportAudit(
+  userId: string,
+  requestId: string,
+  payload: DsrExportPayload,
+  context?: RequestContext
+) {
+  await writeAuditLog({
+    actorId: userId,
+    action: AUDIT_ACTIONS.dsrExportRequest,
+    subject: AUDIT_SUBJECTS.dsr,
+    subjectId: requestId,
+    description: 'User generated data export payload.',
+    metadata: {
+      status: DSR_STATUS.completed,
+      roleCount: payload.repoRoles.length,
+    },
+    ipAddress: context?.ipAddress ?? null,
+    userAgent: context?.userAgent ?? null,
+  });
+}
+
+async function logDeletionAudit(
+  userId: string,
+  requestId: string,
+  status: DsrStatus,
+  extraMetadata: Record<string, unknown>,
+  context?: RequestContext
+) {
+  await writeAuditLog({
+    actorId: userId,
+    action: AUDIT_ACTIONS.dsrDeletionRequest,
+    subject: AUDIT_SUBJECTS.dsr,
+    subjectId: requestId,
+    description:
+      status === DSR_STATUS.processing
+        ? 'User initiated data deletion workflow.'
+        : 'User deletion workflow completed.',
+    metadata: {
+      status,
+      ...extraMetadata,
+    },
+    ipAddress: context?.ipAddress ?? null,
+    userAgent: context?.userAgent ?? null,
+  });
+}
+
+export async function requestDataExport(userId: string, context?: RequestContext): Promise<any> {
+  const now = new Date();
+  const dueAt = addDays(now, DEFAULT_SLA_DAYS);
+
+  const user = await fetchUserForExport(userId);
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  const exportPayload = buildExportPayload(user);
+  const request = await createExportRequest(userId, exportPayload, dueAt, now);
 
   await queueConfirmationTelemetry(userId, request.id, DSR_TYPE.export, DSR_STATUS.completed);
+  await logExportAudit(userId, request.id, exportPayload, context);
 
   return request as any;
 }
 
-export async function requestDataDeletion(userId: string, reason?: string): Promise<any> {
+export async function requestDataDeletion(
+  userId: string,
+  reason?: string,
+  context?: RequestContext
+): Promise<any> {
   const now = new Date();
   const dueAt = addDays(now, DEFAULT_SLA_DAYS);
 
@@ -229,6 +328,16 @@ export async function requestDataDeletion(userId: string, reason?: string): Prom
   });
 
   const summary = redactUserForDeletion(user);
+
+  await logDeletionAudit(
+    userId,
+    request.id,
+    DSR_STATUS.processing,
+    {
+      reason: reason ?? null,
+    },
+    context
+  );
 
   await prismaWithDsr.$transaction([
     prismaWithDsr.session.deleteMany({ where: { userId } }),
@@ -275,6 +384,16 @@ export async function requestDataDeletion(userId: string, reason?: string): Prom
       },
     },
   });
+
+  await logDeletionAudit(
+    userId,
+    request.id,
+    DSR_STATUS.completed,
+    {
+      rolesRemoved: user.repoRoles.length,
+    },
+    context
+  );
 
   return updated as any;
 }

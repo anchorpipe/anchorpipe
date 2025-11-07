@@ -1,6 +1,13 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { getUserRepoRole, assignRole, removeRole, getUserAbility } from './rbac-service';
+import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest';
+import {
+  getUserRepoRole,
+  assignRole,
+  removeRole,
+  getUserAbility,
+  userHasAdminRole,
+} from './rbac-service';
 import { RepoRole } from './rbac';
+import { writeAuditLog } from './audit-service';
 
 // Mock Prisma client
 vi.mock('@anchorpipe/database', () => {
@@ -10,6 +17,7 @@ vi.mock('@anchorpipe/database', () => {
       findMany: vi.fn(),
       upsert: vi.fn(),
       delete: vi.fn(),
+      findFirst: vi.fn(),
     },
     roleAuditLog: {
       create: vi.fn(),
@@ -21,12 +29,34 @@ vi.mock('@anchorpipe/database', () => {
   };
 });
 
+vi.mock('./audit-service', () => ({
+  AUDIT_ACTIONS: {
+    roleAssigned: 'role_assigned',
+    roleRemoved: 'role_removed',
+  },
+  AUDIT_SUBJECTS: {
+    repo: 'repo',
+  },
+  writeAuditLog: vi.fn(),
+}));
+
 describe('RBAC Service', () => {
   const mockUserId = 'user-123';
   const mockRepoId = 'repo-456';
   const mockActorId = 'actor-789';
 
   let mockPrisma: any;
+  const mockWriteAuditLog = writeAuditLog as unknown as Mock;
+
+  function expectAuditLogCalled(action: string, repoId: string) {
+    expect(mockWriteAuditLog).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action,
+        subject: 'repo',
+        subjectId: repoId,
+      })
+    );
+  }
 
   beforeEach(async () => {
     vi.clearAllMocks();
@@ -85,6 +115,7 @@ describe('RBAC Service', () => {
 
       expect(mockPrisma.userRepoRole.upsert).toHaveBeenCalled();
       expect(mockPrisma.roleAuditLog.create).toHaveBeenCalled();
+      expectAuditLogCalled('role_assigned', mockRepoId);
     });
   });
 
@@ -111,6 +142,21 @@ describe('RBAC Service', () => {
 
       expect(mockPrisma.userRepoRole.delete).toHaveBeenCalled();
       expect(mockPrisma.roleAuditLog.create).toHaveBeenCalled();
+      expectAuditLogCalled('role_removed', mockRepoId);
+    });
+  });
+
+  describe('userHasAdminRole', () => {
+    it('returns true when user has admin role', async () => {
+      mockPrisma.userRepoRole.findFirst.mockResolvedValue({ id: 'role-1' });
+      const result = await userHasAdminRole(mockUserId);
+      expect(result).toBe(true);
+    });
+
+    it('returns false when user has no admin role', async () => {
+      mockPrisma.userRepoRole.findFirst.mockResolvedValue(null);
+      const result = await userHasAdminRole(mockUserId);
+      expect(result).toBe(false);
     });
   });
 
