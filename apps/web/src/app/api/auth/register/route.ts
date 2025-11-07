@@ -1,9 +1,16 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@anchorpipe/database';
 import { createSessionJwt, setSessionCookie } from '@/lib/auth';
 import { hashPassword } from '@/lib/password';
-import { validateEmail, validatePassword } from '@/lib/validation';
+import { validateRequest } from '@/lib/validation';
+import { registerSchema } from '@/lib/schemas/auth';
 import { rateLimit } from '@/lib/rate-limit';
+import {
+  AUDIT_ACTIONS,
+  AUDIT_SUBJECTS,
+  extractRequestContext,
+  writeAuditLog,
+} from '@/lib/audit-service';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -21,27 +28,38 @@ export async function POST(request: Request) {
       );
     }
 
-    const body = await request.json();
-    const email = String(body?.email || '')
-      .trim()
-      .toLowerCase();
-    const password = String(body?.password || '');
-
-    // Validation
-    const emailError = validateEmail(email);
-    if (emailError) {
-      return NextResponse.json({ error: emailError }, { status: 400 });
+    // Validate request body with Zod schema
+    const validation = await validateRequest(request, registerSchema);
+    if (!validation.success) {
+      return NextResponse.json(
+        {
+          error: validation.error.error,
+          details: validation.error.details,
+        },
+        { status: 400, headers: rateLimitResult.headers }
+      );
     }
 
-    const passwordError = validatePassword(password);
-    if (passwordError) {
-      return NextResponse.json({ error: passwordError }, { status: 400 });
-    }
+    const { email, password } = validation.data;
+    const context = extractRequestContext(request as unknown as NextRequest);
 
     // Check if user already exists
     const existing = await prisma.user.findFirst({ where: { email } });
     if (existing) {
-      return NextResponse.json({ error: 'User already exists' }, { status: 409 });
+      await writeAuditLog({
+        actorId: existing.id,
+        action: AUDIT_ACTIONS.loginFailure,
+        subject: AUDIT_SUBJECTS.security,
+        subjectId: existing.id,
+        description: 'Registration blocked: email already exists.',
+        metadata: { email },
+        ipAddress: context.ipAddress,
+        userAgent: context.userAgent,
+      });
+      return NextResponse.json(
+        { error: 'User with this email already exists' },
+        { status: 409, headers: rateLimitResult.headers }
+      );
     }
 
     // Hash password and create user
@@ -60,7 +78,18 @@ export async function POST(request: Request) {
     const token = await createSessionJwt({ sub: user.id, email: user.email || undefined });
     await setSessionCookie(token);
 
-    return NextResponse.json({ ok: true, userId: user.id }, { headers: rateLimitResult.headers });
+    await writeAuditLog({
+      actorId: user.id,
+      action: AUDIT_ACTIONS.userCreated,
+      subject: AUDIT_SUBJECTS.user,
+      subjectId: user.id,
+      description: 'User account registered.',
+      metadata: { email },
+      ipAddress: context.ipAddress,
+      userAgent: context.userAgent,
+    });
+
+    return NextResponse.json({ ok: true }, { status: 201, headers: rateLimitResult.headers });
   } catch (error) {
     console.error('Registration error:', error);
     return NextResponse.json({ error: 'Unexpected error' }, { status: 500 });

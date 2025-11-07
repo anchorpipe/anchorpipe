@@ -47,7 +47,7 @@ COPY libs/database/tsconfig.json ./libs/database/tsconfig.json
 
 # Copy mq library contents
 COPY libs/mq/src ./libs/mq/src
-\
+# (removed stray backslash)
 # Copy storage library contents
 COPY libs/storage/src ./libs/storage/src
 

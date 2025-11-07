@@ -1,0 +1,17 @@
+---
+description: React Component Creation Patterns
+globs:
+  - 'apps/web/**/*.tsx'
+  - 'packages/ui/**/*.tsx'
+alwaysApply: false
+---
+
+# Anchorpipe React Component Rules
+
+- Component structure: Props interface → Component → Export; colocate types.
+- Use function components with hooks; avoid class components.
+- Extract custom hooks for reusable logic; keep components focused on rendering.
+- Props: Use TypeScript interfaces; mark optional props with `?`; provide defaults where sensible.
+- State: Prefer local state; lift up only when needed; use context sparingly.
+- Performance: Memoize expensive computations; use `React.memo` for pure components; avoid unnecessary re-renders.
+- Accessibility: Semantic HTML; ARIA when necessary; keyboard support; focus management.

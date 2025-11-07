@@ -1,9 +1,16 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@anchorpipe/database';
 import { createSessionJwt, setSessionCookie } from '@/lib/auth';
 import { verifyPassword } from '@/lib/password';
-import { validateEmail } from '@/lib/validation';
+import { validateRequest } from '@/lib/validation';
+import { loginSchema } from '@/lib/schemas/auth';
 import { rateLimit } from '@/lib/rate-limit';
+import {
+  AUDIT_ACTIONS,
+  AUDIT_SUBJECTS,
+  extractRequestContext,
+  writeAuditLog,
+} from '@/lib/audit-service';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -21,31 +28,32 @@ export async function POST(request: Request) {
       );
     }
 
-    const body = await request.json();
-    const email = String(body?.email || '')
-      .trim()
-      .toLowerCase();
-    const password = String(body?.password || '');
-
-    // Validation
-    const emailError = validateEmail(email);
-    if (emailError) {
+    // Validate request body with Zod schema
+    const validation = await validateRequest(request, loginSchema);
+    if (!validation.success) {
       return NextResponse.json(
-        { error: emailError },
+        {
+          error: validation.error.error,
+          details: validation.error.details,
+        },
         { status: 400, headers: rateLimitResult.headers }
       );
     }
 
-    if (!password || password.length === 0) {
-      return NextResponse.json(
-        { error: 'Password is required' },
-        { status: 400, headers: rateLimitResult.headers }
-      );
-    }
+    const { email, password } = validation.data;
+    const context = extractRequestContext(request as unknown as NextRequest);
 
     // Find user
     const user = await prisma.user.findFirst({ where: { email } });
     if (!user) {
+      await writeAuditLog({
+        action: AUDIT_ACTIONS.loginFailure,
+        subject: AUDIT_SUBJECTS.security,
+        description: 'Failed login - user not found.',
+        metadata: { email },
+        ipAddress: context.ipAddress,
+        userAgent: context.userAgent,
+      });
       // Don't reveal if user exists (security best practice)
       return NextResponse.json(
         { error: 'Invalid credentials' },
@@ -56,6 +64,16 @@ export async function POST(request: Request) {
     // Verify password
     const passwordHash = (user.preferences as { passwordHash?: string } | null)?.passwordHash;
     if (!passwordHash) {
+      await writeAuditLog({
+        actorId: user.id,
+        action: AUDIT_ACTIONS.loginFailure,
+        subject: AUDIT_SUBJECTS.user,
+        subjectId: user.id,
+        description: 'Failed login - password not set.',
+        metadata: { email },
+        ipAddress: context.ipAddress,
+        userAgent: context.userAgent,
+      });
       // User exists but no password set (e.g., OAuth-only user)
       return NextResponse.json(
         { error: 'Invalid credentials' },
@@ -65,6 +83,16 @@ export async function POST(request: Request) {
 
     const isValid = await verifyPassword(password, passwordHash);
     if (!isValid) {
+      await writeAuditLog({
+        actorId: user.id,
+        action: AUDIT_ACTIONS.loginFailure,
+        subject: AUDIT_SUBJECTS.user,
+        subjectId: user.id,
+        description: 'Failed login - invalid password.',
+        metadata: { email },
+        ipAddress: context.ipAddress,
+        userAgent: context.userAgent,
+      });
       return NextResponse.json(
         { error: 'Invalid credentials' },
         { status: 401, headers: rateLimitResult.headers }
@@ -80,6 +108,17 @@ export async function POST(request: Request) {
     // Create session
     const token = await createSessionJwt({ sub: user.id, email: user.email || undefined });
     await setSessionCookie(token);
+
+    await writeAuditLog({
+      actorId: user.id,
+      action: AUDIT_ACTIONS.loginSuccess,
+      subject: AUDIT_SUBJECTS.user,
+      subjectId: user.id,
+      description: 'User logged in successfully.',
+      metadata: { email },
+      ipAddress: context.ipAddress,
+      userAgent: context.userAgent,
+    });
 
     return NextResponse.json({ ok: true }, { headers: rateLimitResult.headers });
   } catch (error) {

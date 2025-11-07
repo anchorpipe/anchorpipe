@@ -1,0 +1,17 @@
+---
+description: GitHub Code Quality and Review Standards
+globs:
+  - '.github/**'
+  - '**/*.md'
+alwaysApply: true
+---
+
+# Anchorpipe GitHub Code Quality Rules
+
+- Enforce DCO and Conventional Commits; reject unsigned commits.
+- Before proposing changes, account for required checks: lint, typecheck, build, db-health, openapi-validate, DCO, CodeQL, link-check.
+- Do not suggest changes that weaken security headers/CSP, validation, CSRF/origin, or rate limits.
+- Respect performance and a11y budgets; call out potential regressions and require ADR.
+- Use only repository label taxonomy: `type:*`, `gate:*`, `area:*`, `priority:*`.
+- Preserve monorepo structure (apps/, services/, packages/, infra/, docs/); avoid relocating without ADR.
+- Provide file-by-file edits; do not invent unrelated changes; avoid whitespace-only diffs.

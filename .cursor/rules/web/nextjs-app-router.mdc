@@ -1,0 +1,15 @@
+---
+description: Next.js App Router Guidelines
+globs:
+  - 'apps/web/**'
+alwaysApply: false
+---
+
+# Anchorpipe Web (Next.js App Router) Rules
+
+- Preserve security headers and CSP in middleware; never weaken defaults.
+- Validate all API input with Zod schemas; reject unexpected fields.
+- Maintain budgets: entry bundle < 100KB gz; CWV Good; WCAG 2.2 AA on polished pages.
+- Prefer RSC-first, code-splitting, Suspense/streaming; avoid unnecessary client JS.
+- Do not introduce blocking network calls in critical path; cache with ETag/ISR where applicable.
+- Changes to auth, headers, rate limits, or CSP require explicit callout and tests.

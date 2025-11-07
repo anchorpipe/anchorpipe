@@ -1,0 +1,34 @@
+---
+description: Docker and Containerization
+globs:
+  - '**/Dockerfile'
+  - '**/docker-compose.yml'
+alwaysApply: false
+---
+
+# Anchorpipe Docker Rules
+
+- Dockerfile Best Practices
+  - Multi-stage builds: separate build and runtime stages.
+  - Non-root users: create and use dedicated user (UID > 1000).
+  - Minimal base images: prefer alpine or distroless; avoid full OS images.
+  - Layer caching: order commands by change frequency; copy deps before source.
+
+- Security
+  - Scan images with Trivy in CI; fail on high/critical CVEs.
+  - Generate SBOM with Syft; store in GHCR or artifact registry.
+  - No secrets in images; use build args or secrets mounts.
+
+- Tagging & Versioning
+  - Tag with: `sha-<short>` (immutable), `v<semver>` (releases), `latest` (main only).
+  - Push to GHCR; use `ghcr.io/anchorpipe/<service>:<tag>`.
+
+- Development
+  - docker-compose.yml: local services (Postgres:15432, Redis:16379, RabbitMQ:15672, MinIO:9000).
+  - Health checks for all services; wait scripts for startup dependencies.
+  - Volume mounts for hot reload in dev; avoid in production.
+
+- CI/CD
+  - Use buildx with cache-from/cache-to; parallel builds where possible.
+  - Build only on main/tags or when Dockerfile changes.
+  - Test images before push; run smoke tests in container.

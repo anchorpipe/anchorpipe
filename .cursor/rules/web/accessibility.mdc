@@ -1,0 +1,17 @@
+---
+description: WCAG 2.2 Accessibility Standards
+globs:
+  - 'apps/web/**/*.tsx'
+  - 'apps/web/**/*.ts'
+alwaysApply: false
+---
+
+# Anchorpipe A11y Rules (WCAG 2.2)
+
+- Baseline AA; target AAA on Global Overview, Test Detail, PR surfaces.
+- Structure: semantic landmarks (<main>, <nav>, headings), correct ARIA only when necessary.
+- Keyboard: full access, logical tab order, visible focus, skip links, no traps.
+- Color/contrast: >= 4.5:1 text; provide high-contrast theme.
+- Motion: respect prefers-reduced-motion.
+- Forms: associated labels, aria-live for inline errors, clear helper text/examples.
+- Testing: run axe on polished pages; add manual SR and keyboard passes; block merge on critical violations.

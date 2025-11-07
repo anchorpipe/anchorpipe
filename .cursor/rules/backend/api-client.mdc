@@ -1,0 +1,17 @@
+---
+description: API Client Patterns (Axios/Fetch)
+globs:
+  - 'packages/api-client/**'
+  - 'apps/web/src/lib/api/**'
+alwaysApply: false
+---
+
+# Anchorpipe API Client Rules
+
+- Use typed clients; generate types from OpenAPI schema when possible.
+- Error handling: Consistent error types; map HTTP status codes to domain errors.
+- Request interceptors: Add auth tokens, correlation IDs, request timing.
+- Response interceptors: Handle common errors, retry logic, response transformation.
+- Retry logic: Exponential backoff for transient failures; respect Retry-After headers.
+- Timeouts: Set appropriate timeouts; fail fast for user-facing requests.
+- Caching: Use ETag/Last-Modified for cacheable GET requests; invalidate on mutations.

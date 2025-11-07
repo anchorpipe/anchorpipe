@@ -1,0 +1,40 @@
+---
+description: Scripts and Automation Guidelines
+globs:
+  - 'scripts/**'
+  - '**/*.sh'
+  - '**/*.ps1'
+alwaysApply: false
+---
+
+# Anchorpipe Scripts Rules
+
+- Shell Scripts
+  - Use shebang (`#!/bin/bash` or `#!/usr/bin/env pwsh`); make executable (`chmod +x`).
+  - Idempotent where possible; clear error messages; exit codes.
+  - Document purpose, args, env vars, and examples in header comments.
+
+- Development Scripts
+  - `dev.sh`: Start local stack (docker-compose up); verify services healthy.
+  - `build.sh`: Build all apps/services; respect Nx caching; fail fast on errors.
+  - `test.sh`: Run all tests; support watch mode; coverage reporting.
+
+- Database Scripts
+  - `db-migrate.sh`: Run prisma migrate deploy; validate before breaking changes.
+  - `db-seed.sh`: Seed dev data; idempotent; clear existing data option.
+
+- Deployment Scripts
+  - `deploy.sh`: Environment-aware; verify secrets; rollback capability.
+  - Never hardcode secrets; use env vars or platform secrets.
+
+- ADR & Documentation
+  - `generate-adr.sh`: Scaffold new ADR with template; auto-number.
+  - Follow ADR format from repo-structure-guide.md.
+
+- Cleanup & Maintenance
+  - `clean.sh`: Remove build artifacts, node_modules (optional), caches.
+  - `setup.sh`: Initial project setup; verify prerequisites; install deps.
+
+- Cross-Platform
+  - Prefer PowerShell on Windows; bash on Unix; test both when possible.
+  - Use relative paths; avoid platform-specific assumptions.

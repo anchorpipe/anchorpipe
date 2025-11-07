@@ -1,0 +1,13 @@
+---
+description: Motion and Micro-interactions
+globs:
+  - 'apps/web/**/*.tsx'
+alwaysApply: false
+---
+
+# Anchorpipe Motion & Micro-interactions
+
+- Purposeful animations only; communicate state/feedback or guide attention.
+- Performance: GPU-friendly transforms; short durations; avoid layout thrash.
+- Respect `prefers-reduced-motion` with functional alternatives.
+- Categories: feedback, transitions, loading, attention; keep subtle by default.

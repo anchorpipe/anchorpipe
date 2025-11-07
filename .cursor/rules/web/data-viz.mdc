@@ -1,0 +1,13 @@
+---
+description: Data Visualization Guidelines
+globs:
+  - 'apps/web/**/*.tsx'
+alwaysApply: false
+---
+
+# Anchorpipe Data Visualization
+
+- Multi-scale: enable zoom/drill-down with context retention.
+- Explainability: show factor breakdowns for ML/score visuals.
+- Interactive filters with keyboard support; high-contrast color ramps.
+- Virtualize large tables/lists; paginate; avoid blocking renders.

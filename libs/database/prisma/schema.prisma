@@ -33,6 +33,7 @@ model Repo {
   telemetryEvents   TelemetryEvent[]
   repositoryConfigs RepositoryConfig[]
   notifications     Notification[]
+  userRoles         UserRepoRole[]
 
   @@index([ghId])
   @@map("repos")
@@ -55,9 +56,14 @@ model User {
   preferences    Json? // User preferences (JSONB)
 
   // Relations
-  telemetryEvents TelemetryEvent[]
-  accounts        Account[]
-  sessions        Session[]
+  telemetryEvents       TelemetryEvent[]
+  accounts              Account[]
+  sessions              Session[]
+  repoRoles             UserRepoRole[]
+  roleAuditLogsAsActor  RoleAuditLog[]       @relation("RoleAuditActor")
+  roleAuditLogsAsTarget RoleAuditLog[]       @relation("RoleAuditTarget")
+  dataSubjectRequests   DataSubjectRequest[]
+  auditLogs             AuditLog[]           @relation("AuditActor")
 
   @@index([githubId])
   @@map("users")
@@ -272,4 +278,157 @@ enum NotificationSeverity {
   warning
   error
   critical
+}
+
+// ============================================
+// Data Subject Requests (Privacy / Compliance)
+// ============================================
+
+enum DataSubjectRequestType {
+  export
+  deletion
+}
+
+enum DataSubjectRequestStatus {
+  pending
+  processing
+  completed
+  failed
+}
+
+model DataSubjectRequest {
+  id                 String                   @id @default(uuid())
+  userId             String                   @map("user_id")
+  type               DataSubjectRequestType
+  status             DataSubjectRequestStatus @default(pending)
+  requestedAt        DateTime                 @default(now()) @map("requested_at")
+  dueAt              DateTime                 @map("due_at")
+  processedAt        DateTime?                @map("processed_at")
+  confirmationSentAt DateTime?                @map("confirmation_sent_at")
+  exportData         Json?                    @map("export_data")
+  metadata           Json?
+
+  // Relations
+  user   User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  events DataSubjectRequestEvent[]
+
+  @@index([userId, requestedAt(sort: Desc)])
+  @@map("data_subject_requests")
+}
+
+model DataSubjectRequestEvent {
+  id        String                   @id @default(uuid())
+  requestId String                   @map("request_id")
+  status    DataSubjectRequestStatus
+  message   String?
+  createdAt DateTime                 @default(now()) @map("created_at")
+
+  // Relations
+  request DataSubjectRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@index([requestId, createdAt(sort: Desc)])
+  @@map("data_subject_request_events")
+}
+
+// ============================================
+// RBAC (Role-Based Access Control)
+// ============================================
+
+enum RepoRole {
+  admin // Full access: manage roles, config, data
+  member // Write access: view and modify data
+  read_only // Read-only access: view data only
+}
+
+model UserRepoRole {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  repoId     String   @map("repo_id")
+  role       RepoRole
+  assignedBy String?  @map("assigned_by") // User ID who assigned this role
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  repo Repo @relation(fields: [repoId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, repoId])
+  @@index([userId])
+  @@index([repoId])
+  @@index([role])
+  @@map("user_repo_roles")
+}
+
+// Audit log for role changes
+model RoleAuditLog {
+  id           String    @id @default(uuid())
+  actorId      String    @map("actor_id") // User who made the change
+  targetUserId String    @map("target_user_id") // User whose role changed
+  repoId       String    @map("repo_id")
+  action       String // "assigned", "updated", "removed"
+  oldRole      RepoRole? @map("old_role")
+  newRole      RepoRole? @map("new_role")
+  metadata     Json? // Additional context (JSONB)
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  // Relations (optional - for easier querying)
+  actor      User @relation("RoleAuditActor", fields: [actorId], references: [id], onDelete: Cascade)
+  targetUser User @relation("RoleAuditTarget", fields: [targetUserId], references: [id], onDelete: Cascade)
+
+  @@index([actorId])
+  @@index([targetUserId])
+  @@index([repoId])
+  @@index([createdAt(sort: Desc)])
+  @@map("role_audit_logs")
+}
+
+// ============================================
+// General Audit Logging
+// ============================================
+
+enum AuditAction {
+  login_success
+  login_failure
+  user_created
+  role_assigned
+  role_removed
+  dsr_export_request
+  dsr_export_download
+  dsr_deletion_request
+  config_updated
+  token_created
+  token_revoked
+  other
+}
+
+enum AuditSubject {
+  user
+  repo
+  dsr
+  configuration
+  security
+  session
+  token
+  system
+}
+
+model AuditLog {
+  id          String       @id @default(uuid())
+  actorId     String?      @map("actor_id")
+  action      AuditAction
+  subject     AuditSubject
+  subjectId   String?      @map("subject_id")
+  description String?
+  metadata    Json?
+  ipAddress   String?      @map("ip_address")
+  userAgent   String?      @map("user_agent")
+  createdAt   DateTime     @default(now()) @map("created_at")
+
+  // Relations
+  actor User? @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([subject, subjectId])
+  @@index([createdAt])
+  @@map("audit_logs")
 }

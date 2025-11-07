@@ -1,0 +1,17 @@
+---
+description: Documentation Standards
+globs:
+  - 'docs/**/*.md'
+  - '**/*.md'
+  - '**/README.md'
+alwaysApply: false
+---
+
+# Anchorpipe Documentation Rules
+
+- How-to docs: Step-by-step instructions; include prerequisites; provide examples.
+- Code examples: Working, tested examples; explain context; show error handling.
+- API docs: OpenAPI/Swagger for REST; include request/response examples; document errors.
+- README files: Purpose, setup, usage, contributing; keep updated with code changes.
+- Inline comments: Explain why, not what; use JSDoc/Go doc for public APIs.
+- Update docs when behavior changes; link to related docs; maintain doc versioning.
