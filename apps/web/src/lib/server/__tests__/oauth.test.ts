@@ -6,7 +6,7 @@ import {
   buildGitHubAuthUrl,
   exchangeCodeForToken,
   fetchGitHubUser,
-} from './oauth';
+} from '../oauth';
 
 // Mock crypto module
 vi.mock('crypto', () => {

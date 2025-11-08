@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAuthz } from '@/lib/authz';
-import { getRoleAuditLogs } from '@/lib/rbac-service';
+import { requireAuthz } from '@/lib/server/authz';
+import { getRoleAuditLogs } from '@/lib/server/rbac-service';
 
 /**
  * GET /api/repos/[repoId]/roles/audit

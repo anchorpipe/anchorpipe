@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { createAbilityForRole, RepoRole, can, requirePermission } from './rbac';
+import { createAbilityForRole, RepoRole, can, requirePermission } from '../rbac';
 
 describe('RBAC', () => {
   describe('createAbilityForRole', () => {

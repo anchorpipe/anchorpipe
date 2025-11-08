@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { buildGitHubAuthUrl, generateCodeVerifier, generateState } from '@/lib/oauth';
-import { getGitHubClientId } from '@/lib/oauth';
+import { buildGitHubAuthUrl, generateCodeVerifier, generateState } from '@/lib/server/oauth';
+import { getGitHubClientId } from '@/lib/server/oauth';
 import { cookies } from 'next/headers';
 
 export const runtime = 'nodejs';

@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getExportPayload } from '@/lib/dsr-service';
-import { readSession } from '@/lib/auth';
+import { getExportPayload } from '@/lib/server/dsr-service';
+import { readSession } from '@/lib/server/auth';
 import {
   AUDIT_ACTIONS,
   AUDIT_SUBJECTS,
   extractRequestContext,
   writeAuditLog,
-} from '@/lib/audit-service';
+} from '@/lib/server/audit-service';
 
 export const dynamic = 'force-dynamic';
 

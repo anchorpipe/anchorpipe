@@ -91,12 +91,15 @@ Copy the output to `ENCRYPTION_KEY_BASE64`.
 Initiates the OAuth flow by redirecting to GitHub.
 
 **Query Parameters:**
+
 - `return_to` (optional): URL to redirect to after successful login (default: `/dashboard`)
 
 **Response:**
+
 - Redirects to GitHub authorization page
 
 **Example:**
+
 ```
 GET /api/auth/oauth/github?return_to=/dashboard
 ```
@@ -106,12 +109,14 @@ GET /api/auth/oauth/github?return_to=/dashboard
 Handles the OAuth callback from GitHub.
 
 **Query Parameters:**
+
 - `code`: Authorization code from GitHub
 - `state`: State token for CSRF protection
 - `error` (optional): Error code from GitHub
 - `error_description` (optional): Error description from GitHub
 
 **Response:**
+
 - Redirects to dashboard on success
 - Redirects to login page with error on failure
 
@@ -178,6 +183,7 @@ Handles the OAuth callback from GitHub.
 ### Error Messages
 
 Errors are displayed to users via URL query parameters:
+
 - `error=oauth_error&message=...`
 - `error=invalid_state&message=...`
 - `error=oauth_failed&message=...`
@@ -191,6 +197,7 @@ All OAuth events are logged to the audit log:
 - **user_created**: New user created via OAuth
 
 Log entries include:
+
 - User ID (if available)
 - GitHub ID and login
 - IP address and user agent
@@ -279,4 +286,3 @@ npm test -- base64.test.ts
 - [OAuth 2.0 RFC 6749](https://tools.ietf.org/html/rfc6749)
 - [PKCE RFC 7636](https://tools.ietf.org/html/rfc7636)
 - [GitHub OAuth Documentation](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps)
-

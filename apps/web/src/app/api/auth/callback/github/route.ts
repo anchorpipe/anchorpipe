@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { handleOAuthCallback } from '@/lib/oauth-service';
+import { handleOAuthCallback } from '@/lib/server/oauth-service';
 
 export const runtime = 'nodejs';
 

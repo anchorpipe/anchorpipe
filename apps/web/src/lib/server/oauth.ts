@@ -1,5 +1,5 @@
 import { randomBytes, createHash } from 'crypto';
-import { base64URLEncode } from './base64';
+import { base64URLEncode } from '../base64';
 
 const GITHUB_AUTH_URL = 'https://github.com/login/oauth/authorize';
 const GITHUB_TOKEN_URL = 'https://github.com/login/oauth/access_token';
