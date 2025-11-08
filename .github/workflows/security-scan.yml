@@ -85,18 +85,25 @@ jobs:
       - name: Run Snyk security scan
         id: snyk-scan
         continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: |
           # Snyk requires authentication via SNYK_TOKEN secret
           # If token is not available, skip Snyk scan
-          if [ -z "${{ secrets.SNYK_TOKEN }}" ]; then
+          if [ -z "$SNYK_TOKEN" ]; then
             echo "⚠️  SNYK_TOKEN not configured. Skipping Snyk scan."
             echo "To enable Snyk scanning, add SNYK_TOKEN to repository secrets."
             echo "Get your token at: https://app.snyk.io/account"
+            # Create empty results file to indicate scan was skipped
+            echo '{"vulnerabilities": []}' > snyk-results.json
             exit 0
           fi
 
           # Install Snyk CLI
           npm install -g snyk
+
+          # Authenticate with Snyk
+          echo "$SNYK_TOKEN" | snyk auth --stdin || true
 
           # Run Snyk test
           snyk test --severity-threshold=high --json > snyk-results.json || true
@@ -118,7 +125,7 @@ jobs:
           fi
 
       - name: Upload Snyk results
-        if: always() && secrets.SNYK_TOKEN != ''
+        if: always() && steps.snyk-scan.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: snyk-results
