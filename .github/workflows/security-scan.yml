@@ -85,10 +85,12 @@ jobs:
       - name: Run Snyk security scan
         id: snyk-scan
         continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: |
           # Snyk requires authentication via SNYK_TOKEN secret
           # If token is not available, skip Snyk scan
-          if [ -z "${{ secrets.SNYK_TOKEN }}" ]; then
+          if [ -z "$SNYK_TOKEN" ]; then
             echo "⚠️  SNYK_TOKEN not configured. Skipping Snyk scan."
             echo "To enable Snyk scanning, add SNYK_TOKEN to repository secrets."
             echo "Get your token at: https://app.snyk.io/account"
@@ -118,7 +120,7 @@ jobs:
           fi
 
       - name: Upload Snyk results
-        if: always() && secrets.SNYK_TOKEN != ''
+        if: always() && steps.snyk-scan.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: snyk-results
