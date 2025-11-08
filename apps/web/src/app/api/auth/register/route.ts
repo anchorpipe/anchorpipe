@@ -19,8 +19,20 @@ const prisma = new PrismaClient();
 
 export async function POST(request: Request) {
   try {
-    // Rate limiting
-    const rateLimitResult = await rateLimit('auth:register', request);
+    const context = extractRequestContext(request as unknown as NextRequest);
+
+    // Rate limiting with violation logging
+    const rateLimitResult = await rateLimit('auth:register', request, (violationIp, key) => {
+      writeAuditLog({
+        action: AUDIT_ACTIONS.loginFailure,
+        subject: AUDIT_SUBJECTS.security,
+        description: `Rate limit violation: ${key} exceeded for IP ${violationIp}`,
+        metadata: { key, ip: violationIp },
+        ipAddress: violationIp,
+        userAgent: context.userAgent,
+      });
+    });
+
     if (!rateLimitResult.allowed) {
       return NextResponse.json(
         { error: 'Too many requests. Please try again later.' },

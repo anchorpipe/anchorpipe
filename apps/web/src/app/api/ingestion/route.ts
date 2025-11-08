@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateHmacRequest } from '@/lib/server/hmac-auth';
 import { rateLimit } from '@/lib/server/rate-limit';
+import {
+  AUDIT_ACTIONS,
+  AUDIT_SUBJECTS,
+  extractRequestContext,
+  writeAuditLog,
+} from '@/lib/server/audit-service';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30; // 30 seconds max for ingestion
@@ -11,23 +17,26 @@ export const maxDuration = 30; // 30 seconds max for ingestion
  * Requires: Authorization: Bearer <repo_id> and X-FR-Sig: <hmac_signature>
  */
 export async function POST(request: NextRequest) {
-  // Rate limiting
-  const rateLimitResult = await rateLimit('ingestion:submit', request);
+  const context = extractRequestContext(request);
+
+  // Rate limiting with violation logging
+  const rateLimitResult = await rateLimit('ingestion:submit', request, (violationIp, key) => {
+    writeAuditLog({
+      action: AUDIT_ACTIONS.loginFailure, // Using loginFailure as generic security event
+      subject: AUDIT_SUBJECTS.security,
+      description: `Rate limit violation: ${key} exceeded for IP ${violationIp}`,
+      metadata: { key, ip: violationIp, endpoint: '/api/ingestion' },
+      ipAddress: violationIp,
+      userAgent: context.userAgent,
+    });
+  });
+
   if (!rateLimitResult.allowed) {
     return NextResponse.json(
       { error: 'Too many requests. Please try again later.' },
       {
         status: 429,
-        headers: {
-          ...rateLimitResult.headers,
-          'Retry-After': String(
-            Math.ceil(
-              (parseInt(rateLimitResult.headers['X-RateLimit-Reset'] || '0') -
-                Math.floor(Date.now() / 1000)) /
-                60
-            )
-          ),
-        },
+        headers: rateLimitResult.headers, // Retry-After is now included in headers
       }
     );
   }

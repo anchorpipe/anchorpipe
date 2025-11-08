@@ -4,10 +4,33 @@
  */
 const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
 
+/**
+ * Rate limit configuration
+ * Can be overridden via environment variables:
+ * - RATE_LIMIT_AUTH_REGISTER (format: "maxRequests:windowMs")
+ * - RATE_LIMIT_AUTH_LOGIN
+ * - RATE_LIMIT_INGESTION_SUBMIT
+ */
+function getRateLimitConfig(
+  key: string,
+  defaultMaxRequests: number,
+  defaultWindowMs: number
+): { maxRequests: number; windowMs: number } {
+  const envKey = `RATE_LIMIT_${key.toUpperCase().replace(':', '_')}`;
+  const envValue = process.env[envKey];
+  if (envValue) {
+    const [maxRequests, windowMs] = envValue.split(':').map(Number);
+    if (!isNaN(maxRequests) && !isNaN(windowMs)) {
+      return { maxRequests, windowMs };
+    }
+  }
+  return { maxRequests: defaultMaxRequests, windowMs: defaultWindowMs };
+}
+
 const RATE_LIMITS: Record<string, { maxRequests: number; windowMs: number }> = {
-  'auth:register': { maxRequests: 5, windowMs: 15 * 60 * 1000 }, // 5 requests per 15 minutes
-  'auth:login': { maxRequests: 10, windowMs: 15 * 60 * 1000 }, // 10 requests per 15 minutes
-  'ingestion:submit': { maxRequests: 500, windowMs: 60 * 60 * 1000 }, // 500 requests per hour per repo (per PRD)
+  'auth:register': getRateLimitConfig('auth:register', 5, 15 * 60 * 1000), // 5 requests per 15 minutes
+  'auth:login': getRateLimitConfig('auth:login', 10, 15 * 60 * 1000), // 10 requests per 15 minutes
+  'ingestion:submit': getRateLimitConfig('ingestion:submit', 500, 60 * 60 * 1000), // 500 requests per hour
 };
 
 /**
@@ -22,11 +45,25 @@ function getClientId(request: Request): string {
 }
 
 /**
+ * Check if IP is from a trusted source (for bypass rules)
+ * Trusted sources can be configured via TRUSTED_IPS env var (comma-separated)
+ */
+function isTrustedSource(ip: string): boolean {
+  const trustedIps = process.env.TRUSTED_IPS?.split(',').map((ip) => ip.trim()) || [];
+  return trustedIps.includes(ip);
+}
+
+/**
  * Rate limit check
+ * @param key - Rate limit key (e.g., 'auth:login')
+ * @param request - Request object
+ * @param logViolation - Optional callback to log violations (for audit logging)
+ * @returns Rate limit result with headers including Retry-After on violations
  */
 export async function rateLimit(
   key: string,
-  request: Request
+  request: Request,
+  logViolation?: (ip: string, key: string) => void
 ): Promise<{ allowed: boolean; headers: Record<string, string> }> {
   const limit = RATE_LIMITS[key];
   if (!limit) {
@@ -34,6 +71,19 @@ export async function rateLimit(
   }
 
   const clientId = getClientId(request);
+
+  // Trusted sources bypass rate limiting (optional feature)
+  if (isTrustedSource(clientId)) {
+    return {
+      allowed: true,
+      headers: {
+        'X-RateLimit-Limit': String(limit.maxRequests),
+        'X-RateLimit-Remaining': String(limit.maxRequests),
+        'X-RateLimit-Reset': String(Math.floor((Date.now() + limit.windowMs) / 1000)),
+      },
+    };
+  }
+
   const storeKey = `${key}:${clientId}`;
   const now = Date.now();
 
@@ -62,13 +112,18 @@ export async function rateLimit(
   }
 
   if (entry.count >= limit.maxRequests) {
-    // Rate limit exceeded
+    // Rate limit exceeded - calculate Retry-After header
+    const retryAfter = Math.ceil((entry.resetAt - now) / 1000);
+    if (logViolation) {
+      logViolation(clientId, key);
+    }
     return {
       allowed: false,
       headers: {
         'X-RateLimit-Limit': String(limit.maxRequests),
         'X-RateLimit-Remaining': '0',
         'X-RateLimit-Reset': String(Math.floor(entry.resetAt / 1000)),
+        'Retry-After': String(retryAfter),
       },
     };
   }
