@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { metricsText } from '@/lib/metrics';
+import { metricsText } from '@/lib/server/metrics';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';

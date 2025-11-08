@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll } from 'vitest';
-import { decryptString, encryptString, parseEncrypted, serializeEncrypted } from './crypto';
+import { decryptString, encryptString, parseEncrypted, serializeEncrypted } from '../crypto';
 
 describe('crypto', () => {
   beforeAll(() => {

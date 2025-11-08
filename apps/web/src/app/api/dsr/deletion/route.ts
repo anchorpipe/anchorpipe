@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { requestDataDeletion } from '@/lib/dsr-service';
-import { readSession } from '@/lib/auth';
-import { extractRequestContext } from '@/lib/audit-service';
+import { requestDataDeletion } from '@/lib/server/dsr-service';
+import { readSession } from '@/lib/server/auth';
+import { extractRequestContext } from '@/lib/server/audit-service';
 
 const deletionSchema = z
   .object({
