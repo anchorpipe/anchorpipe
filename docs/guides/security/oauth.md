@@ -277,8 +277,8 @@ npm test -- base64.test.ts
 
 ## Related Documentation
 
-- [ST-202: Data Encryption](./SECURITY_ENCRYPTION.md) - Token encryption
-- [ST-206: Audit Logging](./SECURITY_AUDIT.md) - Authentication logging
+- [Data Encryption](encryption.md) - Token encryption
+- [Audit Logging](audit-logging.md) - Authentication logging
 - [ST-104: Basic Authentication](./) - Session management
 
 ## References

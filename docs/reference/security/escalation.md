@@ -224,7 +224,7 @@ Contact Information:
 
 ## Escalation Contacts
 
-See [SECURITY_CONTACTS.md](SECURITY_CONTACTS.md) for detailed contact information.
+See [contacts.md](contacts.md) for detailed contact information.
 
 ### Level 1 Contacts
 
@@ -312,9 +312,9 @@ Security Incident Detected
 
 ## Related Documentation
 
-- [SECURITY_INCIDENT_RESPONSE.md](SECURITY_INCIDENT_RESPONSE.md) - Incident response procedures
-- [SECURITY_CONTACTS.md](SECURITY_CONTACTS.md) - Contact information
-- [SECURITY.md](../SECURITY.md) - Security policy
+- [incident-response.md](incident-response.md) - Incident response procedures
+- [contacts.md](contacts.md) - Contact information
+- [../../SECURITY.md](../../SECURITY.md) - Security policy
 
 ## Revision History
 

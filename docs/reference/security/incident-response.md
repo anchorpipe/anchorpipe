@@ -291,7 +291,7 @@ This plan applies to all security incidents affecting:
 
 ## Escalation Procedures
 
-See [SECURITY_ESCALATION.md](SECURITY_ESCALATION.md) for detailed escalation procedures.
+See [escalation.md](escalation.md) for detailed escalation procedures.
 
 ### Escalation Triggers
 
@@ -467,11 +467,11 @@ Test and improve incident response procedures through simulated scenarios.
 
 ## Related Documentation
 
-- [SECURITY_CONTACTS.md](SECURITY_CONTACTS.md) - Contact information
-- [SECURITY_ESCALATION.md](SECURITY_ESCALATION.md) - Escalation procedures
-- [SECURITY.md](../SECURITY.md) - Security policy
-- [SECURITY_AUDIT.md](SECURITY_AUDIT.md) - Audit logging
-- [SECURITY_SCANNING.md](SECURITY_SCANNING.md) - Security scanning
+- [contacts.md](contacts.md) - Contact information
+- [escalation.md](escalation.md) - Escalation procedures
+- [../../SECURITY.md](../../SECURITY.md) - Security policy
+- [../../guides/security/audit-logging.md](../../guides/security/audit-logging.md) - Audit logging
+- [../../guides/security/scanning.md](../../guides/security/scanning.md) - Security scanning
 
 ## Revision History
 

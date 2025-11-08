@@ -258,7 +258,7 @@ _Note: Update this section with actual on-call schedule_
 
 ## Escalation Contacts
 
-See [SECURITY_ESCALATION.md](SECURITY_ESCALATION.md) for escalation procedures.
+See [escalation.md](escalation.md) for escalation procedures.
 
 ### Escalation Path
 
@@ -288,9 +288,9 @@ All security contacts and communications are confidential. Do not share contact 
 
 ## Related Documentation
 
-- [SECURITY_INCIDENT_RESPONSE.md](SECURITY_INCIDENT_RESPONSE.md) - Incident response procedures
-- [SECURITY_ESCALATION.md](SECURITY_ESCALATION.md) - Escalation procedures
-- [SECURITY.md](../SECURITY.md) - Security policy
+- [incident-response.md](incident-response.md) - Incident response procedures
+- [escalation.md](escalation.md) - Escalation procedures
+- [../../SECURITY.md](../../SECURITY.md) - Security policy
 
 ## Revision History
 

@@ -1,97 +1,120 @@
-# anchorpipe Documentation
+# Anchorpipe Documentation
 
-This directory contains public-facing documentation for the anchorpipe project.
+Welcome to the Anchorpipe documentation! This directory contains all project documentation organized by purpose and audience.
 
-## Documentation Structure
+## 📁 Directory Structure
 
-### `/docs/` (This Directory)
-
-**Public Documentation** - Built with Docusaurus (deployment details TBD)
-
-- **User Guides**: How to use anchorpipe
-- **Integration Guides**: Setting up CI/CD integrations
-- **API Reference**: Complete API documentation
-- **Contributing Guides**: How to contribute to the project
-- **Tutorials**: Step-by-step guides
-
-### `/docs/internal/` (Internal Documentation)
-
-**Internal/Planning Documentation** - For maintainers and core contributors
-
-- **Program Documentation**: PRD, Architecture, Quality Handbook
-- **ADRs**: Architecture Decision Records
-- **Planning Docs**: Issue breakdowns, roadmaps
-- **Bootstrap Guides**: Development setup guides
-
-> Note: Internal docs moved from `anchorpipe_guide_docs/` for better organization.
-
-### `/docs/adr/` (Architecture Decisions)
-
-**Public ADRs** - Major architectural decisions visible to community
-
-- Currently: `0001-core-backend-stack.md` through `0012-failure-details-privacy.md`
-- Some ADRs may be internal (marked in ADR header)
-
-## Documentation Site
-
-The public documentation site is built with Docusaurus and deployed to:
-
-- **Production**: Documentation site (coming soon)
-- **Preview**: Vercel preview deployments for PRs
-
-## Contributing to Documentation
-
-See [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines on contributing.
-
-### Documentation Types
-
-1. **User Documentation**: Help users accomplish tasks
-2. **API Documentation**: Complete API reference
-3. **Integration Guides**: Step-by-step setup for CI/CD platforms
-4. **Contributing Docs**: Help contributors get started
-
-### Writing Guidelines
-
-- Use clear, concise language
-- Include code examples
-- Keep up-to-date with code changes
-- Follow accessibility guidelines (WCAG 2.2 AA)
-
-## Access Levels
-
-### Public (Anyone)
-
-- `/docs/` - All public documentation
-- `/docs/adr/` - Architecture decisions (public)
-- `/LICENSE` - AGPL v3 license
-- `/CONTRIBUTING.md` - Contribution guide
-- `/README.md` - Project overview
-
-### Internal (Maintainers)
-
-- `/docs/internal/` - Planning and internal documentation
-- `/docs/internal/adr/` - Internal ADRs (if any)
-- `/GOVERNANCE.md` - Project governance
-- `/COMMERCIAL_STRATEGY.md` - Commercial strategy
-
-## Building Documentation Locally
-
-```bash
-# Install dependencies
-npm install
-
-# Build docs site
-npm run docs:build
-
-# Run dev server
-npm run docs:dev
+```
+docs/
+├── guides/                    # How-to guides and tutorials
+│   ├── integrations/         # CI/CD integration guides
+│   └── security/             # Security implementation guides
+├── reference/                # API, CLI, and reference documentation
+│   └── security/             # Security reference documentation
+├── program/                   # Internal program documentation
+├── governance/               # Governance and commercial strategy
+└── README.md                 # This file
 ```
 
-## Documentation Status
+## 📚 Documentation Categories
 
-- ✅ Legal documents (LICENSE, CONTRIBUTING, etc.)
-- ✅ Architecture documentation
-- ⏳ User guides (to be created)
-- ⏳ API documentation (to be created)
-- ⏳ Integration guides (to be created)
-- ⏳ Tutorials (to be created)
+### Guides (`guides/`)
+
+Step-by-step guides for common tasks and integrations.
+
+#### Integration Guides (`guides/integrations/`)
+
+- **[CI Integration](guides/integrations/ci-integration.md)** - Setting up CI/CD integrations with Anchorpipe
+  - GitHub Actions
+  - GitLab CI
+  - Jenkins
+  - CircleCI
+  - Code examples (Python, Node.js, Bash)
+
+#### Security Guides (`guides/security/`)
+
+- **[Audit Logging](guides/security/audit-logging.md)** - Implementing and using audit logging
+- **[Data Encryption](guides/security/encryption.md)** - Encryption at rest and in transit
+- **[OAuth Authentication](guides/security/oauth.md)** - OAuth 2.0 with PKCE implementation
+- **[Rate Limiting](guides/security/rate-limiting.md)** - Rate limiting and brute force protection
+- **[Security Scanning](guides/security/scanning.md)** - Security scanning in CI pipeline
+- **[Data Subject Requests](guides/security/data-subject-requests.md)** - GDPR DSR workflow
+
+### Reference (`reference/`)
+
+Reference documentation for APIs, security procedures, and technical details.
+
+#### Security Reference (`reference/security/`)
+
+- **[Incident Response](reference/security/incident-response.md)** - Security incident response plan
+- **[Security Contacts](reference/security/contacts.md)** - Security team contacts and roles
+- **[Escalation Procedures](reference/security/escalation.md)** - Security incident escalation
+
+### Program Documentation (`program/`)
+
+Internal program documentation (architecture, PRD, compliance, etc.)
+
+- Coming soon: Architecture documents, PRD, compliance documentation
+
+### Governance (`governance/`)
+
+- **[Commercial Strategy](governance/COMMERCIAL_STRATEGY.md)** - Commercial licensing and strategy
+- **[Contributor Rewards](governance/CONTRIBUTOR_REWARDS.md)** - Recognition and rewards framework
+- **[Foundation Plan](governance/FOUNDATION_PLAN.md)** - Foundation planning and structure
+
+## 🔍 Quick Links
+
+### Getting Started
+
+- [CI Integration Guide](guides/integrations/ci-integration.md) - Set up CI/CD integration
+- [OAuth Authentication](guides/security/oauth.md) - Configure OAuth login
+
+### Security
+
+- [Security Policy](../../SECURITY.md) - Vulnerability reporting
+- [Incident Response](reference/security/incident-response.md) - Security incident procedures
+- [Rate Limiting](guides/security/rate-limiting.md) - Configure rate limits
+- [Security Scanning](guides/security/scanning.md) - Security scanning setup
+
+### Reference
+
+- [Security Contacts](reference/security/contacts.md) - Security team contacts
+- [Escalation Procedures](reference/security/escalation.md) - Incident escalation
+
+## 📖 Documentation Standards
+
+- **Format**: Markdown (`.md`)
+- **Naming**: `kebab-case` for file names
+- **Structure**: Clear headings, table of contents for long documents
+- **Links**: Use relative paths for internal links
+- **Code Examples**: Include working examples with explanations
+
+## 🤝 Contributing to Documentation
+
+1. Follow the directory structure above
+2. Use clear, concise language
+3. Include code examples where applicable
+4. Update this README when adding new documentation
+5. Link related documents appropriately
+
+## 🔗 Related Resources
+
+- [Main README](../../README.md) - Project overview
+- [SECURITY.md](../../SECURITY.md) - Security policy
+- [CONTRIBUTING.md](../../CONTRIBUTING.md) - Contribution guidelines
+- [Architecture Decision Records](../../adr/) - Technical decisions
+
+## 📝 Documentation Status
+
+| Category              | Status      | Notes                                   |
+| --------------------- | ----------- | --------------------------------------- |
+| Integration Guides    | ✅ Complete | CI integration documented               |
+| Security Guides       | ✅ Complete | All security features documented        |
+| Security Reference    | ✅ Complete | Incident response procedures documented |
+| Program Documentation | ⏳ Pending  | Internal docs to be added               |
+| API Reference         | ⏳ Pending  | API documentation coming soon           |
+| CLI Reference         | ⏳ Pending  | CLI documentation coming soon           |
+
+---
+
+**Last Updated**: 2025-11-08
