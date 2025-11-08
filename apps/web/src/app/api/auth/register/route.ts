@@ -53,7 +53,6 @@ export async function POST(request: Request) {
     }
 
     const { email, password } = validation.data;
-    const context = extractRequestContext(request as unknown as NextRequest);
 
     // Check if user already exists
     const existing = await prisma.user.findFirst({ where: { email } });

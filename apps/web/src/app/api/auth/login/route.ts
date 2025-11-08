@@ -25,7 +25,7 @@ const prisma = new PrismaClient();
 export async function POST(request: Request) {
   try {
     const context = extractRequestContext(request as unknown as NextRequest);
-    const ip = context.ipAddress;
+    const ip = context.ipAddress || 'unknown';
 
     // Rate limiting with violation logging
     const rateLimitResult = await rateLimit('auth:login', request, (violationIp, key) => {
@@ -61,7 +61,7 @@ export async function POST(request: Request) {
     const { email, password } = validation.data;
 
     // Check brute force lock
-    const bruteForceCheck = checkBruteForceLock(ip, email);
+    const bruteForceCheck = checkBruteForceLock(ip, email || undefined);
     if (bruteForceCheck.locked) {
       await writeAuditLog({
         action: AUDIT_ACTIONS.loginFailure,
@@ -89,7 +89,7 @@ export async function POST(request: Request) {
     const user = await prisma.user.findFirst({ where: { email } });
     if (!user) {
       // Record failed attempt for brute force tracking
-      const bruteForceResult = recordFailedAttempt(ip, email);
+      const bruteForceResult = recordFailedAttempt(ip, email || undefined);
       await writeAuditLog({
         action: AUDIT_ACTIONS.loginFailure,
         subject: AUDIT_SUBJECTS.security,
@@ -134,7 +134,7 @@ export async function POST(request: Request) {
     const isValid = await verifyPassword(password, passwordHash);
     if (!isValid) {
       // Record failed attempt for brute force tracking
-      const bruteForceResult = recordFailedAttempt(ip, email);
+      const bruteForceResult = recordFailedAttempt(ip, email || undefined);
       await writeAuditLog({
         actorId: user.id,
         action: AUDIT_ACTIONS.loginFailure,
@@ -158,7 +158,7 @@ export async function POST(request: Request) {
     }
 
     // Successful login - clear brute force tracking
-    clearFailedAttempts(ip, email);
+    clearFailedAttempts(ip, email || undefined);
 
     // Update last login
     await prisma.user.update({
