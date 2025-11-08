@@ -93,7 +93,7 @@ All DSR requests are:
 ### Policy Review
 
 - **Frequency**: Annual review, or when regulations change
-- **Owner**: Data Protection Officer (dpo@anchorpipe.org)
+- **Owner**: Data Protection Officer (dpo@anchorpipe.dev)
 - **Stakeholders**: Legal, Security, Engineering, Product teams
 
 ### Process Improvement

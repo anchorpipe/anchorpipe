@@ -173,8 +173,8 @@ This retention policy is designed to comply with:
 
 For questions about data retention:
 
-- **Privacy Inquiries**: privacy@anchorpipe.org
-- **Data Protection Officer**: dpo@anchorpipe.org
+- **Privacy Inquiries**: privacy@anchorpipe.dev
+- **Data Protection Officer**: dpo@anchorpipe.dev
 - **Enterprise Customers**: Contact your account manager
 
 ## Related Documents

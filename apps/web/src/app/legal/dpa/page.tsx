@@ -117,8 +117,8 @@ export default function DpaPage() {
         <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Contact</h2>
         <p>For questions about this DPA or data processing:</p>
         <ul style={{ marginLeft: '2rem', marginTop: '0.5rem' }}>
-          <li>Data Protection Officer: dpo@anchorpipe.org</li>
-          <li>Privacy Inquiries: privacy@anchorpipe.org</li>
+          <li>Data Protection Officer: dpo@anchorpipe.dev</li>
+          <li>Privacy Inquiries: privacy@anchorpipe.dev</li>
           <li>Enterprise Customers: Contact your account manager</li>
         </ul>
       </section>

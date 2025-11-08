@@ -229,12 +229,12 @@ See [contacts.md](contacts.md) for detailed contact information.
 ### Level 1 Contacts
 
 - **On-Call Engineer**: Check on-call schedule
-- **Incident Commander**: security@anchorpipe.org
+- **Incident Commander**: security@anchorpipe.dev
 
 ### Level 2 Contacts
 
-- **CTO / Security Lead**: security@anchorpipe.org
-- **Engineering Lead**: engineering@anchorpipe.org
+- **CTO / Security Lead**: security@anchorpipe.dev
+- **Engineering Lead**: engineering@anchorpipe.dev
 
 ### Level 3 Contacts
 
@@ -243,8 +243,8 @@ See [contacts.md](contacts.md) for detailed contact information.
 
 ### Level 4 Contacts
 
-- **Legal**: legal@anchorpipe.org (when available)
-- **Compliance**: compliance@anchorpipe.org (when available)
+- **Legal**: legal@anchorpipe.dev (when available)
+- **Compliance**: compliance@anchorpipe.dev (when available)
 - **Law Enforcement**: Via Legal team
 
 ## Escalation Decision Tree

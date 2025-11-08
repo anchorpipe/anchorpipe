@@ -84,7 +84,7 @@ You have the following rights regarding your personal information:
 1. **Via Account Settings**: Use the Privacy section in your account settings (`/account/privacy`)
 2. **Data Export**: Click "Export My Data" to download your personal data
 3. **Data Deletion**: Submit a deletion request with optional reason
-4. **Contact Us**: Email privacy@anchorpipe.org for assistance
+4. **Contact Us**: Email privacy@anchorpipe.dev for assistance
 
 We will respond to your request within 30 days (as required by GDPR).
 
@@ -136,9 +136,9 @@ Your continued use of our service after changes constitutes acceptance of the up
 
 If you have questions about this Privacy Policy or wish to exercise your rights, please contact us:
 
-- **Email**: privacy@anchorpipe.org
-- **Security Issues**: security@anchorpipe.org (see [SECURITY.md](../../../SECURITY.md))
-- **Data Protection Officer**: dpo@anchorpipe.org
+- **Email**: privacy@anchorpipe.dev
+- **Security Issues**: security@anchorpipe.dev (see [SECURITY.md](../../../SECURITY.md))
+- **Data Protection Officer**: dpo@anchorpipe.dev
 
 ## Compliance
 

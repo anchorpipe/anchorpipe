@@ -44,11 +44,11 @@ Our compliance documentation is designed to meet:
 ## Review and Maintenance
 
 - **Review Cadence**: Annual review, or when regulations change
-- **Ownership**: Data Protection Officer (dpo@anchorpipe.org)
+- **Ownership**: Data Protection Officer (dpo@anchorpipe.dev)
 - **Updates**: Material changes require 30-day notice to users
 
 ## Contact
 
-- **Privacy Inquiries**: privacy@anchorpipe.org
-- **Data Protection Officer**: dpo@anchorpipe.org
-- **Security Issues**: security@anchorpipe.org
+- **Privacy Inquiries**: privacy@anchorpipe.dev
+- **Data Protection Officer**: dpo@anchorpipe.dev
+- **Security Issues**: security@anchorpipe.dev

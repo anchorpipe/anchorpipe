@@ -8,7 +8,7 @@ This document provides contact information for security-related matters, includi
 
 ### Security Team
 
-**Email**: security@anchorpipe.org (preferred)
+**Email**: security@anchorpipe.dev (preferred)
 
 **Response Time**: Within 48 hours for initial response
 
@@ -25,12 +25,12 @@ This document provides contact information for security-related matters, includi
 
 **Primary**: Security Lead / CTO
 
-- **Email**: security@anchorpipe.org
+- **Email**: security@anchorpipe.dev
 - **Escalation**: Via security email
 
 **Backup**: Engineering Lead
 
-- **Email**: engineering@anchorpipe.org
+- **Email**: engineering@anchorpipe.dev
 - **Escalation**: Via security email
 
 ### Security Engineer
@@ -39,12 +39,12 @@ This document provides contact information for security-related matters, includi
 
 **Primary**: Security Engineer / Senior Engineer
 
-- **Email**: security@anchorpipe.org
+- **Email**: security@anchorpipe.dev
 - **On-Call**: Rotating schedule
 
 **Backup**: Engineering Team
 
-- **Email**: engineering@anchorpipe.org
+- **Email**: engineering@anchorpipe.dev
 
 ### Communication Lead
 
@@ -52,12 +52,12 @@ This document provides contact information for security-related matters, includi
 
 **Primary**: Product Manager / CTO
 
-- **Email**: product@anchorpipe.org
+- **Email**: product@anchorpipe.dev
 - **Escalation**: Via security email
 
 **Backup**: Engineering Lead
 
-- **Email**: engineering@anchorpipe.org
+- **Email**: engineering@anchorpipe.dev
 
 ## Emergency Contacts
 
@@ -108,7 +108,7 @@ This document provides contact information for security-related matters, includi
 - Legal implications
 - Contractual obligations
 
-**Contact**: legal@anchorpipe.org (when available)
+**Contact**: legal@anchorpipe.dev (when available)
 
 ### Compliance Team
 
@@ -118,7 +118,7 @@ This document provides contact information for security-related matters, includi
 - Other regulatory requirements
 - Compliance questions
 
-**Contact**: compliance@anchorpipe.org (when available)
+**Contact**: compliance@anchorpipe.dev (when available)
 
 ### Cloud Provider Support
 
@@ -144,7 +144,7 @@ This document provides contact information for security-related matters, includi
 
 ### Email
 
-**Primary**: security@anchorpipe.org
+**Primary**: security@anchorpipe.dev
 
 **Use For**:
 

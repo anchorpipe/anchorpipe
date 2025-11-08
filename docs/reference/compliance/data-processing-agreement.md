@@ -194,9 +194,9 @@ Material changes will be notified to the Data Controller with at least 30 days' 
 
 For questions about this DPA or data processing:
 
-- **Data Protection Officer**: dpo@anchorpipe.org
-- **Privacy Inquiries**: privacy@anchorpipe.org
-- **Security Issues**: security@anchorpipe.org
+- **Data Protection Officer**: dpo@anchorpipe.dev
+- **Privacy Inquiries**: privacy@anchorpipe.dev
+- **Security Issues**: security@anchorpipe.dev
 
 ## Execution
 

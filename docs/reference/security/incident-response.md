@@ -96,7 +96,7 @@ This plan applies to all security incidents affecting:
 ### Manual Detection
 
 1. **Security Reports**
-   - Vulnerability reports via security@anchorpipe.org
+   - Vulnerability reports via security@anchorpipe.dev
    - GitHub Security Advisories
    - User reports
 

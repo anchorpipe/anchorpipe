@@ -42,7 +42,7 @@ export default function PrivacyPage() {
             </Link>{' '}
             - Export or delete your data
           </li>
-          <li>Email: privacy@anchorpipe.org</li>
+          <li>Email: privacy@anchorpipe.dev</li>
         </ul>
       </section>
 
@@ -85,9 +85,9 @@ export default function PrivacyPage() {
         <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Contact</h2>
         <p>For privacy inquiries or to exercise your rights:</p>
         <ul style={{ marginLeft: '2rem', marginTop: '0.5rem' }}>
-          <li>Email: privacy@anchorpipe.org</li>
-          <li>Data Protection Officer: dpo@anchorpipe.org</li>
-          <li>Security Issues: security@anchorpipe.org</li>
+          <li>Email: privacy@anchorpipe.dev</li>
+          <li>Data Protection Officer: dpo@anchorpipe.dev</li>
+          <li>Security Issues: security@anchorpipe.dev</li>
         </ul>
       </section>
 
