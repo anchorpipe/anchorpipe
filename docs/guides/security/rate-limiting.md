@@ -252,8 +252,8 @@ TRUSTED_IPS=192.168.1.1,10.0.0.1
 
 ## Related Documentation
 
-- [Security Audit Logging](SECURITY_AUDIT.md) - Audit log details
-- [HMAC Authentication](CI_INTEGRATION.md) - CI system authentication
+- [Audit Logging](audit-logging.md) - Audit log details
+- [HMAC Authentication](../integrations/ci-integration.md) - CI system authentication
 - [API Documentation](../README.md) - General API documentation
 
 ## Future Enhancements

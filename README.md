@@ -2,6 +2,10 @@
 
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-blue.svg)](LICENSE)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
+[![CI](https://github.com/anchorpipe/anchorpipe/actions/workflows/ci.yml/badge.svg)](https://github.com/anchorpipe/anchorpipe/actions/workflows/ci.yml)
+[![Security Scanning](https://github.com/anchorpipe/anchorpipe/actions/workflows/security-scan.yml/badge.svg)](https://github.com/anchorpipe/anchorpipe/actions/workflows/security-scan.yml)
+[![CodeQL](https://github.com/anchorpipe/anchorpipe/actions/workflows/codeql.yml/badge.svg)](https://github.com/anchorpipe/anchorpipe/actions/workflows/codeql.yml)
+[![DCO](https://github.com/anchorpipe/anchorpipe/actions/workflows/dco.yml/badge.svg)](https://github.com/anchorpipe/anchorpipe/actions/workflows/dco.yml)
 
 **anchorpipe** is an open-source platform for flaky test management that is CI-native, transparent, and actionable—restoring developer velocity and release confidence across teams of all sizes.
 
@@ -57,10 +61,37 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed setup instructions.
 
 ## 📚 Documentation
 
-- **User Guides**: Coming soon
-- **API Reference**: Coming soon
-- **Integration Guides**: Coming soon
-- **Contributing**: See [CONTRIBUTING.md](CONTRIBUTING.md)
+Comprehensive documentation is available in the [`docs/`](docs/) directory:
+
+### 📖 Guides
+
+- **[CI Integration](docs/guides/integrations/ci-integration.md)** - Set up CI/CD integrations (GitHub Actions, GitLab CI, Jenkins, CircleCI)
+- **[Security Guides](docs/guides/security/)**:
+  - [OAuth Authentication](docs/guides/security/oauth.md) - OAuth 2.0 with PKCE
+  - [Rate Limiting](docs/guides/security/rate-limiting.md) - Rate limiting and brute force protection
+  - [Security Scanning](docs/guides/security/scanning.md) - Security scanning in CI
+  - [Audit Logging](docs/guides/security/audit-logging.md) - Audit logging implementation
+  - [Data Encryption](docs/guides/security/encryption.md) - Encryption at rest and in transit
+  - [Data Subject Requests](docs/guides/security/data-subject-requests.md) - GDPR DSR workflow
+
+### 📋 Reference
+
+- **[Security Reference](docs/reference/security/)**:
+  - [Incident Response](docs/reference/security/incident-response.md) - Security incident response plan
+  - [Security Contacts](docs/reference/security/contacts.md) - Security team contacts
+  - [Escalation Procedures](docs/reference/security/escalation.md) - Incident escalation
+
+### 🏛️ Governance
+
+- [Commercial Strategy](docs/governance/COMMERCIAL_STRATEGY.md) - Commercial licensing
+- [Contributor Rewards](docs/governance/CONTRIBUTOR_REWARDS.md) - Recognition framework
+- [Foundation Plan](docs/governance/FOUNDATION_PLAN.md) - Foundation structure
+
+### 📝 Additional
+
+- [Documentation Index](docs/README.md) - Complete documentation overview
+- [Contributing Guide](CONTRIBUTING.md) - How to contribute
+- [Security Policy](SECURITY.md) - Security vulnerability reporting
 
 ## 🤝 Contributing
 
@@ -89,7 +120,20 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
   - ✅ Message queue (RabbitMQ) integration
   - ✅ Object storage (S3-compatible) setup
   - ✅ Basic telemetry and logging (Prometheus metrics)
-- 🎯 **Security Foundation (Gate GA) - Next**
+
+- 🎯 **Security Foundation (Gate GA) - IN PROGRESS**
+  - ✅ RBAC System (ST-201)
+  - ✅ Data Encryption (ST-202)
+  - ✅ Input Validation (ST-203)
+  - ✅ Security Headers (ST-204)
+  - ✅ Data Subject Requests (ST-205)
+  - ✅ Audit Logging (ST-206)
+  - ✅ OAuth 2.0 GitHub Integration (ST-207)
+  - ✅ HMAC Authentication for CI (ST-208)
+  - ✅ Security Scanning in CI (ST-209)
+  - ✅ Rate Limiting and Brute Force Protection (ST-210)
+  - ✅ Security Incident Response Plan (ST-211)
+  - ⏳ Compliance Documentation (ST-212)
 
 ## 📖 License
 

@@ -116,9 +116,9 @@ We conduct regular security audits:
 
 We have a comprehensive Security Incident Response Plan (IRP) for handling security incidents:
 
-- **Incident Response Plan**: See [docs/SECURITY_INCIDENT_RESPONSE.md](docs/SECURITY_INCIDENT_RESPONSE.md)
-- **Security Contacts**: See [docs/SECURITY_CONTACTS.md](docs/SECURITY_CONTACTS.md)
-- **Escalation Procedures**: See [docs/SECURITY_ESCALATION.md](docs/SECURITY_ESCALATION.md)
+- **Incident Response Plan**: See [docs/reference/security/incident-response.md](docs/reference/security/incident-response.md)
+- **Security Contacts**: See [docs/reference/security/contacts.md](docs/reference/security/contacts.md)
+- **Escalation Procedures**: See [docs/reference/security/escalation.md](docs/reference/security/escalation.md)
 
 ### Incident Reporting
 
@@ -126,11 +126,11 @@ For security incidents:
 
 1. **Critical/High**: Contact security@anchorpipe.org immediately
 2. **Medium/Low**: Report via security@anchorpipe.org or GitHub Security Advisories
-3. **Response Times**: See [SECURITY_INCIDENT_RESPONSE.md](docs/SECURITY_INCIDENT_RESPONSE.md) for details
+3. **Response Times**: See [incident-response.md](docs/reference/security/incident-response.md) for details
 
 ## Contact
 
 - **Security Issues**: Use GitHub Security Advisories or email security@anchorpipe.org
-- **Security Incidents**: See [SECURITY_INCIDENT_RESPONSE.md](docs/SECURITY_INCIDENT_RESPONSE.md)
+- **Security Incidents**: See [incident-response.md](docs/reference/security/incident-response.md)
 - **General Questions**: GitHub Discussions
 - **Enterprise Security**: Contact commercial team (when available)
