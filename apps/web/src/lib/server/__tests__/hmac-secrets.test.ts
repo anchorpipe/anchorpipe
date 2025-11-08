@@ -218,10 +218,7 @@ describe('HMAC Secrets Service', () => {
       expect(prisma.hmacSecret.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            OR: [
-              { expiresAt: null },
-              { expiresAt: { gt: expect.any(Date) } },
-            ],
+            OR: [{ expiresAt: null }, { expiresAt: { gt: expect.any(Date) } }],
           }),
         })
       );
@@ -314,4 +311,3 @@ describe('HMAC Secrets Service', () => {
     });
   });
 });
-
