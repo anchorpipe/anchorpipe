@@ -4,8 +4,8 @@ import {
   listDataSubjectRequests,
   requestDataDeletion,
   requestDataExport,
-} from './dsr-service';
-import { writeAuditLog } from './audit-service';
+} from '../dsr-service';
+import { writeAuditLog } from '../audit-service';
 
 vi.mock('@anchorpipe/database', () => {
   const mockPrisma = {

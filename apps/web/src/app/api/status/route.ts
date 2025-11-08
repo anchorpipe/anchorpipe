@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
-import { logger, nowMs, durationMs } from '@/lib/logger';
-import { httpRequestDurationMs } from '@/lib/metrics';
-import { recordTelemetry } from '@/lib/telemetry';
+import { logger, nowMs, durationMs } from '@/lib/server/logger';
+import { httpRequestDurationMs } from '@/lib/server/metrics';
+import { recordTelemetry } from '@/lib/server/telemetry';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';

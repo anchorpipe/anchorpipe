@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { listDataSubjectRequests } from '@/lib/dsr-service';
-import { readSession } from '@/lib/auth';
+import { listDataSubjectRequests } from '@/lib/server/dsr-service';
+import { readSession } from '@/lib/server/auth';
 
 export const dynamic = 'force-dynamic';
 

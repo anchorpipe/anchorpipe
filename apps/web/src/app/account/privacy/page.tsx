@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
-import { readSession } from '@/lib/auth';
-import { listDataSubjectRequests } from '@/lib/dsr-service';
+import { readSession } from '@/lib/server/auth';
+import { listDataSubjectRequests } from '@/lib/server/dsr-service';
 import DsrClient from './request-client';
 
 export const dynamic = 'force-dynamic';

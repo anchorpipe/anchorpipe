@@ -1,16 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@anchorpipe/database';
-import { createSessionJwt, setSessionCookie } from '@/lib/auth';
-import { verifyPassword } from '@/lib/password';
+import { createSessionJwt, setSessionCookie } from '@/lib/server/auth';
+import { verifyPassword } from '@/lib/server/password';
 import { validateRequest } from '@/lib/validation';
 import { loginSchema } from '@/lib/schemas/auth';
-import { rateLimit } from '@/lib/rate-limit';
+import { rateLimit } from '@/lib/server/rate-limit';
 import {
   AUDIT_ACTIONS,
   AUDIT_SUBJECTS,
   extractRequestContext,
   writeAuditLog,
-} from '@/lib/audit-service';
+} from '@/lib/server/audit-service';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';

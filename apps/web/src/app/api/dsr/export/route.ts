@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requestDataExport } from '@/lib/dsr-service';
-import { readSession } from '@/lib/auth';
-import { extractRequestContext } from '@/lib/audit-service';
+import { requestDataExport } from '@/lib/server/dsr-service';
+import { readSession } from '@/lib/server/auth';
+import { extractRequestContext } from '@/lib/server/audit-service';
 
 export const dynamic = 'force-dynamic';
 
