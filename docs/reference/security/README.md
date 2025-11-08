@@ -12,4 +12,3 @@ This directory contains reference documentation for security procedures, contact
 
 - [Security Guides](../../guides/security/) - Security implementation guides
 - [Security Policy](../../../SECURITY.md) - Security vulnerability reporting
-

@@ -15,4 +15,3 @@ This directory contains guides for integrating Anchorpipe with CI/CD platforms a
 
 - [Security Guides](../security/) - Security implementation guides
 - [Security Reference](../../reference/security/) - Security procedures
-

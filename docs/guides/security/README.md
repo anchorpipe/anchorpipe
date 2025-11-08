@@ -15,4 +15,3 @@ This directory contains step-by-step guides for implementing and using security 
 
 - [Security Reference](../../reference/security/) - Security procedures and contacts
 - [Security Policy](../../../SECURITY.md) - Security vulnerability reporting
-
