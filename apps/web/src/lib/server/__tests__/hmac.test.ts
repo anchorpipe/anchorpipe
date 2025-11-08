@@ -68,6 +68,7 @@ describe('HMAC utilities', () => {
       // Test that length mismatch is caught early
       const isValid = verifyHmac(secret, payload, signature.substring(0, 10));
       expect(isValid).toBe(false);
+      expect(signature.length).toBeGreaterThan(10); // Ensure we're testing length mismatch
     });
 
     it('should handle invalid hex signature gracefully', () => {
