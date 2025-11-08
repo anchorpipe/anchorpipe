@@ -44,7 +44,7 @@ name: Submit Test Results
 
 on:
   workflow_run:
-    workflows: ["Tests"]
+    workflows: ['Tests']
     types:
       - completed
 
@@ -74,6 +74,7 @@ jobs:
 ```
 
 **GitHub Secrets Setup:**
+
 - `ANCHORPIPE_REPO_ID`: Your repository UUID
 - `ANCHORPIPE_HMAC_SECRET`: Your HMAC secret
 
@@ -100,6 +101,7 @@ submit_results:
 ```
 
 **GitLab CI/CD Variables:**
+
 - `ANCHORPIPE_REPO_ID`: Your repository UUID
 - `ANCHORPIPE_HMAC_SECRET`: Your HMAC secret (masked)
 
@@ -108,12 +110,12 @@ submit_results:
 ```groovy
 pipeline {
     agent any
-    
+
     environment {
         ANCHORPIPE_REPO_ID = credentials('anchorpipe-repo-id')
         ANCHORPIPE_HMAC_SECRET = credentials('anchorpipe-hmac-secret')
     }
-    
+
     stages {
         stage('Submit Results') {
             steps {
@@ -123,7 +125,7 @@ pipeline {
                         script: "echo -n '${payload}' | openssl dgst -sha256 -hmac '${env.ANCHORPIPE_HMAC_SECRET}' | cut -d' ' -f2",
                         returnStdout: true
                     ).trim()
-                    
+
                     sh """
                         curl -X POST \\
                             -H "Authorization: Bearer ${env.ANCHORPIPE_REPO_ID}" \\
@@ -140,6 +142,7 @@ pipeline {
 ```
 
 **Jenkins Credentials:**
+
 - `anchorpipe-repo-id`: Secret text containing repository UUID
 - `anchorpipe-hmac-secret`: Secret text containing HMAC secret
 
@@ -175,6 +178,7 @@ workflows:
 ```
 
 **CircleCI Environment Variables:**
+
 - `ANCHORPIPE_REPO_ID`: Repository UUID
 - `ANCHORPIPE_HMAC_SECRET`: HMAC secret
 
@@ -193,7 +197,7 @@ def submit_test_results(payload: str, repo_id: str, secret: str):
         payload.encode('utf-8'),
         hashlib.sha256
     ).hexdigest()
-    
+
     # Submit to Anchorpipe
     response = requests.post(
         'https://api.anchorpipe.org/api/ingestion',
@@ -204,7 +208,7 @@ def submit_test_results(payload: str, repo_id: str, secret: str):
         },
         data=payload,
     )
-    
+
     return response.json()
 
 # Usage
@@ -228,10 +232,7 @@ const https = require('https');
 
 function submitTestResults(payload, repoId, secret) {
   // Compute HMAC signature
-  const signature = crypto
-    .createHmac('sha256', secret)
-    .update(payload)
-    .digest('hex');
+  const signature = crypto.createHmac('sha256', secret).update(payload).digest('hex');
 
   // Submit to Anchorpipe
   const options = {
@@ -239,7 +240,7 @@ function submitTestResults(payload, repoId, secret) {
     path: '/api/ingestion',
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${repoId}`,
+      Authorization: `Bearer ${repoId}`,
       'X-FR-Sig': signature,
       'Content-Type': 'application/json',
       'Content-Length': Buffer.byteLength(payload),
@@ -265,11 +266,9 @@ function submitTestResults(payload, repoId, secret) {
 
 // Usage
 const payload = fs.readFileSync('test-results.json', 'utf8');
-submitTestResults(
-  payload,
-  process.env.ANCHORPIPE_REPO_ID,
-  process.env.ANCHORPIPE_HMAC_SECRET
-).then(console.log);
+submitTestResults(payload, process.env.ANCHORPIPE_REPO_ID, process.env.ANCHORPIPE_HMAC_SECRET).then(
+  console.log
+);
 ```
 
 ## Using Bash/Shell
@@ -309,17 +308,21 @@ The ingestion endpoint is rate-limited to **500 requests per hour per repository
 ## Error Handling
 
 ### 401 Unauthorized
+
 - Missing or invalid `Authorization` header
 - Missing or invalid `X-FR-Sig` header
 - Invalid HMAC signature
 
 ### 413 Payload Too Large
+
 - Request body exceeds 50MB limit
 
 ### 429 Too Many Requests
+
 - Rate limit exceeded (see above)
 
 ### 500 Internal Server Error
+
 - Server error - retry after a delay
 
 ## Security Best Practices
@@ -352,6 +355,7 @@ The ingestion endpoint is rate-limited to **500 requests per hour per repository
 **Problem**: Receiving 401 with "Invalid HMAC signature"
 
 **Solutions**:
+
 1. Verify the secret is correct (no extra spaces, correct encoding)
 2. Ensure the payload matches exactly what was signed
 3. Check that the signature is hex-encoded (64 characters, lowercase)
@@ -362,6 +366,7 @@ The ingestion endpoint is rate-limited to **500 requests per hour per repository
 **Problem**: Receiving 429 Too Many Requests
 
 **Solutions**:
+
 1. Reduce submission frequency
 2. Batch multiple test runs into a single request
 3. Implement exponential backoff retry logic
@@ -372,6 +377,7 @@ The ingestion endpoint is rate-limited to **500 requests per hour per repository
 **Problem**: Receiving 401 with "No active HMAC secrets found"
 
 **Solutions**:
+
 1. Verify the repository ID is correct
 2. Check that the secret is active (not revoked)
 3. Ensure the secret hasn't expired
@@ -387,11 +393,11 @@ POST /api/ingestion
 
 ### Headers
 
-| Header | Required | Description |
-|--------|----------|-------------|
-| `Authorization` | Yes | `Bearer <repo_id>` |
-| `X-FR-Sig` | Yes | HMAC-SHA256 signature (hex-encoded) |
-| `Content-Type` | Yes | `application/json` |
+| Header          | Required | Description                         |
+| --------------- | -------- | ----------------------------------- |
+| `Authorization` | Yes      | `Bearer <repo_id>`                  |
+| `X-FR-Sig`      | Yes      | HMAC-SHA256 signature (hex-encoded) |
+| `Content-Type`  | Yes      | `application/json`                  |
 
 ### Request Body
 
@@ -413,7 +419,7 @@ JSON payload containing test results (format depends on test framework).
 ## Support
 
 For additional help:
+
 - Check the [documentation](https://docs.anchorpipe.org)
 - Open an issue on [GitHub](https://github.com/anchorpipe/anchorpipe/issues)
 - Contact support: support@anchorpipe.org
-
