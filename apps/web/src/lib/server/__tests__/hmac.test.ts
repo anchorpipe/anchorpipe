@@ -46,7 +46,8 @@ describe('HMAC utilities', () => {
     });
 
     it('should reject invalid signatures', () => {
-      const signature = computeHmac(secret, payload);
+      // Compute a valid signature but use an invalid one for verification
+      computeHmac(secret, payload); // Valid signature (not used in this test)
       const isValid = verifyHmac(secret, payload, 'invalid-signature');
       expect(isValid).toBe(false);
     });
@@ -135,4 +136,3 @@ describe('HMAC utilities', () => {
     });
   });
 });
-
