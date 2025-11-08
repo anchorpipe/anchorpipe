@@ -19,7 +19,10 @@ export async function GET(request: NextRequest) {
   if (error) {
     console.error('GitHub OAuth error:', error, errorDescription);
     return NextResponse.redirect(
-      new URL(`/?error=oauth_error&message=${encodeURIComponent(errorDescription || error)}`, request.url)
+      new URL(
+        `/?error=oauth_error&message=${encodeURIComponent(errorDescription || error)}`,
+        request.url
+      )
     );
   }
 
@@ -89,4 +92,3 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-

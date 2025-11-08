@@ -219,10 +219,7 @@ describe('OAuth utilities', () => {
         text: async () => 'Unauthorized',
       } as Response);
 
-      await expect(fetchGitHubUser('invalid-token')).rejects.toThrow(
-        'Failed to fetch GitHub user'
-      );
+      await expect(fetchGitHubUser('invalid-token')).rejects.toThrow('Failed to fetch GitHub user');
     });
   });
 });
-
