@@ -5,9 +5,9 @@ import {
   removeRole,
   getUserAbility,
   userHasAdminRole,
-} from './rbac-service';
-import { RepoRole } from './rbac';
-import { writeAuditLog } from './audit-service';
+} from '../rbac-service';
+import { RepoRole } from '../../rbac';
+import { writeAuditLog } from '../audit-service';
 
 // Mock Prisma client
 vi.mock('@anchorpipe/database', () => {

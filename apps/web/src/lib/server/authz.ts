@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { readSession } from './auth';
 import { getUserAbility } from './rbac-service';
-import type { AppAbility, PermissionAction, PermissionSubject } from './rbac';
+import type { AppAbility, PermissionAction, PermissionSubject } from '../rbac';
 
 /**
  * Authorization context for a request

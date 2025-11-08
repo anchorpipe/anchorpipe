@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { listAuditLogs, writeAuditLog, AUDIT_ACTIONS, AUDIT_SUBJECTS } from './audit-service';
+import { listAuditLogs, writeAuditLog, AUDIT_ACTIONS, AUDIT_SUBJECTS } from '../audit-service';
 
 vi.mock('@anchorpipe/database', () => {
   const mockPrisma = {

@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { requireAuthz } from '@/lib/authz';
-import { assignRole, removeRole, getRepoUsers } from '@/lib/rbac-service';
+import { requireAuthz } from '@/lib/server/authz';
+import { assignRole, removeRole, getRepoUsers } from '@/lib/server/rbac-service';
 import { RepoRole } from '@/lib/rbac';
 import { validateRequest } from '@/lib/validation';
-import { extractRequestContext } from '@/lib/audit-service';
+import { extractRequestContext } from '@/lib/server/audit-service';
 
 export const dynamic = 'force-dynamic';
 

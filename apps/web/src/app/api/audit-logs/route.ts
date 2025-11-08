@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readSession } from '@/lib/auth';
-import { listAuditLogs } from '@/lib/audit-service';
-import { userHasAdminRole } from '@/lib/rbac-service';
+import { readSession } from '@/lib/server/auth';
+import { listAuditLogs } from '@/lib/server/audit-service';
+import { userHasAdminRole } from '@/lib/server/rbac-service';
 
 export const dynamic = 'force-dynamic';
 

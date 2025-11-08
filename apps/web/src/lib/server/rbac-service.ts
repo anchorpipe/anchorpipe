@@ -1,5 +1,5 @@
 import { prisma } from '@anchorpipe/database';
-import { createAbilityForRole, type AppAbility, RepoRole } from './rbac';
+import { createAbilityForRole, type AppAbility, RepoRole } from '../rbac';
 import { AUDIT_ACTIONS, AUDIT_SUBJECTS, RequestContext, writeAuditLog } from './audit-service';
 
 // Use Prisma client directly - models should be available after regeneration
