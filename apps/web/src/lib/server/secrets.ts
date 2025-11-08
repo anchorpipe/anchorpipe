@@ -13,4 +13,3 @@ export function decryptField(serialized: string | null | undefined): string | nu
   const payload = parseEncrypted(serialized);
   return decryptString(payload);
 }
-
