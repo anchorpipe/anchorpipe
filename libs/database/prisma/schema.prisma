@@ -34,6 +34,7 @@ model Repo {
   repositoryConfigs RepositoryConfig[]
   notifications     Notification[]
   userRoles         UserRepoRole[]
+  hmacSecrets       HmacSecret[]
 
   @@index([ghId])
   @@map("repos")
@@ -399,6 +400,11 @@ enum AuditAction {
   config_updated
   token_created
   token_revoked
+  hmac_auth_success
+  hmac_auth_failure
+  hmac_secret_created
+  hmac_secret_revoked
+  hmac_secret_rotated
   other
 }
 
@@ -431,4 +437,32 @@ model AuditLog {
   @@index([subject, subjectId])
   @@index([createdAt])
   @@map("audit_logs")
+}
+
+// ============================================
+// HMAC Secrets for CI Integration
+// ============================================
+
+model HmacSecret {
+  id          String   @id @default(uuid())
+  repoId      String   @map("repo_id")
+  name        String // Human-readable name (e.g., "GitHub Actions Production")
+  secretHash  String   @map("secret_hash") // SHA-256 hash of the secret (for lookup)
+  secretValue String   @map("secret_value") // Encrypted secret value (AES-256-GCM)
+  active      Boolean  @default(true) // Active secrets can be used for validation
+  revoked     Boolean  @default(false) // Revoked secrets are permanently disabled
+  lastUsedAt  DateTime? @map("last_used_at") // Last successful authentication
+  rotatedFrom String?  @map("rotated_from") // ID of secret this was rotated from
+  createdBy   String?  @map("created_by") // User ID who created this secret
+  createdAt   DateTime @default(now()) @map("created_at")
+  revokedAt   DateTime? @map("revoked_at")
+  expiresAt   DateTime? @map("expires_at") // Optional expiration
+
+  // Relations
+  repo Repo @relation(fields: [repoId], references: [id], onDelete: Cascade)
+
+  @@index([repoId, active])
+  @@index([secretHash])
+  @@index([revoked])
+  @@map("hmac_secrets")
 }

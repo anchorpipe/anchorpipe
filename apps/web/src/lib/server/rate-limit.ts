@@ -7,6 +7,7 @@ const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMITS: Record<string, { maxRequests: number; windowMs: number }> = {
   'auth:register': { maxRequests: 5, windowMs: 15 * 60 * 1000 }, // 5 requests per 15 minutes
   'auth:login': { maxRequests: 10, windowMs: 15 * 60 * 1000 }, // 10 requests per 15 minutes
+  'ingestion:submit': { maxRequests: 500, windowMs: 60 * 60 * 1000 }, // 500 requests per hour per repo (per PRD)
 };
 
 /**

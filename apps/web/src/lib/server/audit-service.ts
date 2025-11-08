@@ -15,6 +15,11 @@ export const AUDIT_ACTIONS = {
   configUpdated: 'config_updated',
   tokenCreated: 'token_created',
   tokenRevoked: 'token_revoked',
+  hmacAuthSuccess: 'hmac_auth_success',
+  hmacAuthFailure: 'hmac_auth_failure',
+  hmacSecretCreated: 'hmac_secret_created',
+  hmacSecretRevoked: 'hmac_secret_revoked',
+  hmacSecretRotated: 'hmac_secret_rotated',
   other: 'other',
 } as const;
 
