@@ -165,4 +165,3 @@ describe('rateLimit', () => {
     expect(result.allowed).toBe(false);
   });
 });
-

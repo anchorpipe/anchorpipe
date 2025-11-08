@@ -131,10 +131,7 @@ export function cleanupExpiredEntries(): void {
   const now = Date.now();
   for (const [key, entry] of failedAttemptsStore.entries()) {
     // Remove if lock expired and window expired
-    if (
-      (!entry.lockedUntil || entry.lockedUntil < now) &&
-      entry.lastAttempt + WINDOW_MS < now
-    ) {
+    if ((!entry.lockedUntil || entry.lockedUntil < now) && entry.lastAttempt + WINDOW_MS < now) {
       failedAttemptsStore.delete(key);
     }
   }
@@ -144,4 +141,3 @@ export function cleanupExpiredEntries(): void {
 if (typeof setInterval !== 'undefined') {
   setInterval(cleanupExpiredEntries, 5 * 60 * 1000);
 }
-

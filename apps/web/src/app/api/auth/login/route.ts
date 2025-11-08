@@ -73,7 +73,8 @@ export async function POST(request: Request) {
       });
       return NextResponse.json(
         {
-          error: 'Account temporarily locked due to repeated failed login attempts. Please try again later.',
+          error:
+            'Account temporarily locked due to repeated failed login attempts. Please try again later.',
         },
         {
           status: 429,
@@ -105,10 +106,7 @@ export async function POST(request: Request) {
             'Retry-After': String(bruteForceResult.retryAfter || 900),
           }
         : rateLimitResult.headers;
-      return NextResponse.json(
-        { error: 'Invalid credentials' },
-        { status: 401, headers }
-      );
+      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401, headers });
     }
 
     // Verify password
@@ -151,10 +149,7 @@ export async function POST(request: Request) {
             'Retry-After': String(bruteForceResult.retryAfter || 900),
           }
         : rateLimitResult.headers;
-      return NextResponse.json(
-        { error: 'Invalid credentials' },
-        { status: 401, headers }
-      );
+      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401, headers });
     }
 
     // Successful login - clear brute force tracking
