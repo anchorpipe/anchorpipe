@@ -10,7 +10,8 @@ docs/
 │   ├── integrations/         # CI/CD integration guides
 │   └── security/             # Security implementation guides
 ├── reference/                # API, CLI, and reference documentation
-│   └── security/             # Security reference documentation
+│   ├── security/             # Security reference documentation
+│   └── compliance/           # Compliance documentation
 ├── program/                   # Internal program documentation
 ├── governance/               # Governance and commercial strategy
 └── README.md                 # This file
@@ -50,6 +51,12 @@ Reference documentation for APIs, security procedures, and technical details.
 - **[Security Contacts](reference/security/contacts.md)** - Security team contacts and roles
 - **[Escalation Procedures](reference/security/escalation.md)** - Security incident escalation
 
+#### Compliance Reference (`reference/compliance/`)
+
+- **[Privacy Policy](reference/compliance/privacy-policy.md)** - Comprehensive privacy policy (GDPR/CCPA compliant)
+- **[Data Processing Agreement](reference/compliance/data-processing-agreement.md)** - DPA for enterprise customers
+- **[Retention Policy](reference/compliance/retention-policy.md)** - Data retention periods and deletion processes
+
 ### Program Documentation (`program/`)
 
 Internal program documentation (architecture, PRD, compliance, etc.)
@@ -80,6 +87,9 @@ Internal program documentation (architecture, PRD, compliance, etc.)
 
 - [Security Contacts](reference/security/contacts.md) - Security team contacts
 - [Escalation Procedures](reference/security/escalation.md) - Incident escalation
+- [Privacy Policy](reference/compliance/privacy-policy.md) - Privacy policy and user rights
+- [Data Processing Agreement](reference/compliance/data-processing-agreement.md) - Enterprise DPA
+- [Retention Policy](reference/compliance/retention-policy.md) - Data retention periods
 
 ## 📖 Documentation Standards
 
@@ -111,6 +121,7 @@ Internal program documentation (architecture, PRD, compliance, etc.)
 | Integration Guides    | ✅ Complete | CI integration documented               |
 | Security Guides       | ✅ Complete | All security features documented        |
 | Security Reference    | ✅ Complete | Incident response procedures documented |
+| Compliance Reference  | ✅ Complete | Privacy policy, DPA, retention policy   |
 | Program Documentation | ⏳ Pending  | Internal docs to be added               |
 | API Reference         | ⏳ Pending  | API documentation coming soon           |
 | CLI Reference         | ⏳ Pending  | CLI documentation coming soon           |

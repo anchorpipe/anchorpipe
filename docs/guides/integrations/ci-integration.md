@@ -70,7 +70,7 @@ jobs:
             -H "X-FR-Sig: ${{ steps.hmac.outputs.signature }}" \
             -H "Content-Type: application/json" \
             -d @test-results.json \
-            https://api.anchorpipe.org/api/ingestion
+            https://api.anchorpipe.dev/api/ingestion
 ```
 
 **GitHub Secrets Setup:**
@@ -94,7 +94,7 @@ submit_results:
         -H "X-FR-Sig: $SIGNATURE" \
         -H "Content-Type: application/json" \
         -d @test-results.json \
-        https://api.anchorpipe.org/api/ingestion
+        https://api.anchorpipe.dev/api/ingestion
   variables:
     ANCHORPIPE_REPO_ID: $ANCHORPIPE_REPO_ID
     ANCHORPIPE_HMAC_SECRET: $ANCHORPIPE_HMAC_SECRET
@@ -132,7 +132,7 @@ pipeline {
                             -H "X-FR-Sig: ${signature}" \\
                             -H "Content-Type: application/json" \\
                             -d '${payload}' \\
-                            https://api.anchorpipe.org/api/ingestion
+                            https://api.anchorpipe.dev/api/ingestion
                     """
                 }
             }
@@ -169,7 +169,7 @@ jobs:
               -H "X-FR-Sig: $SIGNATURE" \
               -H "Content-Type: application/json" \
               -d @test-results.json \
-              https://api.anchorpipe.org/api/ingestion
+              https://api.anchorpipe.dev/api/ingestion
 
 workflows:
   submit:
@@ -200,7 +200,7 @@ def submit_test_results(payload: str, repo_id: str, secret: str):
 
     # Submit to Anchorpipe
     response = requests.post(
-        'https://api.anchorpipe.org/api/ingestion',
+        'https://api.anchorpipe.dev/api/ingestion',
         headers={
             'Authorization': f'Bearer {repo_id}',
             'X-FR-Sig': signature,
@@ -236,7 +236,7 @@ function submitTestResults(payload, repoId, secret) {
 
   // Submit to Anchorpipe
   const options = {
-    hostname: 'api.anchorpipe.org',
+    hostname: 'api.anchorpipe.dev',
     path: '/api/ingestion',
     method: 'POST',
     headers: {
@@ -279,7 +279,7 @@ submitTestResults(payload, process.env.ANCHORPIPE_REPO_ID, process.env.ANCHORPIP
 REPO_ID="${ANCHORPIPE_REPO_ID}"
 SECRET="${ANCHORPIPE_HMAC_SECRET}"
 PAYLOAD_FILE="test-results.json"
-API_URL="https://api.anchorpipe.org/api/ingestion"
+API_URL="https://api.anchorpipe.dev/api/ingestion"
 
 # Read payload
 PAYLOAD=$(cat "$PAYLOAD_FILE")
@@ -345,7 +345,7 @@ The ingestion endpoint is rate-limited to **500 requests per hour per repository
    - Revoke unused secrets
 
 5. **Use HTTPS only**
-   - Always use `https://api.anchorpipe.org`
+   - Always use `https://api.anchorpipe.dev`
    - Never send secrets over unencrypted connections
 
 ## Troubleshooting
@@ -420,6 +420,6 @@ JSON payload containing test results (format depends on test framework).
 
 For additional help:
 
-- Check the [documentation](https://docs.anchorpipe.org)
+- Check the [documentation](https://docs.anchorpipe.dev)
 - Open an issue on [GitHub](https://github.com/anchorpipe/anchorpipe/issues)
-- Contact support: support@anchorpipe.org
+- Contact support: support@anchorpipe.dev

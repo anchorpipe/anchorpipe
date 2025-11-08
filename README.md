@@ -5,7 +5,6 @@
 [![CI](https://github.com/anchorpipe/anchorpipe/actions/workflows/ci.yml/badge.svg)](https://github.com/anchorpipe/anchorpipe/actions/workflows/ci.yml)
 [![Security Scanning](https://github.com/anchorpipe/anchorpipe/actions/workflows/security-scan.yml/badge.svg)](https://github.com/anchorpipe/anchorpipe/actions/workflows/security-scan.yml)
 [![CodeQL](https://github.com/anchorpipe/anchorpipe/actions/workflows/codeql.yml/badge.svg)](https://github.com/anchorpipe/anchorpipe/actions/workflows/codeql.yml)
-[![DCO](https://github.com/anchorpipe/anchorpipe/actions/workflows/dco.yml/badge.svg)](https://github.com/anchorpipe/anchorpipe/actions/workflows/dco.yml)
 
 **anchorpipe** is an open-source platform for flaky test management that is CI-native, transparent, and actionable—restoring developer velocity and release confidence across teams of all sizes.
 
@@ -107,34 +106,6 @@ We welcome contributions! Please read our [Contributing Guide](CONTRIBUTING.md) 
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
-## 📋 Project Status
-
-**Current Phase**: Security Foundation (Gate GA)
-
-- ✅ **Foundation (Gate G0) - COMPLETE!**
-  - ✅ Repository setup and development environment
-  - ✅ PostgreSQL schema and migrations
-  - ✅ CI/CD pipeline (GitHub Actions)
-  - ✅ Basic authentication system (registration, login, rate limiting)
-  - ✅ API Gateway / BFF endpoints
-  - ✅ Message queue (RabbitMQ) integration
-  - ✅ Object storage (S3-compatible) setup
-  - ✅ Basic telemetry and logging (Prometheus metrics)
-
-- 🎯 **Security Foundation (Gate GA) - IN PROGRESS**
-  - ✅ RBAC System (ST-201)
-  - ✅ Data Encryption (ST-202)
-  - ✅ Input Validation (ST-203)
-  - ✅ Security Headers (ST-204)
-  - ✅ Data Subject Requests (ST-205)
-  - ✅ Audit Logging (ST-206)
-  - ✅ OAuth 2.0 GitHub Integration (ST-207)
-  - ✅ HMAC Authentication for CI (ST-208)
-  - ✅ Security Scanning in CI (ST-209)
-  - ✅ Rate Limiting and Brute Force Protection (ST-210)
-  - ✅ Security Incident Response Plan (ST-211)
-  - ⏳ Compliance Documentation (ST-212)
-
 ## 📖 License
 
 This project is licensed under the **GNU Affero General Public License v3.0** (AGPL v3).
@@ -183,14 +154,6 @@ Contributors are recognized in release notes, contributors list, and project doc
 ## 🗺️ Roadmap
 
 See our [GitHub Projects](https://github.com/orgs/anchorpipe/projects/3/views/2) board for the complete roadmap and issue tracking.
-
-**Gates**:
-
-- **G0** (Foundation): Repository setup, DB schema, CI/CD, Auth
-- **GA** (Security): RBAC, Encryption, Input validation
-- **GB** (Core Platform): GitHub App, CI integrations, Ingestion
-- **GC** (MVP): Scoring, Dashboard, PR Bot
-- **GD** (Post-MVP): Notifications, Performance, Plugins
 
 ---
 
