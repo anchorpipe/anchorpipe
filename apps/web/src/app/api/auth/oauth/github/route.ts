@@ -17,10 +17,7 @@ export async function GET(request: NextRequest) {
     } catch (error) {
       // During build time, env vars may not be set
       if (process.env.NODE_ENV === 'production' && !process.env.GITHUB_CLIENT_ID) {
-        return NextResponse.json(
-          { error: 'GitHub OAuth is not configured' },
-          { status: 503 }
-        );
+        return NextResponse.json({ error: 'GitHub OAuth is not configured' }, { status: 503 });
       }
       throw error;
     }
@@ -76,4 +73,3 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
-

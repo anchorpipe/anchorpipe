@@ -59,4 +59,3 @@ export function serializeEncrypted(payload: EncryptedPayload): string {
 export function parseEncrypted(serialized: string): EncryptedPayload {
   return JSON.parse(serialized) as EncryptedPayload;
 }
-

@@ -105,19 +105,25 @@ function LoginForm() {
           Sign in with GitHub
         </button>
       </div>
-      {status && <p style={{ marginTop: 16, color: status.startsWith('Error:') ? 'red' : 'inherit' }}>{status}</p>}
+      {status && (
+        <p style={{ marginTop: 16, color: status.startsWith('Error:') ? 'red' : 'inherit' }}>
+          {status}
+        </p>
+      )}
     </main>
   );
 }
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={
-      <main style={{ maxWidth: 420, margin: '64px auto', padding: 16 }}>
-        <h1>Sign in</h1>
-        <p>Loading...</p>
-      </main>
-    }>
+    <Suspense
+      fallback={
+        <main style={{ maxWidth: 420, margin: '64px auto', padding: 16 }}>
+          <h1>Sign in</h1>
+          <p>Loading...</p>
+        </main>
+      }
+    >
       <LoginForm />
     </Suspense>
   );

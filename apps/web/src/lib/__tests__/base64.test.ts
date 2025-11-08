@@ -74,4 +74,3 @@ describe('Base64URL encoding/decoding', () => {
     });
   });
 });
-
