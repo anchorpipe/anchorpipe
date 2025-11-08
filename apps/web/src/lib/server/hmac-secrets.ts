@@ -24,6 +24,22 @@ const HMAC_SECRET_METADATA_SELECT = {
 } as const;
 
 /**
+ * Type for HMAC secret metadata (admin view)
+ * Excludes secret values for security
+ */
+export type HmacSecretMetadata = {
+  id: string;
+  name: string;
+  active: boolean;
+  revoked: boolean;
+  lastUsedAt: Date | null;
+  createdAt: Date;
+  revokedAt: Date | null;
+  expiresAt: Date | null;
+  rotatedFrom: string | null;
+};
+
+/**
  * Generate a random HMAC secret (32 bytes, base64-encoded)
  */
 export function generateHmacSecret(): string {
@@ -217,19 +233,7 @@ export async function updateSecretLastUsed(secretId: string): Promise<void> {
  * List HMAC secrets for a repository (admin view)
  * Returns metadata only (no secret values)
  */
-export async function listHmacSecrets(repoId: string): Promise<
-  Array<{
-    id: string;
-    name: string;
-    active: boolean;
-    revoked: boolean;
-    lastUsedAt: Date | null;
-    createdAt: Date;
-    revokedAt: Date | null;
-    expiresAt: Date | null;
-    rotatedFrom: string | null;
-  }>
-> {
+export async function listHmacSecrets(repoId: string): Promise<Array<HmacSecretMetadata>> {
   const secrets = await prismaWithHmac.hmacSecret.findMany({
     where: { repoId },
     select: HMAC_SECRET_METADATA_SELECT,
@@ -245,18 +249,9 @@ export async function listHmacSecrets(repoId: string): Promise<
  * Get HMAC secret by ID (for admin operations)
  * Returns metadata only (no secret value)
  */
-export async function getHmacSecretById(secretId: string): Promise<{
-  id: string;
-  repoId: string;
-  name: string;
-  active: boolean;
-  revoked: boolean;
-  lastUsedAt: Date | null;
-  createdAt: Date;
-  revokedAt: Date | null;
-  expiresAt: Date | null;
-  rotatedFrom: string | null;
-} | null> {
+export async function getHmacSecretById(
+  secretId: string
+): Promise<(HmacSecretMetadata & { repoId: string }) | null> {
   const secret = await prismaWithHmac.hmacSecret.findUnique({
     where: { id: secretId },
     select: {
