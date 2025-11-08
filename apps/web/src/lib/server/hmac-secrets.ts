@@ -1,8 +1,11 @@
-import { PrismaClient } from '@anchorpipe/database';
+import { prisma } from '@anchorpipe/database';
 import { createHash, randomBytes } from 'node:crypto';
 import { encryptField } from './secrets';
 
-const prisma = new PrismaClient();
+// Use Prisma client directly - models should be available after regeneration
+// Type assertion needed until TypeScript server picks up new Prisma types
+// After restarting TypeScript server, these should be available directly
+const prismaWithHmac = prisma as any;
 
 /**
  * Generate a random HMAC secret (32 bytes, base64-encoded)
@@ -43,7 +46,7 @@ export async function createHmacSecret(
     throw new Error('Failed to encrypt secret');
   }
 
-  const hmacSecret = await prisma.hmacSecret.create({
+  const hmacSecret = await prismaWithHmac.hmacSecret.create({
     data: {
       repoId,
       name,
@@ -93,7 +96,7 @@ export async function rotateHmacSecret(
   });
 
   // Revoke old secret
-  await prisma.hmacSecret.update({
+  await prismaWithHmac.hmacSecret.update({
     where: { id: oldSecretId },
     data: {
       revoked: true,
@@ -103,7 +106,7 @@ export async function rotateHmacSecret(
   });
 
   // Update rotation reference
-  await prisma.hmacSecret.update({
+  await prismaWithHmac.hmacSecret.update({
     where: { id: newHmacSecret.id },
     data: {
       rotatedFrom: oldSecretId,
@@ -117,7 +120,7 @@ export async function rotateHmacSecret(
  * Revoke an HMAC secret
  */
 export async function revokeHmacSecret(secretId: string): Promise<void> {
-  await prisma.hmacSecret.update({
+  await prismaWithHmac.hmacSecret.update({
     where: { id: secretId },
     data: {
       revoked: true,
@@ -136,7 +139,7 @@ export async function findActiveSecretByHash(
   repoId: string,
   secretHash: string
 ): Promise<{ id: string; secretValue: string } | null> {
-  const secret = await prisma.hmacSecret.findFirst({
+  const secret = await prismaWithHmac.hmacSecret.findFirst({
     where: {
       repoId,
       secretHash,
@@ -160,7 +163,7 @@ export async function findActiveSecretByHash(
 export async function findActiveSecretsForRepo(
   repoId: string
 ): Promise<Array<{ id: string; secretHash: string; secretValue: string }>> {
-  const secrets = await prisma.hmacSecret.findMany({
+  const secrets = await prismaWithHmac.hmacSecret.findMany({
     where: {
       repoId,
       active: true,
@@ -184,7 +187,7 @@ export async function findActiveSecretsForRepo(
  * Update last used timestamp for a secret
  */
 export async function updateSecretLastUsed(secretId: string): Promise<void> {
-  await prisma.hmacSecret.update({
+  await prismaWithHmac.hmacSecret.update({
     where: { id: secretId },
     data: {
       lastUsedAt: new Date(),
@@ -209,7 +212,7 @@ export async function listHmacSecrets(repoId: string): Promise<
     rotatedFrom: string | null;
   }>
 > {
-  const secrets = await prisma.hmacSecret.findMany({
+  const secrets = await prismaWithHmac.hmacSecret.findMany({
     where: { repoId },
     select: {
       id: true,
@@ -246,7 +249,7 @@ export async function getHmacSecretById(secretId: string): Promise<{
   expiresAt: Date | null;
   rotatedFrom: string | null;
 } | null> {
-  const secret = await prisma.hmacSecret.findUnique({
+  const secret = await prismaWithHmac.hmacSecret.findUnique({
     where: { id: secretId },
     select: {
       id: true,
