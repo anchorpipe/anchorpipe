@@ -17,11 +17,11 @@ Implements comprehensive rate limiting and brute force protection to prevent abu
 
 ### Default Limits
 
-| Endpoint | Limit | Window |
-|----------|-------|--------|
-| `auth:register` | 5 requests | 15 minutes |
-| `auth:login` | 10 requests | 15 minutes |
-| `ingestion:submit` | 500 requests | 1 hour |
+| Endpoint           | Limit        | Window     |
+| ------------------ | ------------ | ---------- |
+| `auth:register`    | 5 requests   | 15 minutes |
+| `auth:login`       | 10 requests  | 15 minutes |
+| `ingestion:submit` | 500 requests | 1 hour     |
 
 ### Configuration
 
@@ -92,6 +92,7 @@ When rate limit is exceeded (429 status), the response includes:
 ```
 
 Headers:
+
 ```
 HTTP/1.1 429 Too Many Requests
 X-RateLimit-Limit: 10
@@ -109,6 +110,7 @@ Retry-After: 900
 ```
 
 Headers:
+
 ```
 HTTP/1.1 429 Too Many Requests
 Retry-After: 900
@@ -203,6 +205,7 @@ Monitor rate limit violations and brute force locks:
 Location: `apps/web/src/lib/server/__tests__/rate-limit.test.ts`
 
 Tests cover:
+
 - Rate limit enforcement
 - Header generation
 - Retry-After calculation
@@ -214,6 +217,7 @@ Tests cover:
 Location: `apps/web/src/lib/server/__tests__/brute-force.test.ts`
 
 Tests cover:
+
 - Failed attempt tracking
 - Lock expiration
 - Clear on successful login
@@ -259,4 +263,3 @@ TRUSTED_IPS=192.168.1.1,10.0.0.1
 - Adaptive rate limiting based on user behavior
 - Rate limit exemptions for specific user roles
 - Integration with WAF/CDN for edge rate limiting
-
