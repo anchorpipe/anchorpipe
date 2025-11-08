@@ -8,6 +8,22 @@ import { encryptField } from './secrets';
 const prismaWithHmac = prisma as any;
 
 /**
+ * Common select fields for HMAC secret metadata (admin view)
+ * Excludes secret values for security
+ */
+const HMAC_SECRET_METADATA_SELECT = {
+  id: true,
+  name: true,
+  active: true,
+  revoked: true,
+  lastUsedAt: true,
+  createdAt: true,
+  revokedAt: true,
+  expiresAt: true,
+  rotatedFrom: true,
+} as const;
+
+/**
  * Generate a random HMAC secret (32 bytes, base64-encoded)
  */
 export function generateHmacSecret(): string {
@@ -133,9 +149,11 @@ export async function revokeHmacSecret(secretId: string): Promise<void> {
 /**
  * Find active HMAC secret by repository ID and secret hash
  * Used during authentication to find the secret that matches the provided signature
- * Note: This is used when we know the secret hash (e.g., from a lookup table)
+ * Note: Reserved for future use when we need hash-based lookup optimization
+ * Currently unused - authentication uses findActiveSecretsForRepo instead
+ * @internal - Intentionally unused, reserved for future optimization
  */
-export async function findActiveSecretByHash(
+async function _findActiveSecretByHash(
   repoId: string,
   secretHash: string
 ): Promise<{ id: string; secretValue: string } | null> {
@@ -214,17 +232,7 @@ export async function listHmacSecrets(repoId: string): Promise<
 > {
   const secrets = await prismaWithHmac.hmacSecret.findMany({
     where: { repoId },
-    select: {
-      id: true,
-      name: true,
-      active: true,
-      revoked: true,
-      lastUsedAt: true,
-      createdAt: true,
-      revokedAt: true,
-      expiresAt: true,
-      rotatedFrom: true,
-    },
+    select: HMAC_SECRET_METADATA_SELECT,
     orderBy: {
       createdAt: 'desc',
     },
@@ -252,16 +260,8 @@ export async function getHmacSecretById(secretId: string): Promise<{
   const secret = await prismaWithHmac.hmacSecret.findUnique({
     where: { id: secretId },
     select: {
-      id: true,
-      repoId: true,
-      name: true,
-      active: true,
-      revoked: true,
-      lastUsedAt: true,
-      createdAt: true,
-      revokedAt: true,
-      expiresAt: true,
-      rotatedFrom: true,
+      ...HMAC_SECRET_METADATA_SELECT,
+      repoId: true, // Include repoId for this query
     },
   });
 
