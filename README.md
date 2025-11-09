@@ -35,6 +35,7 @@ Flaky tests destroy developer productivity. Teams waste hours investigating fals
 Works with your existing CI/CD pipeline—no migration required.
 
 **Supported Platforms:**
+
 - GitHub Actions, GitLab CI, CircleCI, Jenkins, Azure DevOps
 - JUnit, Jest, PyTest, Playwright, Mocha, Gradle
 
@@ -88,7 +89,7 @@ Get anchorpipe running locally in under 5 minutes.
    ```bash
    # Create .env with DATABASE_URL
    echo DATABASE_URL=postgresql://postgres:postgres@localhost:15432/anchorpipe_dev > .env
-   
+
    # Start local services (PostgreSQL, Redis, RabbitMQ, MinIO)
    docker compose up -d
    ```
@@ -124,14 +125,14 @@ Get anchorpipe running locally in under 5 minutes.
 
 ## 📚 Documentation
 
-| Category | Resources |
-|----------|-----------|
-| **🚀 Getting Started** | [Quick Start](#-quick-start) · [Project Setup](docs/guides/foundation/project-setup.md) · [CI Integration](docs/guides/integrations/ci-integration.md) |
-| **🔌 Integrations** | [CI/CD Setup](docs/guides/integrations/) · [HMAC Authentication](docs/guides/integrations/ci-integration.md) |
-| **🔒 Security** | [OAuth](docs/guides/security/oauth.md) · [RBAC](docs/guides/security/rbac.md) · [Rate Limiting](docs/guides/security/rate-limiting.md) · [Encryption](docs/guides/security/encryption.md) |
-| **🏗️ Foundation** | [Database Schema](docs/guides/foundation/database-schema.md) · [API Gateway](docs/guides/foundation/api-gateway.md) · [Message Queue](docs/guides/foundation/message-queue.md) |
-| **🏛️ Governance** | [Commercial Strategy](docs/governance/COMMERCIAL_STRATEGY.md) · [Contributor Rewards](docs/governance/CONTRIBUTOR_REWARDS.md) |
-| **📖 Reference** | [Security Reference](docs/reference/security/) · [Compliance](docs/reference/compliance/) · [Complete Index](docs/README.md) |
+| Category               | Resources                                                                                                                                                                                 |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **🚀 Getting Started** | [Quick Start](#-quick-start) · [Project Setup](docs/guides/foundation/project-setup.md) · [CI Integration](docs/guides/integrations/ci-integration.md)                                    |
+| **🔌 Integrations**    | [CI/CD Setup](docs/guides/integrations/) · [HMAC Authentication](docs/guides/integrations/ci-integration.md)                                                                              |
+| **🔒 Security**        | [OAuth](docs/guides/security/oauth.md) · [RBAC](docs/guides/security/rbac.md) · [Rate Limiting](docs/guides/security/rate-limiting.md) · [Encryption](docs/guides/security/encryption.md) |
+| **🏗️ Foundation**      | [Database Schema](docs/guides/foundation/database-schema.md) · [API Gateway](docs/guides/foundation/api-gateway.md) · [Message Queue](docs/guides/foundation/message-queue.md)            |
+| **🏛️ Governance**      | [Commercial Strategy](docs/governance/COMMERCIAL_STRATEGY.md) · [Contributor Rewards](docs/governance/CONTRIBUTOR_REWARDS.md)                                                             |
+| **📖 Reference**       | [Security Reference](docs/reference/security/) · [Compliance](docs/reference/compliance/) · [Complete Index](docs/README.md)                                                              |
 
 **Can't find what you need?** [Browse all documentation](docs/README.md) or [ask in Discussions](https://github.com/anchorpipe/anchorpipe/discussions)
 
