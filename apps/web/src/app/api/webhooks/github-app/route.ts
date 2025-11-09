@@ -545,7 +545,9 @@ function processValidatedRunEvent<T extends { id: number; name: string }>(params
 /**
  * Process run event with validation and ingestion trigger
  */
-function processRunEventWithIngestion<T extends { id: number; name: string }>(params: {
+function processRunEventWithIngestion<
+  T extends { id: number; name: string; status: string },
+>(params: {
   run: T | undefined;
   runType: 'workflow_run' | 'check_run';
   action: string;
@@ -565,7 +567,7 @@ function processRunEventWithIngestion<T extends { id: number; name: string }>(pa
     return;
   }
 
-  const validatedRun = validation.run;
+  const validatedRun = validation.run as T;
 
   processValidatedRunEvent({
     run: validatedRun,
