@@ -18,6 +18,10 @@ import {
 import { logger } from '@/lib/server/logger';
 import { verifyGitHubWebhookSignature } from '@/lib/server/github-webhook';
 import { clearInstallationTokenCache } from '@/lib/server/github-app-tokens';
+import {
+  triggerIngestionForWorkflowRun,
+  triggerIngestionForCheckRun,
+} from '@/lib/server/github-app-ingestion-trigger';
 
 export const runtime = 'nodejs';
 
@@ -78,6 +82,14 @@ export async function POST(request: NextRequest) {
           payload as { repositories_added?: unknown[]; repositories_removed?: unknown[] },
           context
         );
+        break;
+
+      case 'workflow_run':
+        await handleWorkflowRunEvent(payload.action, payload as WorkflowRunPayload, context);
+        break;
+
+      case 'check_run':
+        await handleCheckRunEvent(payload.action, payload as CheckRunPayload, context);
         break;
 
       default:
@@ -231,4 +243,202 @@ async function handleInstallationRepositoriesEvent(
     repositoriesAdded: payload.repositories_added?.length ?? 0,
     repositoriesRemoved: payload.repositories_removed?.length ?? 0,
   });
+}
+
+/**
+ * Workflow run payload structure from GitHub
+ */
+interface WorkflowRunPayload {
+  action: 'requested' | 'completed' | 'in_progress';
+  workflow_run: {
+    id: number;
+    name: string;
+    head_branch: string;
+    head_sha: string;
+    run_number: number;
+    status: 'queued' | 'in_progress' | 'completed';
+    conclusion:
+      | 'success'
+      | 'failure'
+      | 'cancelled'
+      | 'neutral'
+      | 'skipped'
+      | 'timed_out'
+      | 'action_required'
+      | null;
+    workflow_id: number;
+    repository: {
+      id: number;
+      name: string;
+      full_name: string;
+      owner: {
+        login: string;
+        id: number;
+      };
+    };
+    head_commit?: {
+      id: string;
+      message: string;
+    };
+  };
+  installation?: {
+    id: number;
+  };
+}
+
+/**
+ * Check run payload structure from GitHub
+ */
+interface CheckRunPayload {
+  action: 'created' | 'completed' | 'rerequested' | 'requested_action';
+  check_run: {
+    id: number;
+    name: string;
+    head_sha: string;
+    status: 'queued' | 'in_progress' | 'completed';
+    conclusion:
+      | 'success'
+      | 'failure'
+      | 'neutral'
+      | 'cancelled'
+      | 'skipped'
+      | 'timed_out'
+      | 'action_required'
+      | null;
+    check_suite: {
+      id: number;
+      head_sha: string;
+      head_branch: string;
+    };
+    repository: {
+      id: number;
+      name: string;
+      full_name: string;
+      owner: {
+        login: string;
+        id: number;
+      };
+    };
+  };
+  installation?: {
+    id: number;
+  };
+}
+
+/**
+ * Handle workflow_run events
+ * Triggers when a GitHub Actions workflow run completes
+ */
+async function handleWorkflowRunEvent(
+  action: string,
+  payload: WorkflowRunPayload,
+  context: { ipAddress: string | null; userAgent: string | null }
+) {
+  const { workflow_run, installation } = payload;
+
+  if (!workflow_run) {
+    logger.warn('GitHub App workflow_run event missing workflow_run data', { action });
+    return;
+  }
+
+  // Only process completed workflow runs
+  if (action !== 'completed' || workflow_run.status !== 'completed') {
+    logger.debug('GitHub App workflow_run event skipped (not completed)', {
+      action,
+      status: workflow_run.status,
+      workflowRunId: workflow_run.id,
+    });
+    return;
+  }
+
+  logger.info('GitHub App workflow_run completed', {
+    action,
+    workflowRunId: workflow_run.id,
+    workflowName: workflow_run.name,
+    repositoryId: workflow_run.repository.id,
+    repositoryFullName: workflow_run.repository.full_name,
+    headSha: workflow_run.head_sha,
+    headBranch: workflow_run.head_branch,
+    conclusion: workflow_run.conclusion,
+    installationId: installation?.id,
+  });
+
+  // Trigger ingestion service to fetch test results
+  if (installation?.id) {
+    // Process asynchronously to avoid blocking webhook response
+    triggerIngestionForWorkflowRun(
+      workflow_run.id,
+      workflow_run.repository.id,
+      workflow_run.repository.full_name,
+      workflow_run.head_sha,
+      workflow_run.head_branch,
+      installation.id,
+      context
+    ).catch((error) => {
+      logger.error('Failed to trigger ingestion for workflow run', {
+        workflowRunId: workflow_run.id,
+        repositoryFullName: workflow_run.repository.full_name,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+    });
+  }
+}
+
+/**
+ * Handle check_run events
+ * Triggers when a GitHub Check Run completes (e.g., from GitHub Actions, third-party CI)
+ */
+async function handleCheckRunEvent(
+  action: string,
+  payload: CheckRunPayload,
+  context: { ipAddress: string | null; userAgent: string | null }
+) {
+  const { check_run, installation } = payload;
+
+  if (!check_run) {
+    logger.warn('GitHub App check_run event missing check_run data', { action });
+    return;
+  }
+
+  // Only process completed check runs
+  if (action !== 'completed' || check_run.status !== 'completed') {
+    logger.debug('GitHub App check_run event skipped (not completed)', {
+      action,
+      status: check_run.status,
+      checkRunId: check_run.id,
+    });
+    return;
+  }
+
+  logger.info('GitHub App check_run completed', {
+    action,
+    checkRunId: check_run.id,
+    checkRunName: check_run.name,
+    repositoryId: check_run.repository.id,
+    repositoryFullName: check_run.repository.full_name,
+    headSha: check_run.head_sha,
+    headBranch: check_run.check_suite.head_branch,
+    conclusion: check_run.conclusion,
+    installationId: installation?.id,
+  });
+
+  // Trigger ingestion service to fetch test results
+  if (installation?.id) {
+    // Process asynchronously to avoid blocking webhook response
+    triggerIngestionForCheckRun(
+      check_run.id,
+      check_run.repository.id,
+      check_run.repository.full_name,
+      check_run.head_sha,
+      check_run.check_suite.head_branch,
+      installation.id,
+      context
+    ).catch((error) => {
+      logger.error('Failed to trigger ingestion for check run', {
+        checkRunId: check_run.id,
+        repositoryFullName: check_run.repository.full_name,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+    });
+  }
 }
