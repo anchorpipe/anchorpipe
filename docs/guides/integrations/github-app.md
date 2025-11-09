@@ -275,6 +275,43 @@ Check health of a GitHub App installation. Performs comprehensive checks to veri
 - **permissions**: Installation has required permissions
 - **repositoryAccess**: Can access repositories (if repositories are configured)
 
+### PUT /api/github-app/installations/[installationId]/repositories
+
+Update repository selection for a GitHub App installation. This endpoint allows you to add or remove repositories from an installation when `repository_selection: 'selected'`.
+
+**Request Body:**
+
+```json
+{
+  "repositoryIds": [123456, 789012, 345678]
+}
+```
+
+**Response:**
+
+```json
+{
+  "message": "Repository selection updated successfully",
+  "installationId": "123456",
+  "repositoryCount": 3
+}
+```
+
+**Status Codes:**
+
+- `200`: Repository selection updated successfully
+- `400`: Invalid request (missing or invalid repositoryIds)
+- `401`: Unauthorized
+- `404`: Installation not found
+- `500`: Internal server error
+
+**Notes:**
+
+- This endpoint updates the repository selection via GitHub API
+- The database record is automatically updated
+- Repositories are automatically synced to the local database
+- An audit log entry is created for the update
+
 ## Security
 
 ### Webhook Signature Verification
