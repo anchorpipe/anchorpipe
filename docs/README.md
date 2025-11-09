@@ -7,6 +7,7 @@ Welcome to the Anchorpipe documentation! This directory contains all project doc
 ```
 docs/
 ├── guides/                    # How-to guides and tutorials
+│   ├── foundation/          # Foundation (G0) guides
 │   ├── integrations/         # CI/CD integration guides
 │   └── security/             # Security implementation guides
 ├── reference/                # API, CLI, and reference documentation
@@ -32,14 +33,28 @@ Step-by-step guides for common tasks and integrations.
   - CircleCI
   - Code examples (Python, Node.js, Bash)
 
+#### Foundation Guides (`guides/foundation/`)
+
+- **[Project Setup](guides/foundation/project-setup.md)** (ST-101) - Development environment and tooling
+- **[Database Schema](guides/foundation/database-schema.md)** (ST-102) - PostgreSQL schema and Prisma
+- **[CI/CD Pipeline](guides/foundation/cicd-pipeline.md)** (ST-103) - GitHub Actions workflows
+- **[Authentication](guides/foundation/authentication.md)** (ST-104) - User registration and login
+- **[API Gateway/BFF](guides/foundation/api-gateway.md)** (ST-105) - Next.js route handlers
+- **[Message Queue](guides/foundation/message-queue.md)** (ST-106) - RabbitMQ setup
+- **[Object Storage](guides/foundation/object-storage.md)** (ST-107) - MinIO/S3 setup
+- **[Telemetry and Logging](guides/foundation/telemetry-logging.md)** (ST-108) - Observability
+
 #### Security Guides (`guides/security/`)
 
-- **[Audit Logging](guides/security/audit-logging.md)** - Implementing and using audit logging
-- **[Data Encryption](guides/security/encryption.md)** - Encryption at rest and in transit
-- **[OAuth Authentication](guides/security/oauth.md)** - OAuth 2.0 with PKCE implementation
-- **[Rate Limiting](guides/security/rate-limiting.md)** - Rate limiting and brute force protection
-- **[Security Scanning](guides/security/scanning.md)** - Security scanning in CI pipeline
-- **[Data Subject Requests](guides/security/data-subject-requests.md)** - GDPR DSR workflow
+- **[Audit Logging](guides/security/audit-logging.md)** (ST-206) - Implementing and using audit logging
+- **[Data Encryption](guides/security/encryption.md)** (ST-202) - Encryption at rest and in transit
+- **[Input Validation](guides/security/input-validation.md)** (ST-203) - Input validation and sanitization
+- **[OAuth Authentication](guides/security/oauth.md)** (ST-207) - OAuth 2.0 with PKCE implementation
+- **[RBAC System](guides/security/rbac.md)** (ST-201) - Role-based access control
+- **[Rate Limiting](guides/security/rate-limiting.md)** (ST-210) - Rate limiting and brute force protection
+- **[Security Headers](guides/security/security-headers.md)** (ST-204) - Security headers and CSP
+- **[Security Scanning](guides/security/scanning.md)** (ST-209) - Security scanning in CI pipeline
+- **[Data Subject Requests](guides/security/data-subject-requests.md)** (ST-205) - GDPR DSR workflow
 
 ### Reference (`reference/`)
 
@@ -118,6 +133,7 @@ Internal program documentation (architecture, PRD, compliance, etc.)
 
 | Category              | Status      | Notes                                   |
 | --------------------- | ----------- | --------------------------------------- |
+| Foundation Guides     | ✅ Complete | All G0 foundation stories documented    |
 | Integration Guides    | ✅ Complete | CI integration documented               |
 | Security Guides       | ✅ Complete | All security features documented        |
 | Security Reference    | ✅ Complete | Incident response procedures documented |
