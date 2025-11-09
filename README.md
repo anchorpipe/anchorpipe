@@ -8,19 +8,66 @@
 
 **anchorpipe** is an open-source platform for flaky test management that is CI-native, transparent, and actionable—restoring developer velocity and release confidence across teams of all sizes.
 
-## 🎯 Mission
+## Why anchorpipe?
 
-Deliver a world-class, open-source platform for flaky test management that is CI-native, transparent, and actionable—restoring developer velocity and release confidence across teams of all sizes.
+Flaky tests destroy developer productivity. Teams waste hours investigating false failures, delaying releases, and losing trust in their test suites.
 
-## ✨ Features
+**anchorpipe** automatically detects, explains, and helps you fix flaky tests—integrated directly into your CI/CD workflow.
 
-- **Universal Ingestion**: Support for all major CI platforms (GitHub Actions, GitLab CI, CircleCI, Jenkins, Azure DevOps) and testing frameworks (JUnit, Jest, PyTest, Playwright, Mocha, Gradle)
-- **Explainable Scoring**: Advanced heuristics + ML-based flake detection with transparent explanations
-- **PR Feedback**: Automated GitHub App that comments on PRs with flake detection and remediation suggestions
-- **Multi-Platform**: Web dashboard, CLI tool, Desktop application (Tauri), and future MCP server
-- **Actionable Insights**: Remediation playbooks, root cause analysis, and ownership mapping
+### The Problem
+
+- ❌ Tests that pass/fail randomly waste hours of debugging
+- ❌ Teams lose confidence in their test suites
+- ❌ Releases get delayed due to test uncertainty
+- ❌ No visibility into which tests are truly broken vs. flaky
+
+### The Solution
+
+- ✅ **Automatic detection** using ML-based heuristics
+- ✅ **Transparent explanations** for every flake
+- ✅ **PR-native feedback** - catch flakes before merge
+- ✅ **Actionable remediation** with guided playbooks
+
+## ✨ Key Features
+
+### 🔌 Universal CI Integration
+
+Works with your existing CI/CD pipeline—no migration required.
+
+**Supported Platforms:**
+
+- GitHub Actions, GitLab CI, CircleCI, Jenkins, Azure DevOps
+- JUnit, Jest, PyTest, Playwright, Mocha, Gradle
+
+[View integration guide →](docs/guides/integrations/ci-integration.md)
+
+### 🔒 Production-Ready Security
+
+Enterprise-grade security features built-in:
+
+- OAuth 2.0 with PKCE authentication
+- Role-based access control (RBAC)
+- Rate limiting and brute force protection
+- Encryption at rest and in transit
+- Comprehensive audit logging
+- Security scanning in CI pipeline
+
+[View security documentation →](docs/guides/security/)
+
+### 📊 Compliance & Privacy
+
+GDPR/CCPA compliant with comprehensive data protection:
+
+- Privacy policy and data processing agreements
+- Data subject request (DSR) workflows
+- Data retention policies
+- Audit trails for compliance
+
+[View compliance documentation →](docs/reference/compliance/)
 
 ## 🚀 Quick Start
+
+Get anchorpipe running locally in under 5 minutes.
 
 ### Prerequisites
 
@@ -28,83 +75,106 @@ Deliver a world-class, open-source platform for flaky test management that is CI
 - Node.js 20.x LTS + npm 10.x
 - Git >= 2.40
 
-### Local Development
+### Setup Steps
 
-1. **Clone the repository**
+1. **Clone and enter directory**
 
    ```bash
    git clone https://github.com/anchorpipe/anchorpipe.git
    cd anchorpipe
    ```
 
-2. **Set up environment**
+2. **Start infrastructure**
 
    ```bash
-   # Create .env with DATABASE_URL for Prisma
+   # Create .env with DATABASE_URL
    echo DATABASE_URL=postgresql://postgres:postgres@localhost:15432/anchorpipe_dev > .env
-   docker compose up -d  # Start local services (Postgres, Redis, RabbitMQ, MinIO)
+
+   # Start local services (PostgreSQL, Redis, RabbitMQ, MinIO)
+   docker compose up -d
    ```
 
-3. **Install dependencies**
+3. **Install and setup**
 
    ```bash
    npm install
+   npm run db:migrate
    ```
 
-4. **Start development**
+4. **Start development server**
+
    ```bash
    npm run dev
    ```
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed setup instructions.
+5. **Verify installation**
+
+   ```bash
+   curl http://localhost:3000/api/health
+   ```
+
+   **✅ Expected output:** `{"status": "healthy"}`
+
+### Next Steps
+
+- 📖 [Connect your first CI pipeline](docs/guides/integrations/ci-integration.md)
+- 🔒 [Configure authentication](docs/guides/foundation/authentication.md)
+- 🛡️ [Set up security features](docs/guides/security/)
+
+**Troubleshooting:** See [Project Setup Guide](docs/guides/foundation/project-setup.md) for detailed instructions.
 
 ## 📚 Documentation
 
-Comprehensive documentation is available in the [`docs/`](docs/) directory:
+| Category               | Resources                                                                                                                                                                                 |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **🚀 Getting Started** | [Quick Start](#-quick-start) · [Project Setup](docs/guides/foundation/project-setup.md) · [CI Integration](docs/guides/integrations/ci-integration.md)                                    |
+| **🔌 Integrations**    | [CI/CD Setup](docs/guides/integrations/) · [HMAC Authentication](docs/guides/integrations/ci-integration.md)                                                                              |
+| **🔒 Security**        | [OAuth](docs/guides/security/oauth.md) · [RBAC](docs/guides/security/rbac.md) · [Rate Limiting](docs/guides/security/rate-limiting.md) · [Encryption](docs/guides/security/encryption.md) |
+| **🏗️ Foundation**      | [Database Schema](docs/guides/foundation/database-schema.md) · [API Gateway](docs/guides/foundation/api-gateway.md) · [Message Queue](docs/guides/foundation/message-queue.md)            |
+| **🏛️ Governance**      | [Commercial Strategy](docs/governance/COMMERCIAL_STRATEGY.md) · [Contributor Rewards](docs/governance/CONTRIBUTOR_REWARDS.md)                                                             |
+| **📖 Reference**       | [Security Reference](docs/reference/security/) · [Compliance](docs/reference/compliance/) · [Complete Index](docs/README.md)                                                              |
 
-### 📖 Guides
-
-- **[CI Integration](docs/guides/integrations/ci-integration.md)** - Set up CI/CD integrations (GitHub Actions, GitLab CI, Jenkins, CircleCI)
-- **[Security Guides](docs/guides/security/)**:
-  - [OAuth Authentication](docs/guides/security/oauth.md) - OAuth 2.0 with PKCE
-  - [Rate Limiting](docs/guides/security/rate-limiting.md) - Rate limiting and brute force protection
-  - [Security Scanning](docs/guides/security/scanning.md) - Security scanning in CI
-  - [Audit Logging](docs/guides/security/audit-logging.md) - Audit logging implementation
-  - [Data Encryption](docs/guides/security/encryption.md) - Encryption at rest and in transit
-  - [Data Subject Requests](docs/guides/security/data-subject-requests.md) - GDPR DSR workflow
-
-### 📋 Reference
-
-- **[Security Reference](docs/reference/security/)**:
-  - [Incident Response](docs/reference/security/incident-response.md) - Security incident response plan
-  - [Security Contacts](docs/reference/security/contacts.md) - Security team contacts
-  - [Escalation Procedures](docs/reference/security/escalation.md) - Incident escalation
-
-### 🏛️ Governance
-
-- [Commercial Strategy](docs/governance/COMMERCIAL_STRATEGY.md) - Commercial licensing
-- [Contributor Rewards](docs/governance/CONTRIBUTOR_REWARDS.md) - Recognition framework
-- [Foundation Plan](docs/governance/FOUNDATION_PLAN.md) - Foundation structure
-
-### 📝 Additional
-
-- [Documentation Index](docs/README.md) - Complete documentation overview
-- [Contributing Guide](CONTRIBUTING.md) - How to contribute
-- [Security Policy](SECURITY.md) - Security vulnerability reporting
+**Can't find what you need?** [Browse all documentation](docs/README.md) or [ask in Discussions](https://github.com/anchorpipe/anchorpipe/discussions)
 
 ## 🤝 Contributing
 
-We welcome contributions! Please read our [Contributing Guide](CONTRIBUTING.md) first.
+We ❤️ contributions! anchorpipe is built by developers, for developers.
+
+**Ways to Contribute:**
+
+- 🐛 [Report bugs](https://github.com/anchorpipe/anchorpipe/issues/new?template=bug_report.md)
+- 💡 [Suggest features](https://github.com/anchorpipe/anchorpipe/issues/new?template=feature_request.md)
+- 📖 Improve documentation
+- 🔧 Submit pull requests
+- 💬 Help others in [Discussions](https://github.com/anchorpipe/anchorpipe/discussions)
+
+**First-time contributor?** Look for [`good first issue`](https://github.com/anchorpipe/anchorpipe/labels/good%20first%20issue) labels.
 
 ### Quick Contribution Steps
 
-1. Fork the repository
-2. Create a branch: `git checkout -b feature/your-feature-name`
-3. Make your changes
-4. Sign off commits: `git commit -s -m "Your commit message"`
-5. Push and create a Pull Request
+1. **Fork** the repository
+2. **Create** a feature branch: `git checkout -b feature/amazing-feature`
+3. **Commit** with sign-off: `git commit -s -m "Add amazing feature"`
+4. **Push** and open a Pull Request
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+[Read our full Contributing Guide →](CONTRIBUTING.md)
+
+**Recognition:** All contributors get credit in release notes and our [Contributors Wall](https://github.com/anchorpipe/anchorpipe/graphs/contributors). Learn about our [rewards program](docs/governance/CONTRIBUTOR_REWARDS.md).
+
+## 🛡️ Security
+
+Security is a top priority. anchorpipe includes:
+
+✅ OAuth 2.0 with PKCE  
+✅ OWASP-aligned security headers  
+✅ Rate limiting & brute force protection  
+✅ Encryption at rest and in transit  
+✅ Comprehensive audit logging  
+✅ Security scanning in CI pipeline
+
+**Found a vulnerability?** Please report it privately via our [Security Policy](SECURITY.md).
+
+[View detailed security documentation →](docs/guides/security/)
 
 ## 📖 License
 
@@ -115,41 +185,11 @@ This project is licensed under the **GNU Affero General Public License v3.0** (A
 
 See [LICENSE](LICENSE) for details.
 
-## 🛡️ Security
-
-Please report security vulnerabilities privately. See [SECURITY.md](SECURITY.md) for details.
-
-### Default Security Headers (GA: ST-204)
-
-The web app sets baseline security headers globally and a conservative Content-Security-Policy (CSP) on API routes via `apps/web/src/middleware.ts`:
-
-- `X-Content-Type-Options: nosniff`
-- `X-Frame-Options: DENY`
-- `Referrer-Policy: no-referrer`
-- `Permissions-Policy: geolocation=(), microphone=(), camera=()`
-- `Cross-Origin-Opener-Policy: same-origin`
-- `Cross-Origin-Resource-Policy: same-origin`
-- API CSP (summary): `default-src 'none'; frame-ancestors 'none'; object-src 'none'; form-action 'self'` with minimal allowances for `img`, `script`, `style`, `connect`, `font`.
-
-These provide immediate OWASP-aligned hardening without impacting development. Adjust CSP as needed when adding external resources.
-
 ## 📞 Support
 
 - **General Questions**: [GitHub Discussions](https://github.com/anchorpipe/anchorpipe/discussions)
 - **Bug Reports**: [GitHub Issues](https://github.com/anchorpipe/anchorpipe/issues)
 - **Security Issues**: See [SECURITY.md](SECURITY.md)
-
-## 🌟 Recognition
-
-Contributors are recognized in release notes, contributors list, and project documentation. See [docs/governance/CONTRIBUTOR_REWARDS.md](docs/governance/CONTRIBUTOR_REWARDS.md) for our recognition and rewards framework.
-
-## 📄 Additional Resources
-
-- [Code of Conduct](CODE_OF_CONDUCT.md)
-- [Governance Model](GOVERNANCE.md)
-- [Intellectual Property Assignment](IP_ASSIGNMENT.md)
-- [Trademark Policy](TRADEMARK_POLICY.md)
-- [Commercial Strategy](docs/governance/COMMERCIAL_STRATEGY.md)
 
 ## 🗺️ Roadmap
 

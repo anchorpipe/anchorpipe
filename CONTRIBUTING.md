@@ -18,20 +18,17 @@ Every commit must be signed off. This certifies that:
 - You have the right to contribute the code, and
 - You understand your contributions are made under the project's license (AGPL v3)
 
-### Intellectual Property and Commercial Use Rights
+### Intellectual Property Rights
 
-By contributing to anchorpipe, you grant the following rights:
+By contributing to anchorpipe with DCO sign-off, you:
 
-- **Open-Source License**: Your contributions are licensed under AGPL v3
-- **Commercial Use Rights**: anchorpipe may use your contributions in commercial products and services
-- **Dual Licensing**: anchorpipe may license your contributions under different licenses for commercial use
+- **Grant AGPL License**: Your contributions are licensed under AGPL-3.0
+- **Retain Copyright**: You keep ownership of your code
 - **Attribution**: You will be credited for your contributions
 
-**Important**: You retain copyright ownership of your code. You are granting licenses that allow both open-source and commercial use.
+**Important**: DCO grants rights under AGPL-3.0 only. The project cannot relicense your code without your permission. For complete details, see [IP_ASSIGNMENT.md](IP_ASSIGNMENT.md).
 
-For complete details, see [IP_ASSIGNMENT.md](IP_ASSIGNMENT.md).
-
-**Note**: Significant contributors who may receive equity or compensation may be asked to sign an additional Contributor License Agreement (CLA) with more explicit terms. This is optional and only for contributors receiving compensation.
+**Note**: An optional Enhanced Contributor Agreement may be available in the future for contributors who want to grant additional rights (like relicensing) in exchange for revenue sharing eligibility. This is completely optional.
 
 ### Signing Off Commits
 
