@@ -65,6 +65,7 @@ model User {
   roleAuditLogsAsTarget RoleAuditLog[]       @relation("RoleAuditTarget")
   dataSubjectRequests   DataSubjectRequest[]
   auditLogs             AuditLog[]           @relation("AuditActor")
+  passwordResetTokens  PasswordResetToken[]
 
   @@index([githubId])
   @@map("users")
@@ -492,4 +493,21 @@ model GitHubAppInstallation {
   @@index([accountId])
   @@index([accountLogin])
   @@map("github_app_installations")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  token     String   @unique // Hashed reset token
+  expiresAt DateTime @map("expires_at")
+  usedAt    DateTime? @map("used_at") // When token was used (null if unused)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+  @@map("password_reset_tokens")
 }
