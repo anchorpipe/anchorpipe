@@ -6,10 +6,9 @@
  * Story: ST-301
  */
 
-import { prisma } from '@anchorpipe/database';
+import { prisma, RepoVisibility } from '@anchorpipe/database';
 import { writeAuditLog, AUDIT_ACTIONS, AUDIT_SUBJECTS } from './audit-service';
 import { logger } from './logger';
-import { RepoVisibility, Prisma } from '@prisma/client';
 
 /**
  * GitHub App Installation data from webhook
@@ -47,13 +46,10 @@ export async function upsertGitHubAppInstallation(
   const targetId = data.target_id ? BigInt(data.target_id) : null;
 
   // Convert repository IDs to BigInt array
-  const repositoryIds =
-    data.repositories?.map((repo) => BigInt(repo.id)) ?? [];
+  const repositoryIds = data.repositories?.map((repo) => BigInt(repo.id)) ?? [];
 
   // Convert suspended_at to DateTime if present
-  const suspendedAt = data.suspended_at
-    ? new Date(data.suspended_at)
-    : null;
+  const suspendedAt = data.suspended_at ? new Date(data.suspended_at) : null;
 
   // Check if installation already exists
   const existing = await prisma.gitHubAppInstallation.findUnique({
@@ -71,7 +67,7 @@ export async function upsertGitHubAppInstallation(
         targetType: data.target_type,
         targetId,
         repositoryIds,
-        permissions: data.permissions as unknown as Prisma.InputJsonValue,
+        permissions: data.permissions as unknown as Record<string, unknown>,
         events: data.events,
         suspendedAt,
         suspendedBy: data.suspended_by?.id.toString() ?? null,
@@ -110,7 +106,7 @@ export async function upsertGitHubAppInstallation(
         targetType: data.target_type,
         targetId,
         repositoryIds,
-        permissions: data.permissions as unknown as Prisma.InputJsonValue,
+        permissions: data.permissions as unknown as Record<string, unknown>,
         events: data.events,
         suspendedAt,
         suspendedBy: data.suspended_by?.id.toString() ?? null,
@@ -183,9 +179,7 @@ export async function deleteGitHubAppInstallation(
 /**
  * Get GitHub App installation by installation ID
  */
-export async function getGitHubAppInstallationById(
-  installationId: bigint
-): Promise<{
+export async function getGitHubAppInstallationById(installationId: bigint): Promise<{
   id: string;
   installationId: bigint;
   accountId: bigint;
@@ -256,23 +250,31 @@ export async function listGitHubAppInstallations(): Promise<
     },
   });
 
-  return installations.map((inst) => ({
-    id: inst.id,
-    installationId: inst.installationId,
-    accountLogin: inst.accountLogin,
-    accountType: inst.accountType,
-    repositoryCount: inst.repositoryIds.length,
-    suspendedAt: inst.suspendedAt,
-    createdAt: inst.createdAt,
-  }));
+  return installations.map(
+    (inst: {
+      id: string;
+      installationId: bigint;
+      accountLogin: string;
+      accountType: string;
+      repositoryIds: bigint[];
+      suspendedAt: Date | null;
+      createdAt: Date;
+    }) => ({
+      id: inst.id,
+      installationId: inst.installationId,
+      accountLogin: inst.accountLogin,
+      accountType: inst.accountType,
+      repositoryCount: inst.repositoryIds.length,
+      suspendedAt: inst.suspendedAt,
+      createdAt: inst.createdAt,
+    })
+  );
 }
 
 /**
  * Get installations by account login
  */
-export async function getGitHubAppInstallationsByAccount(
-  accountLogin: string
-): Promise<
+export async function getGitHubAppInstallationsByAccount(accountLogin: string): Promise<
   Array<{
     id: string;
     installationId: bigint;
@@ -295,14 +297,23 @@ export async function getGitHubAppInstallationsByAccount(
     },
   });
 
-  return installations.map((inst) => ({
-    id: inst.id,
-    installationId: inst.installationId,
-    accountLogin: inst.accountLogin,
-    repositoryCount: inst.repositoryIds.length,
-    suspendedAt: inst.suspendedAt,
-    createdAt: inst.createdAt,
-  }));
+  return installations.map(
+    (inst: {
+      id: string;
+      installationId: bigint;
+      accountLogin: string;
+      repositoryIds: bigint[];
+      suspendedAt: Date | null;
+      createdAt: Date;
+    }) => ({
+      id: inst.id,
+      installationId: inst.installationId,
+      accountLogin: inst.accountLogin,
+      repositoryCount: inst.repositoryIds.length,
+      suspendedAt: inst.suspendedAt,
+      createdAt: inst.createdAt,
+    })
+  );
 }
 
 /**
@@ -416,9 +427,7 @@ export async function validateInstallationPermissions(
       if (requiredLevel === 'write' && actualLevel === 'read') {
         missing.push(`${permission}:${requiredLevel}`);
       } else {
-        warnings.push(
-          `${permission} has ${actualLevel} but ${requiredLevel} is recommended`
-        );
+        warnings.push(`${permission} has ${actualLevel} but ${requiredLevel} is recommended`);
       }
     }
   }
@@ -435,4 +444,3 @@ export async function validateInstallationPermissions(
 
   return { valid, missing, warnings };
 }
-

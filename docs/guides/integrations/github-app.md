@@ -135,9 +135,11 @@ The app handles the following webhook events:
 List all GitHub App installations.
 
 **Query Parameters:**
+
 - `account` (optional): Filter by account login
 
 **Response:**
+
 ```json
 {
   "installations": [
@@ -159,6 +161,7 @@ List all GitHub App installations.
 Get a specific GitHub App installation.
 
 **Response:**
+
 ```json
 {
   "installation": {
@@ -244,4 +247,3 @@ To test webhook handling:
 - [Webhook Events](https://docs.github.com/en/apps/webhooks/webhook-events-and-payloads)
 - [API Gateway Guide](../foundation/api-gateway.md)
 - [Authentication Guide](../foundation/authentication.md)
-

@@ -39,10 +39,7 @@ export async function POST(request: NextRequest) {
         ipAddress: context.ipAddress,
         userAgent: context.userAgent,
       });
-      return NextResponse.json(
-        { error: 'Missing signature' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Missing signature' }, { status: 401 });
     }
 
     // Verify signature
@@ -52,10 +49,7 @@ export async function POST(request: NextRequest) {
         ipAddress: context.ipAddress,
         userAgent: context.userAgent,
       });
-      return NextResponse.json(
-        { error: 'Invalid signature' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
     }
 
     // Parse webhook payload
@@ -74,11 +68,7 @@ export async function POST(request: NextRequest) {
     // Handle different event types
     switch (event) {
       case 'installation':
-        await handleInstallationEvent(
-          payload.action,
-          payload.installation,
-          context
-        );
+        await handleInstallationEvent(payload.action, payload.installation, context);
         break;
 
       case 'installation_repositories':
@@ -105,10 +95,7 @@ export async function POST(request: NextRequest) {
       userAgent: context.userAgent,
     });
 
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -138,9 +125,7 @@ async function handleInstallationEvent(
 
       // Validate permissions after installation
       if (action === 'created') {
-        const validation = await validateInstallationPermissions(
-          BigInt(installation.id)
-        );
+        const validation = await validateInstallationPermissions(BigInt(installation.id));
         if (!validation.valid) {
           logger.warn('GitHub App installation has insufficient permissions', {
             installationId: installation.id,
@@ -170,13 +155,10 @@ async function handleInstallationEvent(
       break;
 
     case 'deleted':
-      await deleteGitHubAppInstallation(
-        BigInt(installation.id),
-        {
-          ipAddress: context.ipAddress,
-          userAgent: context.userAgent,
-        }
-      );
+      await deleteGitHubAppInstallation(BigInt(installation.id), {
+        ipAddress: context.ipAddress,
+        userAgent: context.userAgent,
+      });
       // Clear cached token for deleted installation
       clearInstallationTokenCache(BigInt(installation.id));
       break;
@@ -196,10 +178,7 @@ async function handleInstallationRepositoriesEvent(
   context: { ipAddress: string | null; userAgent: string | null }
 ) {
   if (!installation) {
-    logger.warn(
-      'GitHub App installation_repositories event missing installation data',
-      { action }
-    );
+    logger.warn('GitHub App installation_repositories event missing installation data', { action });
     return;
   }
 
@@ -212,14 +191,16 @@ async function handleInstallationRepositoriesEvent(
 
   // Sync added repositories to our database
   if (payload.repositories_added && payload.repositories_added.length > 0) {
-    const reposToSync = (payload.repositories_added as Array<{
-      id: number;
-      name: string;
-      full_name: string;
-      owner: { login: string };
-      default_branch?: string;
-      private: boolean;
-    }>).map((repo) => ({
+    const reposToSync = (
+      payload.repositories_added as Array<{
+        id: number;
+        name: string;
+        full_name: string;
+        owner: { login: string };
+        default_branch?: string;
+        private: boolean;
+      }>
+    ).map((repo) => ({
       id: repo.id,
       name: repo.name,
       full_name: repo.full_name,
@@ -241,4 +222,3 @@ async function handleInstallationRepositoriesEvent(
     repositoriesRemoved: payload.repositories_removed?.length ?? 0,
   });
 }
-
