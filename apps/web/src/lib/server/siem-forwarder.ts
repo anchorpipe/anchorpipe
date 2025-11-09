@@ -260,7 +260,7 @@ class SiemForwarderService {
 
       // If some failed and we have retries left, retry failed entries
       if (result.failed > 0 && attempt < maxAttempts) {
-        const failedEntries = entries.filter((entry, index) => {
+        const failedEntries = entries.filter((entry) => {
           const error = result.errors?.find((e) => e.logId === entry.id);
           return error !== undefined;
         });
