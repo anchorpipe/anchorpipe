@@ -117,15 +117,23 @@ async function processWorkflowRunArtifacts(
 }
 
 /**
+ * Parameters for submitting test results
+ */
+interface SubmitTestResultsParams {
+  testResults: Array<{ framework: string; payload: string }>;
+  repoId: string;
+  commitSha: string;
+  workflowRunId: number;
+  metadata?: RequestMetadata;
+}
+
+/**
  * Submit all test results to ingestion service
  */
 async function submitAllTestResults(
-  testResults: Array<{ framework: string; payload: string }>,
-  repoId: string,
-  commitSha: string,
-  workflowRunId: number,
-  metadata?: RequestMetadata
+  params: SubmitTestResultsParams
 ): Promise<{ submitted: number; failed: number }> {
+  const { testResults, repoId, commitSha, workflowRunId, metadata } = params;
   let submitted = 0;
   let failed = 0;
 
@@ -156,18 +164,33 @@ async function submitAllTestResults(
 }
 
 /**
+ * Parameters for logging ingestion audit
+ */
+interface LogIngestionAuditParams {
+  repoId: string;
+  workflowRunId: number;
+  repositoryFullName: string;
+  commitSha: string;
+  commitBranch: string;
+  artifactsCount: number;
+  testResultsCount: number;
+  metadata?: RequestMetadata;
+}
+
+/**
  * Log ingestion completion audit event
  */
-async function logIngestionAudit(
-  repoId: string,
-  workflowRunId: number,
-  repositoryFullName: string,
-  commitSha: string,
-  commitBranch: string,
-  artifactsCount: number,
-  testResultsCount: number,
-  metadata?: RequestMetadata
-): Promise<void> {
+async function logIngestionAudit(params: LogIngestionAuditParams): Promise<void> {
+  const {
+    repoId,
+    workflowRunId,
+    repositoryFullName,
+    commitSha,
+    commitBranch,
+    artifactsCount,
+    testResultsCount,
+    metadata,
+  } = params;
   await writeAuditLog({
     action: AUDIT_ACTIONS.configUpdated,
     subject: AUDIT_SUBJECTS.repo,
@@ -227,25 +250,25 @@ export async function triggerIngestionForWorkflowRun(
     }
 
     // Submit all test results
-    const { submitted } = await submitAllTestResults(
+    const { submitted } = await submitAllTestResults({
       testResults,
-      repoValidation.repo.id,
-      params.commit.sha,
-      params.workflowRunId,
-      params.metadata
-    );
+      repoId: repoValidation.repo.id,
+      commitSha: params.commit.sha,
+      workflowRunId: params.workflowRunId,
+      metadata: params.metadata,
+    });
 
     // Log audit event
-    await logIngestionAudit(
-      repoValidation.repo.id,
-      params.workflowRunId,
-      params.repository.fullName,
-      params.commit.sha,
-      params.commit.branch,
+    await logIngestionAudit({
+      repoId: repoValidation.repo.id,
+      workflowRunId: params.workflowRunId,
+      repositoryFullName: params.repository.fullName,
+      commitSha: params.commit.sha,
+      commitBranch: params.commit.branch,
       artifactsCount,
-      submitted,
-      params.metadata
-    );
+      testResultsCount: submitted,
+      metadata: params.metadata,
+    });
 
     logger.info('Successfully triggered ingestion for workflow run', {
       workflowRunId: params.workflowRunId,

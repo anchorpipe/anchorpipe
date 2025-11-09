@@ -620,6 +620,24 @@ function processRunEventWithIngestion<
 }
 
 /**
+ * Create ingestion trigger for workflow run
+ */
+function createWorkflowRunTrigger(context: { ipAddress: string | null; userAgent: string | null }) {
+  return (run: WorkflowRunPayload['workflow_run'], instId: number): void => {
+    triggerWorkflowRunIngestion(run, instId, context);
+  };
+}
+
+/**
+ * Create ingestion trigger for check run
+ */
+function createCheckRunTrigger(context: { ipAddress: string | null; userAgent: string | null }) {
+  return (run: CheckRunPayload['check_run'], instId: number): void => {
+    triggerCheckRunIngestion(run, instId, context);
+  };
+}
+
+/**
  * Handle workflow_run events
  * Triggers when a GitHub Actions workflow run completes
  */
@@ -636,9 +654,7 @@ async function handleWorkflowRunEvent(
     action,
     shouldProcess: shouldProcessWorkflowRun,
     extractFields: extractWorkflowRunFields,
-    triggerIngestion: (run, instId) => {
-      triggerWorkflowRunIngestion(run, instId, context);
-    },
+    triggerIngestion: createWorkflowRunTrigger(context),
     installationId: installation?.id,
   });
 }
@@ -696,9 +712,7 @@ async function handleCheckRunEvent(
     action,
     shouldProcess: shouldProcessCheckRun,
     extractFields: extractCheckRunFields,
-    triggerIngestion: (run, instId) => {
-      triggerCheckRunIngestion(run, instId, context);
-    },
+    triggerIngestion: createCheckRunTrigger(context),
     installationId: installation?.id,
   });
 }

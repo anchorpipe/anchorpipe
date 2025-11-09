@@ -75,6 +75,20 @@ async function generatePasswordResetResponse(
   const { token, expiresAt } = await createPasswordResetToken(userId);
   const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/reset-password?token=${token}`;
 
+  // Queue email for sending
+  try {
+    const { queueEmail } = await import('@/lib/server/email-queue-processor');
+    await queueEmail(userId, 'password.reset', {
+      resetUrl,
+      expiresIn: '1 hour',
+    });
+  } catch (error) {
+    logger.warn('Failed to queue password reset email', {
+      userId,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+
   logger.info('Password reset token generated', {
     userId,
     email,
