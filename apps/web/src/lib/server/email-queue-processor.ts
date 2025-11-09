@@ -17,6 +17,15 @@ import {
 import { logger } from './logger';
 
 /**
+ * Email type detection rules
+ */
+const EMAIL_TYPE_DETECTORS: Array<{ key: string; type: string }> = [
+  { key: 'requestId', type: 'dsr.confirmation' },
+  { key: 'resetUrl', type: 'password.reset' },
+  { key: 'verificationUrl', type: 'email.verification' },
+];
+
+/**
  * Extract email type from event data
  */
 function extractEmailType(eventData: Record<string, unknown>): string | null {
@@ -26,19 +35,10 @@ function extractEmailType(eventData: Record<string, unknown>): string | null {
   }
 
   // Old format: infer from eventData structure
-  // DSR events have requestId, type, status
-  if (eventData.requestId) {
-    return 'dsr.confirmation';
-  }
-
-  // Password reset events have resetUrl
-  if (eventData.resetUrl) {
-    return 'password.reset';
-  }
-
-  // Email verification events have verificationUrl
-  if (eventData.verificationUrl) {
-    return 'email.verification';
+  for (const detector of EMAIL_TYPE_DETECTORS) {
+    if (eventData[detector.key]) {
+      return detector.type;
+    }
   }
 
   return null;
