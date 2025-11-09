@@ -7,7 +7,6 @@
  * Story: ST-206 (Medium Priority Gap)
  */
 
-import { logger } from '../logger';
 import {
   SiemAdapter,
   SiemAdapterConfig,

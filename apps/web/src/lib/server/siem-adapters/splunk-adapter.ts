@@ -6,7 +6,6 @@
  * Story: ST-206 (Medium Priority Gap)
  */
 
-import { logger } from '../logger';
 import { SiemAdapter, SiemAdapterConfig, SiemLogEntry, SiemForwardResult } from '../siem-adapter';
 
 interface SplunkAdapterConfig {
@@ -98,12 +97,6 @@ export function createSplunkAdapter(
     },
 
     async forwardBatch(logs: SiemLogEntry[]): Promise<SiemForwardResult> {
-      const result: SiemForwardResult = {
-        success: 0,
-        failed: 0,
-        errors: [],
-      };
-
       // Splunk HEC supports batch events
       try {
         const events = logs.map((log) => ({

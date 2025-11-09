@@ -8,7 +8,6 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { forwardAuditLogsToSiem, getSiemForwarder } from '../siem-forwarder';
-import { SiemAdapter, SiemForwardResult } from '../siem-adapter';
 
 // Mock dependencies
 vi.mock('@anchorpipe/database', () => ({
