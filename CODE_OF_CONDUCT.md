@@ -18,7 +18,6 @@ This Code of Conduct outlines our shared values and expectations. Whether you're
 - 💡 **Curiosity over criticism** - We ask questions before making assumptions
 - 🌱 **Growth over perfection** - We learn from mistakes
 - 🎯 **Impact over ego** - We focus on the work, not who's right
-- 🌍 **Inclusion over exclusion** - We actively welcome new voices
 
 ---
 
@@ -27,26 +26,6 @@ This Code of Conduct outlines our shared values and expectations. Whether you're
 We as members, contributors, and leaders pledge to make participation in our community a harassment-free experience for everyone, regardless of age, body size, visible or invisible disability, ethnicity, sex characteristics, gender identity and expression, level of experience, education, socio-economic status, nationality, personal appearance, race, caste, color, religion, or sexual identity and orientation.
 
 We pledge to act and interact in ways that contribute to an open, welcoming, diverse, inclusive, and healthy community.
-
-## Our Commitment to Diversity & Inclusion
-
-Beyond preventing harassment, we actively work to build a diverse and inclusive community:
-
-### Proactive Inclusion Efforts
-
-- **Diverse representation** in maintainer and moderator roles (as the project grows)
-- **Accessibility** in our tools, docs, and communication
-- **Inclusive language** in code, comments, and documentation
-- **Mentorship programs** for newcomers (see [Contributing Guide](CONTRIBUTING.md))
-- **Financial support** for contributors who need it (see [Contributor Rewards](docs/governance/CONTRIBUTOR_REWARDS.md))
-
-### How You Can Help
-
-- Use inclusive language
-- Amplify underrepresented voices
-- Mentor newcomers
-- Point out bias when you see it (constructively)
-- Participate in our [Discussions](https://github.com/anchorpipe/anchorpipe/discussions)
 
 ## Our Standards
 
@@ -394,5 +373,5 @@ For answers to common questions about this code of conduct, see https://www.cont
 
 ---
 
-**Last reviewed:** 2025-01-09  
-**Next review:** 2026-01-09
+**Last reviewed:** 2025-11-09  
+**Next review:** 2026-11-09
