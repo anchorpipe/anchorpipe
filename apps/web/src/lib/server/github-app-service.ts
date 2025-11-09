@@ -6,7 +6,8 @@
  * Story: ST-301
  */
 
-import { prisma, RepoVisibility } from '@anchorpipe/database';
+import { prisma } from '@anchorpipe/database';
+import { RepoVisibility } from '@prisma/client';
 import { writeAuditLog, AUDIT_ACTIONS, AUDIT_SUBJECTS } from './audit-service';
 import { logger } from './logger';
 
