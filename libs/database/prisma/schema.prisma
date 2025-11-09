@@ -466,3 +466,30 @@ model HmacSecret {
   @@index([revoked])
   @@map("hmac_secrets")
 }
+
+// ============================================
+// GitHub App Integration
+// ============================================
+
+model GitHubAppInstallation {
+  id                String   @id @default(uuid())
+  installationId    BigInt   @unique @map("installation_id") // GitHub App installation ID
+  accountId         BigInt   @map("account_id") // GitHub account (user/org) ID
+  accountType       String   @map("account_type") // "User" or "Organization"
+  accountLogin      String   @map("account_login") // GitHub username/org name
+  targetType        String   @map("target_type") // "User" or "Organization"
+  targetId          BigInt?  @map("target_id") // Target account ID (if different from accountId)
+  repositoryIds     BigInt[] @map("repository_ids") // Array of repository IDs (BigInt[])
+  permissions       Json     // App permissions (JSONB)
+  events            String[] // Webhook events subscribed to
+  suspendedAt       DateTime? @map("suspended_at")
+  suspendedBy       String?  @map("suspended_by") // User ID who suspended
+  suspendedReason   String?  @map("suspended_reason")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@index([installationId])
+  @@index([accountId])
+  @@index([accountLogin])
+  @@map("github_app_installations")
+}
