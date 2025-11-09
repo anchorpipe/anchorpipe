@@ -166,10 +166,13 @@ export async function POST(request: NextRequest) {
       if (payloadResult.details) {
         responseBody.details = payloadResult.details;
       }
-      return NextResponse.json(responseBody, {
-        status: payloadResult.error?.includes('mismatch') ? 403 : 400,
-        headers: rateLimitResult.headers,
-      });
+      return NextResponse.json(
+        responseBody,
+        {
+          status: payloadResult.error?.includes('mismatch') ? 403 : 400,
+          headers: rateLimitResult.headers,
+        }
+      );
     }
 
     // Process ingestion
