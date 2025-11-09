@@ -387,8 +387,8 @@ export async function triggerIngestionForCheckRun(
       installationId: params.installationId,
     });
 
-    // Prepare context (token and repository lookup)
-    const { token, repo } = await prepareWorkflowRunContext({
+    // Prepare context (repository lookup)
+    const { repo } = await prepareWorkflowRunContext({
       installationId: params.installationId,
       repositoryId: params.repository.id,
       repositoryFullName: params.repository.fullName,
