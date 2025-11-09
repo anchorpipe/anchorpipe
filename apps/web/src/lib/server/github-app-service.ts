@@ -501,6 +501,108 @@ export async function validateInstallationPermissions(
 }
 
 /**
+ * Fetches current permissions from GitHub API and validates them
+ */
+export async function refreshInstallationPermissions(
+  installationId: bigint,
+  metadata?: { ipAddress?: string | null; userAgent?: string | null }
+): Promise<{
+  success: boolean;
+  error?: string;
+  validation?: { valid: boolean; missing: string[]; warnings: string[] };
+}> {
+  try {
+    // Get installation to verify it exists
+    const installation = await getGitHubAppInstallationById(installationId);
+    if (!installation) {
+      return {
+        success: false,
+        error: 'Installation not found',
+      };
+    }
+
+    // Get installation token
+    const { getInstallationToken } = await import('./github-app-tokens');
+    const token = await getInstallationToken(installationId);
+
+    // Fetch current installation details from GitHub API
+    const response = await fetch(`https://api.github.com/app/installations/${installationId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/vnd.github.v3+json',
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      logger.error('Failed to fetch installation from GitHub API', {
+        installationId: installationId.toString(),
+        status: response.status,
+        error,
+      });
+      return {
+        success: false,
+        error: `GitHub API returned ${response.status}: ${error}`,
+      };
+    }
+
+    const githubInstallation = (await response.json()) as {
+      id: number;
+      permissions: Record<string, string>;
+    };
+
+    // Update database with latest permissions
+    await (prisma as any).gitHubAppInstallation.update({
+      where: { installationId },
+      data: {
+        permissions: githubInstallation.permissions as any,
+        updatedAt: new Date(),
+      },
+    });
+
+    // Validate permissions
+    const validation = await validateInstallationPermissions(installationId);
+
+    // Log audit event
+    await writeAuditLog({
+      action: AUDIT_ACTIONS.configUpdated,
+      subject: AUDIT_SUBJECTS.system,
+      description: `Refreshed permissions for GitHub App installation: ${installation.accountLogin}`,
+      metadata: {
+        installationId: installationId.toString(),
+        accountLogin: installation.accountLogin,
+        permissionsValid: validation.valid,
+        missingPermissions: validation.missing,
+        warnings: validation.warnings,
+      },
+      ipAddress: metadata?.ipAddress ?? null,
+      userAgent: metadata?.userAgent ?? null,
+    });
+
+    logger.info('GitHub App installation permissions refreshed', {
+      installationId: installationId.toString(),
+      accountLogin: installation.accountLogin,
+      permissionsValid: validation.valid,
+    });
+
+    return {
+      success: true,
+      validation,
+    };
+  } catch (error) {
+    logger.error('Failed to refresh installation permissions', {
+      installationId: installationId.toString(),
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}
+
+/**
  * Installation health check result
  */
 export interface InstallationHealthCheck {

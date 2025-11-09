@@ -13,6 +13,7 @@ import {
   deleteGitHubAppInstallation,
   syncRepositoriesFromInstallation,
   validateInstallationPermissions,
+  refreshInstallationPermissions,
   type GitHubAppInstallationData,
 } from '@/lib/server/github-app-service';
 import { logger } from '@/lib/server/logger';
@@ -212,6 +213,12 @@ async function handleInstallationEvent(
     return;
   }
 
+  // Handle permission changes (new_permissions_accepted event)
+  if (action === 'new_permissions_accepted') {
+    await handleInstallationPermissionsUpdated(installation, context);
+    return;
+  }
+
   if (action === 'deleted') {
     await deleteGitHubAppInstallation(BigInt(installation.id), {
       ipAddress: context.ipAddress,
@@ -233,6 +240,36 @@ async function handleInstallationEvent(
   }
 
   logger.info('GitHub App installation action not handled', { action });
+}
+
+/**
+ * Handle installation permissions updated event
+ * Validates permissions when they change
+ */
+async function handleInstallationPermissionsUpdated(
+  installation: GitHubAppInstallationData,
+  context: { ipAddress: string | null; userAgent: string | null }
+): Promise<void> {
+  // Update installation record with new permissions
+  await upsertGitHubAppInstallation(installation, {
+    ipAddress: context.ipAddress,
+    userAgent: context.userAgent,
+  });
+
+  // Validate the new permissions
+  const validation = await validateInstallationPermissions(BigInt(installation.id));
+  if (!validation.valid) {
+    logger.warn('GitHub App installation has insufficient permissions after update', {
+      installationId: installation.id,
+      missing: validation.missing,
+      warnings: validation.warnings,
+    });
+  } else {
+    logger.info('GitHub App installation permissions validated after update', {
+      installationId: installation.id,
+      accountLogin: installation.account.login,
+    });
+  }
 }
 
 /**
