@@ -7,6 +7,7 @@ Implements the Backend for Frontend (BFF) pattern using Next.js Route Handlers. 
 ## Architecture
 
 Following ADR-0001, the BFF is implemented as:
+
 - **Next.js Route Handlers** on Vercel (MVP)
 - REST-first API design
 - Type-safe with TypeScript
@@ -110,10 +111,7 @@ import { registerSchema } from '@/lib/schemas/auth';
 
 const result = await validateRequest(request, registerSchema);
 if (!result.success) {
-  return NextResponse.json(
-    { error: result.error.error },
-    { status: 400 }
-  );
+  return NextResponse.json({ error: result.error.error }, { status: 400 });
 }
 ```
 
@@ -174,5 +172,3 @@ All responses include:
 - [Input Validation](../security/input-validation.md) - Validation
 - [Rate Limiting](../security/rate-limiting.md) - Rate limits
 - [RBAC](../security/rbac.md) - Authorization
-
-
