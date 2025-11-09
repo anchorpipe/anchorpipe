@@ -57,7 +57,7 @@ See [Governance Evolution Roadmap](#governance-evolution-roadmap) below.
 
 ### Current Owner
 
-**Name:** Rick / Elshaday Mengesha  
+**Name:** Elshaday Mengesha  
 **Contact:** governance@anchorpipe.dev  
 **Term:** Indefinite (with succession plan below)
 

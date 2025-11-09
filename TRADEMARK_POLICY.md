@@ -9,8 +9,8 @@
 ### Registered Marks
 
 **Primary Mark:** "anchorpipe" (word mark)  
-**Owner:** Rick / Elshaday Mengesha  
-**Jurisdiction:** United States  
+**Owner:** Elshaday Mengesha  
+**Jurisdiction:** Ethiopia  
 **Registration Status:** ⚠️ **Common Law** - Unregistered trademark (protection through use)
 
 **Logo Mark:** anchorpipe logo (design mark)  
@@ -19,8 +19,6 @@
 **Domain Names (Official):**
 
 - anchorpipe.dev (primary)
-- anchorpipe.io
-- anchorpipe.com
 
 **Subdomains:**
 
@@ -467,8 +465,6 @@ Where X = height of "a" letterform
 **These are the ONLY official anchorpipe domains:**
 
 - anchorpipe.dev (primary)
-- anchorpipe.io
-- anchorpipe.com
 
 **Subdomains:**
 
@@ -587,7 +583,7 @@ Where X = height of "a" letterform
 
 **Best practice:** Cite properly and include disclaimer:
 
-> "anchorpipe is a trademark of Rick / Elshaday Mengesha. This work is not affiliated with or endorsed by the anchorpipe project."
+> "anchorpipe is a trademark of Elshaday Mengesha. This work is not affiliated with or endorsed by the anchorpipe project."
 
 ### Open Source Context
 
@@ -1011,7 +1007,7 @@ Contact governance@anchorpipe.dev for a quote.
 
 **External References:**
 
-- [USPTO Trademark Basics](https://www.uspto.gov/trademarks) - US trademark info
+- [USPTO Trademark Basics](https://www.uspto.gov/trademarks) - US trademark info (reference only)
 - [WIPO Trademark Guide](https://www.wipo.int/trademarks/en/) - International trademarks
 - [Model Trademark Guidelines](https://modeltrademarkguidelines.org/) - Open source best practices
 
