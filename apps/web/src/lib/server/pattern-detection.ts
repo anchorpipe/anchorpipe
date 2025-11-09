@@ -265,7 +265,7 @@ export async function detectRapidRoleChanges(
           repoId,
           changeCount: logs.length,
           timeWindow: config.roleChangeWindowMs,
-          changes: logs.map((log) => ({
+          changes: logs.map((log: { action: string; actorId: string | null; createdAt: Date }) => ({
             action: log.action,
             actorId: log.actorId,
             timestamp: log.createdAt,

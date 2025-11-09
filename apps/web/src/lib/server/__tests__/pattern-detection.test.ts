@@ -6,7 +6,7 @@
  * Story: ST-206 (Medium Priority Gap)
  */
 
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   detectMultipleFailedLogins,
   detectMultipleFailedHmacAuth,
