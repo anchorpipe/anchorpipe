@@ -727,3 +727,143 @@ export async function checkInstallationHealth(
     summary,
   };
 }
+
+/**
+ * Update repository selection for GitHub App installation
+ * Adds or removes repositories from the installation
+ */
+export async function updateInstallationRepositorySelection(
+  installationId: bigint,
+  repositoryIds: number[],
+  metadata?: { ipAddress?: string | null; userAgent?: string | null }
+): Promise<{ success: boolean; error?: string; updatedRepositories?: number }> {
+  try {
+    // Get installation to verify it exists
+    const installation = await getGitHubAppInstallationById(installationId);
+    if (!installation) {
+      return {
+        success: false,
+        error: 'Installation not found',
+      };
+    }
+
+    // Get installation token
+    const { getInstallationToken } = await import('./github-app-tokens');
+    const token = await getInstallationToken(installationId);
+
+    // Update repository selection via GitHub API
+    // GitHub API expects selected_repository_ids array
+    const response = await fetch(
+      `https://api.github.com/app/installations/${installationId}/repositories`,
+      {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          selected_repository_ids: repositoryIds,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.text();
+      logger.error('Failed to update repository selection via GitHub API', {
+        installationId: installationId.toString(),
+        status: response.status,
+        error,
+      });
+      return {
+        success: false,
+        error: `GitHub API returned ${response.status}: ${error}`,
+      };
+    }
+
+    // Update database record with new repository IDs
+    const repositoryIdsBigInt = repositoryIds.map((id) => BigInt(id));
+    await (prisma as any).gitHubAppInstallation.update({
+      where: { installationId },
+      data: {
+        repositoryIds: repositoryIdsBigInt,
+        updatedAt: new Date(),
+      },
+    });
+
+    // Sync repositories to our database
+    // We need to fetch repository details from GitHub API
+    const reposResponse = await fetch(
+      `https://api.github.com/app/installations/${installationId}/repositories`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/vnd.github.v3+json',
+        },
+      }
+    );
+
+    if (reposResponse.ok) {
+      const reposData = (await reposResponse.json()) as {
+        repositories: Array<{
+          id: number;
+          name: string;
+          full_name: string;
+          owner: { login: string };
+          default_branch?: string;
+          private: boolean;
+        }>;
+      };
+
+      if (reposData.repositories && reposData.repositories.length > 0) {
+        await syncRepositoriesFromInstallation(
+          reposData.repositories.map((repo) => ({
+            id: repo.id,
+            name: repo.name,
+            full_name: repo.full_name,
+            owner: repo.owner,
+            default_branch: repo.default_branch,
+            private: repo.private,
+          })),
+          metadata
+        );
+      }
+    }
+
+    // Log audit event
+    await writeAuditLog({
+      action: AUDIT_ACTIONS.configUpdated,
+      subject: AUDIT_SUBJECTS.system,
+      description: `Updated repository selection for GitHub App installation: ${installation.accountLogin}`,
+      metadata: {
+        installationId: installationId.toString(),
+        accountLogin: installation.accountLogin,
+        repositoryCount: repositoryIds.length,
+        repositoryIds: repositoryIds.map(String),
+      },
+      ipAddress: metadata?.ipAddress ?? null,
+      userAgent: metadata?.userAgent ?? null,
+    });
+
+    logger.info('GitHub App installation repository selection updated', {
+      installationId: installationId.toString(),
+      accountLogin: installation.accountLogin,
+      repositoryCount: repositoryIds.length,
+    });
+
+    return {
+      success: true,
+      updatedRepositories: repositoryIds.length,
+    };
+  } catch (error) {
+    logger.error('Failed to update repository selection', {
+      installationId: installationId.toString(),
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}

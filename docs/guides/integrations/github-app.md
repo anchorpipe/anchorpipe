@@ -125,6 +125,12 @@ curl -H "Authorization: Bearer $TOKEN" \
 # Uninstall an installation
 curl -X DELETE -H "Authorization: Bearer $TOKEN" \
   https://api.anchorpipe.dev/api/github-app/installations/123456
+
+# Update repository selection
+curl -X PUT -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"repositoryIds": [123456, 789012]}' \
+  https://api.anchorpipe.dev/api/github-app/installations/123456/repositories
 ```
 
 ### Webhook Events

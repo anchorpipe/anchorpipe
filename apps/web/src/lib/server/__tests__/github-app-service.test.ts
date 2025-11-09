@@ -11,6 +11,7 @@ import {
   getGitHubAppInstallationById,
   listGitHubAppInstallations,
   getGitHubAppInstallationsByAccount,
+  updateInstallationRepositorySelection,
   type GitHubAppInstallationData,
 } from '../github-app-service';
 import { prisma } from '@anchorpipe/database';
@@ -265,6 +266,116 @@ describe('GitHub App Service', () => {
 
       expect(result).toHaveLength(1);
       expect(result[0].accountLogin).toBe('testuser');
+    });
+  });
+
+  describe('updateInstallationRepositorySelection', () => {
+    beforeEach(() => {
+      vi.clearAllMocks();
+      // Mock fetch globally
+      global.fetch = vi.fn();
+    });
+
+    it('should update repository selection successfully', async () => {
+      const installationId = BigInt(123456);
+      const repositoryIds = [1, 2, 3];
+
+      const mockInstallation = createMockInstallation({
+        installationId,
+        repositoryIds: [BigInt(1)],
+      });
+
+      vi.mocked(mockedPrisma.gitHubAppInstallation.findUnique).mockResolvedValue(mockInstallation);
+      vi.mocked(mockedPrisma.gitHubAppInstallation.update).mockResolvedValue({
+        ...mockInstallation,
+        repositoryIds: repositoryIds.map(BigInt),
+      });
+
+      // Mock token generation
+      vi.mock('../github-app-tokens', () => ({
+        getInstallationToken: vi.fn().mockResolvedValue('mock-token'),
+      }));
+
+      // Mock GitHub API responses
+      (global.fetch as any)
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 204,
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({
+            repositories: [
+              {
+                id: 1,
+                name: 'repo1',
+                full_name: 'owner/repo1',
+                owner: { login: 'owner' },
+                private: false,
+              },
+              {
+                id: 2,
+                name: 'repo2',
+                full_name: 'owner/repo2',
+                owner: { login: 'owner' },
+                private: false,
+              },
+              {
+                id: 3,
+                name: 'repo3',
+                full_name: 'owner/repo3',
+                owner: { login: 'owner' },
+                private: false,
+              },
+            ],
+          }),
+        });
+
+      const result = await updateInstallationRepositorySelection(installationId, repositoryIds);
+
+      expect(result.success).toBe(true);
+      expect(result.updatedRepositories).toBe(3);
+      expect(mockedPrisma.gitHubAppInstallation.update).toHaveBeenCalled();
+    });
+
+    it('should return error if installation not found', async () => {
+      const installationId = BigInt(999999);
+      const repositoryIds = [1, 2];
+
+      vi.mocked(mockedPrisma.gitHubAppInstallation.findUnique).mockResolvedValue(null);
+
+      const result = await updateInstallationRepositorySelection(installationId, repositoryIds);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Installation not found');
+    });
+
+    it('should handle GitHub API errors', async () => {
+      const installationId = BigInt(123456);
+      const repositoryIds = [1, 2];
+
+      const mockInstallation = createMockInstallation({
+        installationId,
+      });
+
+      vi.mocked(mockedPrisma.gitHubAppInstallation.findUnique).mockResolvedValue(mockInstallation);
+
+      // Mock token generation
+      vi.mock('../github-app-tokens', () => ({
+        getInstallationToken: vi.fn().mockResolvedValue('mock-token'),
+      }));
+
+      // Mock GitHub API error
+      (global.fetch as any).mockResolvedValueOnce({
+        ok: false,
+        status: 403,
+        text: async () => 'Forbidden',
+      });
+
+      const result = await updateInstallationRepositorySelection(installationId, repositoryIds);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('GitHub API returned 403');
     });
   });
 });
