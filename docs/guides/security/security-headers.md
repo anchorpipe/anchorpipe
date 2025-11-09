@@ -79,7 +79,7 @@ function applySecurityHeaders(response: NextResponse) {
   response.headers.set('permissions-policy', 'geolocation=(), microphone=(), camera=()');
   response.headers.set('cross-origin-opener-policy', 'same-origin');
   response.headers.set('cross-origin-resource-policy', 'same-origin');
-  
+
   if (process.env.NODE_ENV === 'production') {
     response.headers.set(
       'strict-transport-security',
@@ -94,14 +94,14 @@ function applySecurityHeaders(response: NextResponse) {
 ```typescript
 function maybeAttachApiCsp(pathname: string, response: NextResponse) {
   if (!pathname.startsWith('/api/')) return;
-  
+
   const csp = [
     "default-src 'none'",
     "base-uri 'self'",
     "frame-ancestors 'none'",
     // ... other directives
   ].join('; ');
-  
+
   response.headers.set('content-security-policy', csp);
 }
 ```
@@ -115,6 +115,7 @@ HSTS (HTTP Strict Transport Security) is only enabled in production:
 - **preload**: Eligible for HSTS preload lists
 
 **Why not in development?**
+
 - Local development often uses HTTP
 - Prevents issues with localhost and development servers
 
@@ -129,6 +130,7 @@ curl -I https://anchorpipe.dev/api/health
 ```
 
 Expected headers:
+
 ```
 x-content-type-options: nosniff
 x-frame-options: DENY
@@ -143,7 +145,7 @@ CSP violations can be reported to a reporting endpoint (future enhancement):
 
 ```typescript
 // Future: Add report-uri directive
-"report-uri /api/csp-report"
+'report-uri /api/csp-report';
 ```
 
 ## Browser Compatibility
@@ -163,7 +165,7 @@ If you need to load external resources, update CSP:
 
 ```typescript
 // Example: Allow external CDN for scripts
-"script-src 'self' https://cdn.example.com"
+"script-src 'self' https://cdn.example.com";
 ```
 
 ### Nonce-Based CSP (Future)
@@ -195,5 +197,3 @@ response.headers.set('content-security-policy', `script-src 'self' 'nonce-${nonc
 - Nonce-based CSP for inline scripts
 - Separate CSP policies per route
 - CSP reporting and monitoring dashboard
-
-

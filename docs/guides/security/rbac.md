@@ -207,6 +207,7 @@ All role changes are logged to audit logs:
 - `role_removed` - When a role is removed
 
 Audit logs include:
+
 - Actor (who made the change)
 - Target user
 - Repository
@@ -220,6 +221,7 @@ Audit logs include:
 Location: `apps/web/src/lib/__tests__/rbac.test.ts`
 
 Tests cover:
+
 - Permission checks for each role
 - Ability creation
 - Permission denial scenarios
@@ -229,6 +231,7 @@ Tests cover:
 Location: `apps/web/src/lib/server/__tests__/rbac-service.test.ts`
 
 Tests cover:
+
 - Role assignment and removal
 - Audit log creation
 - Permission enforcement
@@ -246,5 +249,3 @@ Tests cover:
 - Permission inheritance from organization level
 - Role templates for common permission sets
 - Time-based role assignments (temporary roles)
-
-

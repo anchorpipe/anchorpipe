@@ -7,6 +7,7 @@ Sets up S3-compatible object storage using MinIO for local development and cloud
 ## Architecture
 
 Following ADR-0011:
+
 - **Local/Dev**: MinIO (S3-compatible)
 - **Production**: Cloud S3 (AWS S3, Cloudflare R2, etc.)
 - **Encryption**: Server-side encryption with KMS keys
@@ -22,8 +23,8 @@ MinIO runs via Docker Compose:
 storage:
   image: minio/minio:latest
   ports:
-    - '9000:9000'  # API
-    - '9001:9001'  # Console
+    - '9000:9000' # API
+    - '9001:9001' # Console
   environment:
     MINIO_ROOT_USER: minioadmin
     MINIO_ROOT_PASSWORD: minioadminpassword
@@ -41,6 +42,7 @@ MINIO_USE_SSL=false
 ### Management Console
 
 Access at: `http://localhost:9001`
+
 - Username: `minioadmin`
 - Password: `minioadminpassword`
 
@@ -95,22 +97,14 @@ await uploadFile(client, {
 ### Download File
 
 ```typescript
-const buffer = await downloadFile(
-  client,
-  'artifacts',
-  `reports/${repoId}/${runId}/report.json`
-);
+const buffer = await downloadFile(client, 'artifacts', `reports/${repoId}/${runId}/report.json`);
 const report = JSON.parse(buffer.toString());
 ```
 
 ### Delete File
 
 ```typescript
-await deleteFile(
-  client,
-  'artifacts',
-  `reports/${repoId}/${runId}/report.json`
-);
+await deleteFile(client, 'artifacts', `reports/${repoId}/${runId}/report.json`);
 ```
 
 ## Bucket Layout
@@ -182,5 +176,3 @@ Checks MinIO/S3 connectivity and returns status.
 - [ADR-0011](../../../adr/0011-object-storage.md) - Object storage decision
 - [Ingestion Service](../../../services/ingestion/README.md) - Artifact upload
 - [Scoring Service](../../../services/scoring/README.md) - Artifact processing
-
-

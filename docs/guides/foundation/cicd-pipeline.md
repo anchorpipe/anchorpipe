@@ -11,6 +11,7 @@ Implements automated CI/CD pipelines using GitHub Actions for testing, building,
 Location: `.github/workflows/ci.yml`
 
 Runs on:
+
 - Pull requests (opened, synchronized, reopened)
 - Pushes to `main` branch
 - Manual trigger (`workflow_dispatch`)
@@ -156,5 +157,3 @@ Required GitHub Secrets:
 - [Security Scanning](../security/scanning.md) - Security workflows
 - [Project Setup](project-setup.md) - Local development
 - [Contributing Guide](../../../CONTRIBUTING.md) - Contribution process
-
-

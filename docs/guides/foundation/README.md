@@ -18,5 +18,3 @@ Documentation for foundation (G0 gate) stories and foundational features.
 - [Security Guides](../security/README.md) - Security features
 - [Integration Guides](../integrations/README.md) - CI/CD integrations
 - [Documentation Index](../../README.md) - Complete documentation
-
-

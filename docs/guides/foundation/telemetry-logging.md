@@ -36,6 +36,7 @@ LOG_LEVEL=info  # fatal, error, warn, info, debug, trace
 ### Log Format
 
 Structured JSON logs with:
+
 - Timestamp
 - Level
 - Message
@@ -98,6 +99,7 @@ await recordTelemetry({
 ### Event Storage
 
 Events stored in `telemetry_events` table:
+
 - `eventType` - Event identifier
 - `eventData` - JSONB event payload
 - `repoId` - Repository ID (optional)
@@ -121,6 +123,7 @@ TELEMETRY_ENABLED=true  # Enable telemetry
 ### Request ID
 
 Every request gets a unique ID:
+
 - Generated in middleware
 - Included in logs and metrics
 - Passed to telemetry events
@@ -141,6 +144,7 @@ const context = extractRequestContext(request);
 `GET /api/status`
 
 Returns overall system health:
+
 - Database connectivity
 - Message queue connectivity
 - Object storage connectivity
@@ -208,5 +212,3 @@ Returns overall system health:
 - [Audit Logging](../security/audit-logging.md) - Security audit logs
 - [Project Setup](project-setup.md) - Local development
 - [API Gateway](api-gateway.md) - API endpoints
-
-

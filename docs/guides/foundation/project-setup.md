@@ -176,4 +176,3 @@ GitHub Actions workflows:
 - [Database Schema](database-schema.md) - Database setup
 - [CI/CD Pipeline](cicd-pipeline.md) - CI/CD setup
 - [Authentication](authentication.md) - Auth setup
-

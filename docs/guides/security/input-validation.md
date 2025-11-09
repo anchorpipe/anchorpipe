@@ -25,14 +25,14 @@ import { registerSchema } from '@/lib/schemas/auth';
 
 export async function POST(request: Request) {
   const result = await validateRequest(request, registerSchema);
-  
+
   if (!result.success) {
     return NextResponse.json(
       { error: result.error.error, details: result.error.details },
       { status: 400 }
     );
   }
-  
+
   const { email, password } = result.data; // Type-safe!
   // Process validated data...
 }
@@ -41,11 +41,13 @@ export async function POST(request: Request) {
 ### Validation Rules
 
 **Email:**
+
 - Required field
 - Valid email format
 - Maximum 255 characters
 
 **Password:**
+
 - Minimum 8 characters
 - At least one uppercase letter
 - At least one lowercase letter
@@ -106,10 +108,12 @@ Validation errors return structured responses:
 ```
 
 **Development Mode:**
+
 - Full error details included
 - Helpful debugging information
 
 **Production Mode:**
+
 - Generic error messages
 - No sensitive information leaked
 
@@ -135,6 +139,7 @@ Validation errors return structured responses:
 Location: `apps/web/src/lib/__tests__/validation.test.ts`
 
 Tests cover:
+
 - Email validation
 - Password validation
 - Sanitization functions
@@ -145,6 +150,7 @@ Tests cover:
 Location: `apps/web/src/app/api/auth/__tests__/`
 
 Tests cover:
+
 - End-to-end validation flows
 - Error responses
 - Successful requests
@@ -174,5 +180,3 @@ These will be removed in a future version.
 - Request size limits
 - Rate limiting per validation failure
 - Custom validation rules per endpoint
-
-

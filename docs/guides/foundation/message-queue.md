@@ -7,6 +7,7 @@ Sets up RabbitMQ as the message queue system for asynchronous processing. Decoup
 ## Architecture
 
 Following ADR-0002, RabbitMQ is chosen for MVP:
+
 - **MVP**: RabbitMQ on Render
 - **Future**: Revisit Kafka/Redpanda at ≥100k runs/hour
 - **Adapter Pattern**: Thin abstraction layer for future migration
@@ -21,7 +22,7 @@ RabbitMQ runs via Docker Compose:
 mq:
   image: rabbitmq:3-management
   ports:
-    - '5672:5672'   # AMQP
+    - '5672:5672' # AMQP
     - '15672:15672' # Management UI
 ```
 
@@ -34,6 +35,7 @@ RABBIT_URL=amqp://guest:guest@localhost:5672
 ### Management UI
 
 Access at: `http://localhost:15672`
+
 - Username: `guest`
 - Password: `guest`
 
@@ -44,20 +46,13 @@ Access at: `http://localhost:15672`
 Location: `libs/mq/`
 
 ```typescript
-import {
-  connectRabbit,
-  assertQueue,
-  publishJson,
-  consumeJson,
-} from '@anchorpipe/mq';
+import { connectRabbit, assertQueue, publishJson, consumeJson } from '@anchorpipe/mq';
 ```
 
 ### Connect
 
 ```typescript
-const { connection, channel } = await connectRabbit(
-  process.env.RABBIT_URL!
-);
+const { connection, channel } = await connectRabbit(process.env.RABBIT_URL!);
 ```
 
 ### Create Queue
@@ -162,5 +157,3 @@ Checks RabbitMQ connectivity and returns status.
 - [ADR-0002](../../../adr/0002-messaging-selection.md) - Messaging selection
 - [Ingestion Service](../../../services/ingestion/README.md) - Message producer
 - [Scoring Service](../../../services/scoring/README.md) - Message consumer
-
-

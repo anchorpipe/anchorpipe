@@ -218,5 +218,3 @@ Opens Prisma Studio for database browsing.
 - [PostgreSQL Documentation](https://www.postgresql.org/docs/)
 - [Authentication](authentication.md) - Auth tables
 - [RBAC](../security/rbac.md) - Role tables
-
-

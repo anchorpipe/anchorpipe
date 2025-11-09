@@ -40,6 +40,7 @@ Creates a new user account.
 ```
 
 **Status Codes:**
+
 - `201` - Registration successful
 - `400` - Validation error
 - `409` - Email already exists
@@ -69,6 +70,7 @@ Authenticates a user and creates a session.
 ```
 
 **Status Codes:**
+
 - `200` - Login successful
 - `400` - Validation error
 - `401` - Invalid credentials
@@ -178,8 +180,8 @@ const response = await fetch('/api/auth/register', {
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
     email: 'user@example.com',
-    password: 'SecurePassword123!'
-  })
+    password: 'SecurePassword123!',
+  }),
 });
 ```
 
@@ -191,8 +193,8 @@ const response = await fetch('/api/auth/login', {
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
     email: 'user@example.com',
-    password: 'SecurePassword123!'
-  })
+    password: 'SecurePassword123!',
+  }),
 });
 
 // Session cookie is automatically set
@@ -219,6 +221,7 @@ All authentication events are logged:
 - `login_failure` - Failed login attempt
 
 Audit logs include:
+
 - User ID (if available)
 - IP address
 - User agent
@@ -232,6 +235,7 @@ Audit logs include:
 Location: `apps/web/src/lib/server/__tests__/password.test.ts`
 
 Tests cover:
+
 - Password hashing
 - Password verification
 - Invalid password handling
@@ -241,6 +245,7 @@ Tests cover:
 Location: `apps/web/src/app/api/auth/__tests__/`
 
 Tests cover:
+
 - Registration flow
 - Login flow
 - Error handling
@@ -263,5 +268,3 @@ Tests cover:
 - [Rate Limiting](rate-limiting.md) - Rate limit details
 - [OAuth Integration](../security/oauth.md) - OAuth authentication
 - [Audit Logging](../security/audit-logging.md) - Audit log details
-
-
