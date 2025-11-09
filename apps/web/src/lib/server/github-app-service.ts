@@ -56,13 +56,13 @@ export async function upsertGitHubAppInstallation(
     : null;
 
   // Check if installation already exists
-  const existing = await prisma.githubAppInstallation.findUnique({
+  const existing = await prisma.gitHubAppInstallation.findUnique({
     where: { installationId },
   });
 
   if (existing) {
     // Update existing installation
-    const updated = await prisma.githubAppInstallation.update({
+    const updated = await prisma.gitHubAppInstallation.update({
       where: { installationId },
       data: {
         accountId,
@@ -101,7 +101,7 @@ export async function upsertGitHubAppInstallation(
     return { id: updated.id, installationId };
   } else {
     // Create new installation
-    const created = await prisma.githubAppInstallation.create({
+    const created = await prisma.gitHubAppInstallation.create({
       data: {
         installationId,
         accountId,
@@ -147,7 +147,7 @@ export async function deleteGitHubAppInstallation(
   installationId: bigint,
   metadata?: { ipAddress?: string | null; userAgent?: string | null }
 ): Promise<void> {
-  const existing = await prisma.githubAppInstallation.findUnique({
+  const existing = await prisma.gitHubAppInstallation.findUnique({
     where: { installationId },
   });
 
@@ -158,7 +158,7 @@ export async function deleteGitHubAppInstallation(
     return;
   }
 
-  await prisma.githubAppInstallation.delete({
+  await prisma.gitHubAppInstallation.delete({
     where: { installationId },
   });
 
@@ -202,7 +202,7 @@ export async function getGitHubAppInstallationById(
   createdAt: Date;
   updatedAt: Date;
 } | null> {
-  const installation = await prisma.githubAppInstallation.findUnique({
+  const installation = await prisma.gitHubAppInstallation.findUnique({
     where: { installationId },
   });
 
@@ -243,7 +243,7 @@ export async function listGitHubAppInstallations(): Promise<
     createdAt: Date;
   }>
 > {
-  const installations = await prisma.githubAppInstallation.findMany({
+  const installations = await prisma.gitHubAppInstallation.findMany({
     orderBy: { createdAt: 'desc' },
     select: {
       id: true,
@@ -282,7 +282,7 @@ export async function getGitHubAppInstallationsByAccount(
     createdAt: Date;
   }>
 > {
-  const installations = await prisma.githubAppInstallation.findMany({
+  const installations = await prisma.gitHubAppInstallation.findMany({
     where: { accountLogin },
     orderBy: { createdAt: 'desc' },
     select: {
