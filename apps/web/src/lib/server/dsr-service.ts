@@ -233,13 +233,19 @@ async function logExportAudit(
   });
 }
 
-async function logDeletionAudit(
-  userId: string,
-  requestId: string,
-  status: DsrStatus,
-  extraMetadata: Record<string, unknown>,
-  context?: RequestContext
-) {
+/**
+ * Parameters for logging deletion audit
+ */
+interface LogDeletionAuditParams {
+  userId: string;
+  requestId: string;
+  status: DsrStatus;
+  extraMetadata: Record<string, unknown>;
+  context?: RequestContext;
+}
+
+async function logDeletionAudit(params: LogDeletionAuditParams) {
+  const { userId, requestId, status, extraMetadata, context } = params;
   await writeAuditLog({
     actorId: userId,
     action: AUDIT_ACTIONS.dsrDeletionRequest,
@@ -342,15 +348,15 @@ export async function requestDataDeletion(
 
   const summary = redactUserForDeletion(user);
 
-  await logDeletionAudit(
+  await logDeletionAudit({
     userId,
-    request.id,
-    DSR_STATUS.processing,
-    {
+    requestId: request.id,
+    status: DSR_STATUS.processing,
+    extraMetadata: {
       reason: reason ?? null,
     },
-    context
-  );
+    context,
+  });
 
   await prismaWithDsr.$transaction([
     prismaWithDsr.session.deleteMany({ where: { userId } }),
@@ -398,15 +404,15 @@ export async function requestDataDeletion(
     },
   });
 
-  await logDeletionAudit(
+  await logDeletionAudit({
     userId,
-    request.id,
-    DSR_STATUS.completed,
-    {
+    requestId: request.id,
+    status: DSR_STATUS.completed,
+    extraMetadata: {
       rolesRemoved: user.repoRoles.length,
     },
-    context
-  );
+    context,
+  });
 
   return updated as any;
 }
