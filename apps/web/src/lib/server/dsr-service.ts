@@ -73,19 +73,14 @@ async function queueConfirmationTelemetry(
   status: DsrStatus
 ) {
   try {
-    await prismaWithDsr.telemetryEvent.create({
-      data: {
-        userId,
-        eventType: 'dsr.email_queued',
-        eventData: {
-          requestId,
-          type,
-          status,
-        },
-      },
+    const { queueEmail } = await import('./email-queue-processor');
+    await queueEmail(userId, 'dsr.confirmation', {
+      requestId,
+      type,
+      status,
     });
   } catch (error) {
-    console.warn('Failed to queue DSR telemetry event', error);
+    console.warn('Failed to queue DSR email', error);
   }
 }
 
@@ -276,7 +271,25 @@ export async function requestDataExport(userId: string, context?: RequestContext
   const exportPayload = buildExportPayload(user);
   const request = await createExportRequest(userId, exportPayload, dueAt, now);
 
+  // Queue email with download URL
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://anchorpipe.dev';
+  const downloadUrl = `${appUrl}/api/dsr/export/${request.id}`;
   await queueConfirmationTelemetry(userId, request.id, DSR_TYPE.export, DSR_STATUS.completed);
+  
+  // Also queue email with download URL for email processor
+  try {
+    const { queueEmail } = await import('./email-queue-processor');
+    await queueEmail(userId, 'dsr.confirmation', {
+      requestId: request.id,
+      type: DSR_TYPE.export,
+      status: DSR_STATUS.completed,
+      downloadUrl,
+    });
+  } catch (error) {
+    // Non-critical: email will still be queued via queueConfirmationTelemetry
+    console.warn('Failed to queue DSR email with download URL', error);
+  }
+
   await logExportAudit(userId, request.id, exportPayload, context);
 
   return request as any;

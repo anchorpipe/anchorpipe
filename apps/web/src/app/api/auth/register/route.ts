@@ -94,9 +94,21 @@ export async function POST(request: Request) {
       email
     );
 
-    // TODO: Send verification email when email infrastructure is ready
-    // For now, log the token (in development) or queue for email service
     const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/verify-email?token=${verificationToken}`;
+
+    // Queue email for sending
+    try {
+      const { queueEmail } = await import('@/lib/server/email-queue-processor');
+      await queueEmail(user.id, 'email.verification', {
+        verificationUrl,
+        expiresIn: '24 hours',
+      });
+    } catch (error) {
+      logger.warn('Failed to queue email verification email', {
+        userId: user.id,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
 
     logger.info('Email verification token generated', {
       userId: user.id,
@@ -106,10 +118,6 @@ export async function POST(request: Request) {
       ...(process.env.NODE_ENV === 'development' && { verificationUrl }),
       ipAddress: context.ipAddress,
     });
-
-    // Queue email for future email service (similar to DSR service)
-    // For now, we'll just log it
-    // TODO: Integrate with email service when available
 
     // Create session
     const token = await createSessionJwt({ sub: user.id, email: user.email || undefined });
