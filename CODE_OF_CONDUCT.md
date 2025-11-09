@@ -49,9 +49,6 @@ We pledge to act and interact in ways that contribute to an open, welcoming, div
 - ✅ **Celebrating others' contributions and achievements**
   - _Example: "This PR is excellent—really clean solution to a tricky problem!"_
 
-- ✅ **Using inclusive language**
-  - _Example: "folks" instead of "guys", "main" instead of "master"_
-
 ### Examples of Unacceptable Behavior
 
 - ❌ The use of sexualized language or imagery, and sexual attention or advances
