@@ -621,8 +621,6 @@ function processRunEventWithIngestion<
 }
 
 /**
-=======
->>>>>>> f4e08f7 (feat(web): implement ST-301 workflow/check_run event handlers and ingestion trigger)
  * Handle workflow_run events
  * Triggers when a GitHub Actions workflow run completes
  */
