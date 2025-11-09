@@ -28,10 +28,7 @@ export async function GET(
     // Require authentication
     const session = await readSession();
     if (!session?.sub) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { installationId } = await params;
@@ -40,16 +37,11 @@ export async function GET(
     const installation = await getGitHubAppInstallationById(installationIdBigInt);
 
     if (!installation) {
-      return NextResponse.json(
-        { error: 'Installation not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Installation not found' }, { status: 404 });
     }
 
     // Validate permissions
-    const permissionValidation = await validateInstallationPermissions(
-      installationIdBigInt
-    );
+    const permissionValidation = await validateInstallationPermissions(installationIdBigInt);
 
     return NextResponse.json({
       installation,
@@ -64,10 +56,6 @@ export async function GET(
       error: error instanceof Error ? error.message : 'Unknown error',
     });
 
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-

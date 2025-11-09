@@ -7,7 +7,6 @@
  */
 
 import { prisma } from '@anchorpipe/database';
-import { RepoVisibility } from '@prisma/client';
 import { writeAuditLog, AUDIT_ACTIONS, AUDIT_SUBJECTS } from './audit-service';
 import { logger } from './logger';
 
@@ -347,7 +346,7 @@ async function syncSingleRepository(repo: {
     name,
     owner,
     defaultBranch: repo.default_branch || 'main',
-    visibility: (repo.private ? 'private' : 'public') as RepoVisibility,
+    visibility: (repo.private ? 'private' : 'public') as 'public' | 'private',
   };
 
   if (existing) {

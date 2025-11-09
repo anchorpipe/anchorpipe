@@ -80,9 +80,7 @@ async function generateAppJWT(): Promise<string> {
  * Get installation access token
  * Caches tokens until expiration (1 hour)
  */
-export async function getInstallationToken(
-  installationId: bigint
-): Promise<string> {
+export async function getInstallationToken(installationId: bigint): Promise<string> {
   const cacheKey = installationId.toString();
 
   // Check cache
@@ -109,9 +107,7 @@ export async function getInstallationToken(
 
     if (!response.ok) {
       const error = await response.text();
-      throw new Error(
-        `Failed to get installation token: ${response.status} ${error}`
-      );
+      throw new Error(`Failed to get installation token: ${response.status} ${error}`);
     }
 
     const data = (await response.json()) as {
@@ -161,4 +157,3 @@ export function clearAllTokenCache(): void {
   tokenCache.clear();
   logger.info('All GitHub App installation token caches cleared');
 }
-
