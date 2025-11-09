@@ -92,9 +92,6 @@ export async function validatePasswordResetToken(
         gt: new Date(),
       },
     },
-    include: {
-      user: true,
-    },
   });
 
   // Try to match the token
@@ -145,7 +142,7 @@ export async function resetPasswordWithToken(
 
   await prisma.user.update({
     where: { id: validation.userId },
-    data: { preferences },
+    data: { preferences: preferences as any }, // Prisma Json type requires explicit cast
   });
 
   return { success: true };

@@ -134,11 +134,7 @@ describe('Password Reset Service', () => {
           expiresAt: new Date(Date.now() + 3600000), // 1 hour from now
           usedAt: null,
           createdAt: new Date(),
-          user: {
-            id: userId,
-            email: 'test@example.com',
-          } as any,
-        },
+        } as any,
       ]);
 
       vi.mocked(prisma.passwordResetToken.update).mockResolvedValue({
@@ -178,8 +174,7 @@ describe('Password Reset Service', () => {
           expiresAt: new Date(Date.now() - 1000), // Expired
           usedAt: null,
           createdAt: new Date(),
-          user: {} as any,
-        },
+        } as any,
       ]);
 
       const result = await validatePasswordResetToken(token);
@@ -205,8 +200,7 @@ describe('Password Reset Service', () => {
           expiresAt: new Date(Date.now() + 3600000),
           usedAt: null,
           createdAt: new Date(),
-          user: {} as any,
-        },
+        } as any,
       ]);
 
       vi.mocked(prisma.passwordResetToken.update).mockResolvedValue({
@@ -252,4 +246,3 @@ describe('Password Reset Service', () => {
     });
   });
 });
-
