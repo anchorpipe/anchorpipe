@@ -382,6 +382,7 @@ The following test report formats are automatically parsed:
 ### Framework Detection
 
 Frameworks are detected from artifact names using pattern matching:
+
 - Files containing `junit` or ending in `.xml` → JUnit
 - Files containing `jest` → Jest
 - Files containing `pytest` → PyTest
@@ -390,6 +391,7 @@ Frameworks are detected from artifact names using pattern matching:
 ### Error Handling
 
 If a test report cannot be parsed:
+
 - The error is logged for debugging
 - Other artifacts continue to be processed
 - The workflow run ingestion continues with successfully parsed reports
