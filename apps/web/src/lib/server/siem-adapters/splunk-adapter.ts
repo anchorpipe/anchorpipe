@@ -21,10 +21,32 @@ interface SplunkAdapterConfig {
 /**
  * Create Splunk SIEM adapter
  */
+/**
+ * Validate hostname to prevent SSRF attacks
+ */
+function validateHostname(hostname: string): boolean {
+  // Reject localhost and private IP ranges
+  if (
+    hostname === 'localhost' ||
+    hostname === '127.0.0.1' ||
+    hostname.startsWith('192.168.') ||
+    hostname.startsWith('10.') ||
+    hostname.startsWith('172.')
+  ) {
+    return false;
+  }
+  return true;
+}
+
 export function createSplunkAdapter(
   config: SplunkAdapterConfig,
   siemConfig: SiemAdapterConfig
 ): SiemAdapter {
+  // Validate hostname
+  if (!validateHostname(config.host)) {
+    throw new Error('Invalid Splunk host: must not be localhost or private IP');
+  }
+
   const baseUrl = `https://${config.host}:${config.port}/services/collector/event`;
   const timeout = siemConfig.timeout || 5000;
 
@@ -57,9 +79,12 @@ export function createSplunkAdapter(
 
         if (!response.ok) {
           const errorText = await response.text().catch(() => 'Unknown error');
+          // Limit error message length to prevent potential information disclosure
+          const truncatedError =
+            errorText.length > 200 ? errorText.substring(0, 200) + '...' : errorText;
           return {
             success: false,
-            error: `Splunk HEC ${response.status}: ${errorText}`,
+            error: `Splunk HEC ${response.status}: ${truncatedError}`,
           };
         }
 
@@ -107,13 +132,16 @@ export function createSplunkAdapter(
 
         if (!response.ok) {
           const errorText = await response.text().catch(() => 'Unknown error');
+          // Limit error message length to prevent potential information disclosure
+          const truncatedError =
+            errorText.length > 200 ? errorText.substring(0, 200) + '...' : errorText;
           // If batch fails, mark all as failed
           return {
             success: 0,
             failed: logs.length,
             errors: logs.map((log) => ({
               logId: log.id,
-              error: `Splunk HEC ${response.status}: ${errorText}`,
+              error: `Splunk HEC ${response.status}: ${truncatedError}`,
             })),
           };
         }

@@ -101,12 +101,24 @@ function getSiemConfig(): SiemAdapterConfig | null {
       break;
 
     case 'http':
+      let headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (process.env.SIEM_HTTP_HEADERS) {
+        try {
+          const parsed = JSON.parse(process.env.SIEM_HTTP_HEADERS);
+          if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
+            headers = { ...headers, ...parsed };
+          }
+        } catch (error) {
+          logger.warn('Failed to parse SIEM_HTTP_HEADERS, using defaults', {
+            error: error instanceof Error ? error.message : 'Unknown error',
+          });
+        }
+      }
+
       config.http = {
         url: process.env.SIEM_HTTP_URL || '',
         method: (process.env.SIEM_HTTP_METHOD as 'POST' | 'PUT') || 'POST',
-        headers: process.env.SIEM_HTTP_HEADERS
-          ? JSON.parse(process.env.SIEM_HTTP_HEADERS)
-          : { 'Content-Type': 'application/json' },
+        headers,
         auth: process.env.SIEM_HTTP_AUTH_TOKEN
           ? { type: 'bearer', token: process.env.SIEM_HTTP_AUTH_TOKEN }
           : process.env.SIEM_HTTP_AUTH_USERNAME && process.env.SIEM_HTTP_AUTH_PASSWORD
