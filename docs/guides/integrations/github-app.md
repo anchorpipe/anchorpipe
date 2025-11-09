@@ -125,11 +125,23 @@ curl -H "Authorization: Bearer $TOKEN" \
 # Uninstall an installation
 curl -X DELETE -H "Authorization: Bearer $TOKEN" \
   https://api.anchorpipe.dev/api/github-app/installations/123456
+
+# Update repository selection
+curl -X PUT -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"repositoryIds": [123456, 789012]}' \
+  https://api.anchorpipe.dev/api/github-app/installations/123456/repositories
+
+# Refresh installation permissions
+curl -X POST -H "Authorization: Bearer $TOKEN" \
+  https://api.anchorpipe.dev/api/github-app/installations/123456/permissions/refresh
 ```
 
 ### Webhook Events
 
 The app handles the following webhook events:
+
+- `installation` - Installation lifecycle events (created, deleted, suspended, unsuspended, new_permissions_accepted)
 
 - **`installation.created`**: New installation created
 - **`installation.deleted`**: Installation removed
@@ -268,6 +280,76 @@ Check health of a GitHub App installation. Performs comprehensive checks to veri
 - **tokenGeneration**: Can generate installation access tokens (GitHub API access)
 - **permissions**: Installation has required permissions
 - **repositoryAccess**: Can access repositories (if repositories are configured)
+
+### PUT /api/github-app/installations/[installationId]/repositories
+
+Update repository selection for a GitHub App installation. This endpoint allows you to add or remove repositories from an installation when `repository_selection: 'selected'`.
+
+**Request Body:**
+
+```json
+{
+  "repositoryIds": [123456, 789012, 345678]
+}
+```
+
+**Response:**
+
+```json
+{
+  "message": "Repository selection updated successfully",
+  "installationId": "123456",
+  "repositoryCount": 3
+}
+```
+
+**Status Codes:**
+
+- `200`: Repository selection updated successfully
+- `400`: Invalid request (missing or invalid repositoryIds)
+- `401`: Unauthorized
+- `404`: Installation not found
+- `500`: Internal server error
+
+**Notes:**
+
+- This endpoint updates the repository selection via GitHub API
+- The database record is automatically updated
+- Repositories are automatically synced to the local database
+- An audit log entry is created for the update
+
+### POST /api/github-app/installations/[installationId]/permissions/refresh
+
+Refresh and validate installation permissions from GitHub API. This endpoint fetches the latest permissions from GitHub and validates them against required permissions.
+
+**Response:**
+
+```json
+{
+  "message": "Permissions refreshed successfully",
+  "installationId": "123456",
+  "validation": {
+    "valid": true,
+    "missing": [],
+    "warnings": []
+  }
+}
+```
+
+**Status Codes:**
+
+- `200`: Permissions refreshed successfully
+- `401`: Unauthorized
+- `404`: Installation not found
+- `500`: Internal server error
+
+**Notes:**
+
+- This endpoint fetches current permissions from GitHub API
+- The database record is automatically updated with latest permissions
+- Permissions are validated against required permissions
+- An audit log entry is created for the refresh
+- Webhook events for `new_permissions_accepted` automatically trigger permission validation
 
 ## Security
 
