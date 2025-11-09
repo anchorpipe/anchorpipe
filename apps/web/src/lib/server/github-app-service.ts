@@ -9,7 +9,7 @@
 import { prisma } from '@anchorpipe/database';
 import { writeAuditLog, AUDIT_ACTIONS, AUDIT_SUBJECTS } from './audit-service';
 import { logger } from './logger';
-import { RepoVisibility } from '@prisma/client';
+import { RepoVisibility, Prisma } from '@prisma/client';
 
 /**
  * GitHub App Installation data from webhook
@@ -71,7 +71,7 @@ export async function upsertGitHubAppInstallation(
         targetType: data.target_type,
         targetId,
         repositoryIds,
-        permissions: data.permissions as unknown as Record<string, unknown>,
+        permissions: data.permissions as unknown as Prisma.InputJsonValue,
         events: data.events,
         suspendedAt,
         suspendedBy: data.suspended_by?.id.toString() ?? null,
@@ -81,7 +81,7 @@ export async function upsertGitHubAppInstallation(
     });
 
     await writeAuditLog({
-      action: AUDIT_ACTIONS.config_updated,
+      action: AUDIT_ACTIONS.configUpdated,
       subject: AUDIT_SUBJECTS.system,
       description: `GitHub App installation updated: ${data.account.login}`,
       metadata: {
@@ -110,7 +110,7 @@ export async function upsertGitHubAppInstallation(
         targetType: data.target_type,
         targetId,
         repositoryIds,
-        permissions: data.permissions as unknown as Record<string, unknown>,
+        permissions: data.permissions as unknown as Prisma.InputJsonValue,
         events: data.events,
         suspendedAt,
         suspendedBy: data.suspended_by?.id.toString() ?? null,
@@ -119,7 +119,7 @@ export async function upsertGitHubAppInstallation(
     });
 
     await writeAuditLog({
-      action: AUDIT_ACTIONS.config_updated,
+      action: AUDIT_ACTIONS.configUpdated,
       subject: AUDIT_SUBJECTS.system,
       description: `GitHub App installation created: ${data.account.login}`,
       metadata: {
@@ -163,7 +163,7 @@ export async function deleteGitHubAppInstallation(
   });
 
   await writeAuditLog({
-    action: AUDIT_ACTIONS.config_updated,
+    action: AUDIT_ACTIONS.configUpdated,
     subject: AUDIT_SUBJECTS.system,
     description: `GitHub App installation deleted: ${existing.accountLogin}`,
     metadata: {
@@ -355,7 +355,7 @@ export async function syncRepositoriesFromInstallation(
 
   if (created > 0 || updated > 0) {
     await writeAuditLog({
-      action: AUDIT_ACTIONS.config_updated,
+      action: AUDIT_ACTIONS.configUpdated,
       subject: AUDIT_SUBJECTS.repo,
       description: `Synced ${created} new and ${updated} updated repositories from GitHub App installation`,
       metadata: {
