@@ -1,7 +1,8 @@
 # anchorpipe Trademark Policy
 
 **Last Updated**: 2025-11-09  
-**Version**: 2.0
+**Version**: 2.0  
+**Effective Date**: 2025-11-09
 
 ## Trademark Information
 
@@ -20,6 +21,12 @@
 - anchorpipe.dev (primary)
 - anchorpipe.io
 - anchorpipe.com
+
+**Subdomains:**
+
+- docs.anchorpipe.dev
+- blog.anchorpipe.dev (when available)
+- community.anchorpipe.dev (when available)
 
 ### What is a Trademark?
 
@@ -222,6 +229,8 @@ reducing debugging time by 30%."
 
 These uses **require written permission**. Email governance@anchorpipe.dev.
 
+**Note:** We're currently using governance@anchorpipe.dev for trademark inquiries. A dedicated trademark@anchorpipe.dev email will be set up in the future.
+
 ### 1. Product or Service Names
 
 **❌ You CANNOT use "anchorpipe" in your product/service name:**
@@ -265,6 +274,8 @@ These uses **require written permission**. Email governance@anchorpipe.dev.
 - anchorpipe.yourcompany.com (subdomain on your domain)
 
 **Gray Area?** Email governance@anchorpipe.dev to ask before registering.
+
+**Note:** We're currently using governance@anchorpipe.dev for trademark inquiries. A dedicated trademark@anchorpipe.dev email will be set up in the future.
 
 ---
 
@@ -637,6 +648,8 @@ Where X = height of "a" letterform
 
 **Email:** governance@anchorpipe.dev
 
+**Note:** We're currently using governance@anchorpipe.dev for trademark inquiries. A dedicated trademark@anchorpipe.dev email will be set up in the future.
+
 **Include:**
 
 1. **Your Information**
@@ -762,6 +775,8 @@ Where X = height of "a" letterform
 **See potential trademark violation?**
 
 **Report to:** governance@anchorpipe.dev
+
+**Note:** We're currently using governance@anchorpipe.dev for trademark inquiries. A dedicated trademark@anchorpipe.dev email will be set up in the future.
 
 **Include:**
 
@@ -1002,6 +1017,42 @@ Contact governance@anchorpipe.dev for a quote.
 
 ---
 
+## Revision History
+
+Track changes to this trademark policy:
+
+| Date       | Version | Changes                                                                                                   | Community Input                                                    |
+| ---------- | ------- | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| 2025-11-09 | 2.0     | Complete overhaul: Added examples, logo guidelines, enforcement policy, FAQ, commercial licensing details | [Discussion](https://github.com/anchorpipe/anchorpipe/discussions) |
+| 2024-11-05 | 1.0     | Initial version                                                                                           | None                                                               |
+
+### Major Changes in v2.0
+
+**What's new:**
+
+- ✅ Detailed examples for permitted/prohibited uses
+- ✅ Logo and visual identity guidelines
+- ✅ Domain name policy
+- ✅ Fair use clarification
+- ✅ Commercial licensing process
+- ✅ Enforcement procedures
+- ✅ Comprehensive FAQ
+- ✅ Visual examples
+
+**Why it changed:**
+
+- Community requested more clarity on what's allowed
+- Need to protect brand as project grows
+- Standard practice for open-source projects
+- Enable commercial partnerships
+
+**How it affects you:**
+
+- More clarity on what you can do without asking
+- Clear path for commercial use
+- Better protection from confusion
+- Easier to get permission when needed
+
 ## Changes to This Policy
 
 We may update this policy as the project evolves. Significant changes will be:
@@ -1025,6 +1076,8 @@ We may update this policy as the project evolves. Significant changes will be:
 
 - 📧 Email: governance@anchorpipe.dev
 - Include all details from [Commercial Licensing](#commercial-licensing--partnerships) section
+
+**Note:** We're currently using governance@anchorpipe.dev for trademark inquiries. A dedicated trademark@anchorpipe.dev email will be set up in the future.
 
 **We'd rather answer questions upfront than have problems later.**
 
