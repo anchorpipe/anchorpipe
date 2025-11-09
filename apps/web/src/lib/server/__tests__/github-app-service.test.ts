@@ -106,6 +106,14 @@ function createMockInstallation(overrides?: {
   };
 }
 
+// Helper function for expected installation result
+function expectInstallationResult(result: { id: string; installationId: bigint }) {
+  expect(result).toEqual({
+    id: 'uuid-1',
+    installationId: BigInt(123456),
+  });
+}
+
 describe('GitHub App Service', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -123,10 +131,7 @@ describe('GitHub App Service', () => {
 
       const result = await upsertGitHubAppInstallation(createMockInstallationData());
 
-      expect(result).toEqual({
-        id: 'uuid-1',
-        installationId: BigInt(123456),
-      });
+      expectInstallationResult(result);
       expect(prisma.gitHubAppInstallation.create).toHaveBeenCalledOnce();
       expect(prisma.gitHubAppInstallation.update).not.toHaveBeenCalled();
     });
@@ -147,10 +152,7 @@ describe('GitHub App Service', () => {
 
       const result = await upsertGitHubAppInstallation(createMockInstallationData());
 
-      expect(result).toEqual({
-        id: 'uuid-1',
-        installationId: BigInt(123456),
-      });
+      expectInstallationResult(result);
       expect(prisma.gitHubAppInstallation.update).toHaveBeenCalledOnce();
       expect(prisma.gitHubAppInstallation.create).not.toHaveBeenCalled();
     });

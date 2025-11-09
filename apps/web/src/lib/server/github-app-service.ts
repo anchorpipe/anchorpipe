@@ -219,19 +219,67 @@ export async function getGitHubAppInstallationById(installationId: bigint): Prom
 }
 
 /**
+ * Type for installation list item
+ */
+type InstallationListItem = {
+  id: string;
+  installationId: bigint;
+  accountLogin: string;
+  repositoryCount: number;
+  suspendedAt: Date | null;
+  createdAt: Date;
+};
+
+/**
+ * Type for installation with account type
+ */
+type InstallationWithAccountType = InstallationListItem & {
+  accountType: string;
+};
+
+/**
+ * Map installation database record to list item
+ */
+function mapInstallationToListItem(inst: {
+  id: string;
+  installationId: bigint;
+  accountLogin: string;
+  repositoryIds: bigint[];
+  suspendedAt: Date | null;
+  createdAt: Date;
+}): InstallationListItem {
+  return {
+    id: inst.id,
+    installationId: inst.installationId,
+    accountLogin: inst.accountLogin,
+    repositoryCount: inst.repositoryIds.length,
+    suspendedAt: inst.suspendedAt,
+    createdAt: inst.createdAt,
+  };
+}
+
+/**
+ * Map installation database record to list item with account type
+ */
+function mapInstallationWithAccountType(inst: {
+  id: string;
+  installationId: bigint;
+  accountLogin: string;
+  accountType: string;
+  repositoryIds: bigint[];
+  suspendedAt: Date | null;
+  createdAt: Date;
+}): InstallationWithAccountType {
+  return {
+    ...mapInstallationToListItem(inst),
+    accountType: inst.accountType,
+  };
+}
+
+/**
  * List all GitHub App installations
  */
-export async function listGitHubAppInstallations(): Promise<
-  Array<{
-    id: string;
-    installationId: bigint;
-    accountLogin: string;
-    accountType: string;
-    repositoryCount: number;
-    suspendedAt: Date | null;
-    createdAt: Date;
-  }>
-> {
+export async function listGitHubAppInstallations(): Promise<InstallationWithAccountType[]> {
   const installations = await prisma.gitHubAppInstallation.findMany({
     orderBy: { createdAt: 'desc' },
     select: {
@@ -245,40 +293,15 @@ export async function listGitHubAppInstallations(): Promise<
     },
   });
 
-  return installations.map(
-    (inst: {
-      id: string;
-      installationId: bigint;
-      accountLogin: string;
-      accountType: string;
-      repositoryIds: bigint[];
-      suspendedAt: Date | null;
-      createdAt: Date;
-    }) => ({
-      id: inst.id,
-      installationId: inst.installationId,
-      accountLogin: inst.accountLogin,
-      accountType: inst.accountType,
-      repositoryCount: inst.repositoryIds.length,
-      suspendedAt: inst.suspendedAt,
-      createdAt: inst.createdAt,
-    })
-  );
+  return installations.map(mapInstallationWithAccountType);
 }
 
 /**
  * Get installations by account login
  */
-export async function getGitHubAppInstallationsByAccount(accountLogin: string): Promise<
-  Array<{
-    id: string;
-    installationId: bigint;
-    accountLogin: string;
-    repositoryCount: number;
-    suspendedAt: Date | null;
-    createdAt: Date;
-  }>
-> {
+export async function getGitHubAppInstallationsByAccount(
+  accountLogin: string
+): Promise<InstallationListItem[]> {
   const installations = await prisma.gitHubAppInstallation.findMany({
     where: { accountLogin },
     orderBy: { createdAt: 'desc' },
@@ -292,23 +315,7 @@ export async function getGitHubAppInstallationsByAccount(accountLogin: string): 
     },
   });
 
-  return installations.map(
-    (inst: {
-      id: string;
-      installationId: bigint;
-      accountLogin: string;
-      repositoryIds: bigint[];
-      suspendedAt: Date | null;
-      createdAt: Date;
-    }) => ({
-      id: inst.id,
-      installationId: inst.installationId,
-      accountLogin: inst.accountLogin,
-      repositoryCount: inst.repositoryIds.length,
-      suspendedAt: inst.suspendedAt,
-      createdAt: inst.createdAt,
-    })
-  );
+  return installations.map(mapInstallationToListItem);
 }
 
 /**
@@ -403,6 +410,17 @@ export async function syncRepositoriesFromInstallation(
 }
 
 /**
+ * Check if permission level is sufficient (write satisfies read requirement)
+ */
+function isPermissionSufficient(actual: string, required: string): boolean {
+  if (actual === required) {
+    return true;
+  }
+  // write permission satisfies read requirement
+  return required === 'read' && actual === 'write';
+}
+
+/**
  * Check if a permission level meets the requirement
  */
 function checkPermissionLevel(
@@ -413,7 +431,7 @@ function checkPermissionLevel(
     return { valid: false, missing: true, warning: false };
   }
 
-  if (actual === required || (required === 'read' && actual === 'write')) {
+  if (isPermissionSufficient(actual, required)) {
     return { valid: true, missing: false, warning: false };
   }
 
