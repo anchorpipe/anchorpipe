@@ -11,6 +11,8 @@ import {
   extractRequestContext,
   writeAuditLog,
 } from '@/lib/server/audit-service';
+import { createEmailVerificationToken } from '@/lib/server/email-verification';
+import { logger } from '@/lib/server/logger';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -81,9 +83,33 @@ export async function POST(request: Request) {
         // Store password hash in preferences for now (in future, use Account model with provider='password')
         preferences: {
           passwordHash: hashedPassword,
+          emailVerified: false, // Email not verified yet
         },
       },
     });
+
+    // Generate email verification token
+    const { token: verificationToken, expiresAt } = await createEmailVerificationToken(
+      user.id,
+      email
+    );
+
+    // TODO: Send verification email when email infrastructure is ready
+    // For now, log the token (in development) or queue for email service
+    const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/verify-email?token=${verificationToken}`;
+
+    logger.info('Email verification token generated', {
+      userId: user.id,
+      email,
+      expiresAt,
+      // In development, log the URL (remove in production)
+      ...(process.env.NODE_ENV === 'development' && { verificationUrl }),
+      ipAddress: context.ipAddress,
+    });
+
+    // Queue email for future email service (similar to DSR service)
+    // For now, we'll just log it
+    // TODO: Integrate with email service when available
 
     // Create session
     const token = await createSessionJwt({ sub: user.id, email: user.email || undefined });
@@ -95,12 +121,28 @@ export async function POST(request: Request) {
       subject: AUDIT_SUBJECTS.user,
       subjectId: user.id,
       description: 'User account registered.',
-      metadata: { email },
+      metadata: {
+        email,
+        emailVerificationRequired: true,
+        expiresAt: expiresAt.toISOString(),
+      },
       ipAddress: context.ipAddress,
       userAgent: context.userAgent,
     });
 
-    return NextResponse.json({ ok: true }, { status: 201, headers: rateLimitResult.headers });
+    return NextResponse.json(
+      {
+        ok: true,
+        message: 'User registered successfully. Please check your email to verify your account.',
+        // In development, include the token for testing
+        ...(process.env.NODE_ENV === 'development' && {
+          verificationToken,
+          verificationUrl,
+          expiresAt: expiresAt.toISOString(),
+        }),
+      },
+      { status: 201, headers: rateLimitResult.headers }
+    );
   } catch (error) {
     console.error('Registration error:', error);
     return NextResponse.json({ error: 'Unexpected error' }, { status: 500 });

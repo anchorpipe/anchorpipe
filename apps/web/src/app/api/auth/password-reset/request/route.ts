@@ -6,6 +6,7 @@
  * Story: ST-104 (Medium Priority Gap)
  */
 
+// cSpell:ignore anchorpipe
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@anchorpipe/database';
 import { z } from 'zod';
@@ -25,6 +26,90 @@ export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
 /**
+ * Check rate limiting for password reset request
+ */
+async function checkRateLimit(
+  request: NextRequest,
+  context: { userAgent: string | null }
+): Promise<{ allowed: boolean; headers?: Record<string, string> }> {
+  return await rateLimit('auth:password-reset', request, (violationIp, key) => {
+    writeAuditLog({
+      action: AUDIT_ACTIONS.loginFailure,
+      subject: AUDIT_SUBJECTS.security,
+      description: `Rate limit violation: ${key} exceeded for IP ${violationIp}`,
+      metadata: { key, ip: violationIp },
+      ipAddress: violationIp,
+      userAgent: context.userAgent,
+    });
+  });
+}
+
+/**
+ * Validate email and find user
+ */
+async function findUserForPasswordReset(
+  email: string
+): Promise<{ user: { id: string; preferences: unknown } | null; hasPassword: boolean }> {
+  const user = await prisma.user.findFirst({
+    where: { email },
+  });
+
+  if (!user) {
+    return { user: null, hasPassword: false };
+  }
+
+  const preferences = (user.preferences as Record<string, unknown>) || {};
+  const hasPassword = Boolean(preferences.password);
+
+  return { user, hasPassword };
+}
+
+/**
+ * Generate password reset token and prepare response
+ */
+async function generatePasswordResetResponse(
+  userId: string,
+  email: string,
+  context: { ipAddress: string | null; userAgent: string | null }
+): Promise<{ message: string; devData?: Record<string, unknown> }> {
+  const { token, expiresAt } = await createPasswordResetToken(userId);
+  const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/reset-password?token=${token}`;
+
+  logger.info('Password reset token generated', {
+    userId,
+    email,
+    expiresAt,
+    ...(process.env.NODE_ENV === 'development' && { resetUrl }),
+    ipAddress: context.ipAddress,
+  });
+
+  await writeAuditLog({
+    action: AUDIT_ACTIONS.configUpdated,
+    subject: AUDIT_SUBJECTS.user,
+    subjectId: userId,
+    description: 'Password reset requested',
+    metadata: {
+      email,
+      expiresAt: expiresAt.toISOString(),
+    },
+    ipAddress: context.ipAddress,
+    userAgent: context.userAgent,
+  });
+
+  const response: { message: string; token?: string; resetUrl?: string; expiresAt?: string } = {
+    message: 'If an account with that email exists, a password reset link has been sent.',
+  };
+
+  if (process.env.NODE_ENV === 'development') {
+    response.token = token;
+    response.resetUrl = resetUrl;
+    response.expiresAt = expiresAt.toISOString();
+  }
+
+  return response;
+}
+
+/**
  * POST /api/auth/password-reset/request
  * Request a password reset token
  */
@@ -33,17 +118,7 @@ export async function POST(request: NextRequest) {
     const context = extractRequestContext(request);
 
     // Rate limiting
-    const rateLimitResult = await rateLimit('auth:password-reset', request, (violationIp, key) => {
-      writeAuditLog({
-        action: AUDIT_ACTIONS.loginFailure,
-        subject: AUDIT_SUBJECTS.security,
-        description: `Rate limit violation: ${key} exceeded for IP ${violationIp}`,
-        metadata: { key, ip: violationIp },
-        ipAddress: violationIp,
-        userAgent: context.userAgent,
-      });
-    });
-
+    const rateLimitResult = await checkRateLimit(request, context);
     if (!rateLimitResult.allowed) {
       return NextResponse.json(
         { error: 'Too many requests. Please try again later.' },
@@ -65,15 +140,13 @@ export async function POST(request: NextRequest) {
 
     const { email } = validation.data;
 
-    // Find user by email
-    const user = await prisma.user.findFirst({
-      where: { email },
-    });
+    // Find user and check if they have a password
+    const { user, hasPassword } = await findUserForPasswordReset(email);
 
-    // Always return success (don't reveal if email exists)
-    // This prevents email enumeration attacks
-    if (!user) {
-      logger.info('Password reset requested for non-existent email', {
+    // Always return success (don't reveal if email exists) - prevents email enumeration
+    if (!user || !hasPassword) {
+      // Log minimal information to avoid revealing account state
+      logger.info('Password reset requested for invalid account', {
         email,
         ipAddress: context.ipAddress,
       });
@@ -82,63 +155,10 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Check if user has a password (not OAuth-only account)
-    const preferences = (user.preferences as Record<string, unknown>) || {};
-    if (!preferences.password) {
-      logger.info('Password reset requested for OAuth-only account', {
-        userId: user.id,
-        email,
-        ipAddress: context.ipAddress,
-      });
-      return NextResponse.json({
-        message: 'If an account with that email exists, a password reset link has been sent.',
-      });
-    }
+    // Generate reset token and prepare response
+    const response = await generatePasswordResetResponse(user.id, email, context);
 
-    // Generate reset token
-    const { token, expiresAt } = await createPasswordResetToken(user.id);
-
-    // TODO: Send email with reset link when email infrastructure is ready
-    // For now, log the token (in development) or queue for email service
-    const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/reset-password?token=${token}`;
-
-    logger.info('Password reset token generated', {
-      userId: user.id,
-      email,
-      expiresAt,
-      // In development, log the URL (remove in production)
-      ...(process.env.NODE_ENV === 'development' && { resetUrl }),
-      ipAddress: context.ipAddress,
-    });
-
-    // Queue email for future email service (similar to DSR service)
-    // For now, we'll just log it
-    // TODO: Integrate with email service when available
-
-    // Audit log
-    await writeAuditLog({
-      action: AUDIT_ACTIONS.configUpdated,
-      subject: AUDIT_SUBJECTS.user,
-      subjectId: user.id,
-      description: 'Password reset requested',
-      metadata: {
-        email,
-        expiresAt: expiresAt.toISOString(),
-      },
-      ipAddress: context.ipAddress,
-      userAgent: context.userAgent,
-    });
-
-    // Return success (don't reveal if email exists)
-    return NextResponse.json({
-      message: 'If an account with that email exists, a password reset link has been sent.',
-      // In development, include the token for testing
-      ...(process.env.NODE_ENV === 'development' && {
-        token,
-        resetUrl,
-        expiresAt: expiresAt.toISOString(),
-      }),
-    });
+    return NextResponse.json(response);
   } catch (error) {
     logger.error('Error processing password reset request', {
       error: error instanceof Error ? error.message : 'Unknown error',

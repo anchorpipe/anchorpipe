@@ -9,7 +9,8 @@ This workflow ensures compliance with GDPR Article 15 (Right of Access), Article
 ## Endpoints
 
 - `POST /api/dsr/export` – queues and completes an export request, returns metadata for the generated download.
-- `GET /api/dsr/export/:requestId` – downloads the completed export JSON file.
+- `GET /api/dsr/export/:requestId` – downloads the completed export (JSON format, default).
+- `GET /api/dsr/export/:requestId?format=csv` – downloads the completed export in CSV format.
 - `POST /api/dsr/deletion` – redacts personal data and revokes access. Optional `reason` field (≤500 chars).
 - `GET /api/dsr` – lists historical DSR requests and event timeline for the authenticated user.
 
@@ -26,6 +27,47 @@ This workflow ensures compliance with GDPR Article 15 (Right of Access), Article
 - Recent role audit log entries (actor + target perspectives).
 
 Payload is stored in `data_subject_requests.export_data` (JSONB) and exposed via the download endpoint.
+
+## Export Formats
+
+### JSON Format (Default)
+
+**GET** `/api/dsr/export/:requestId`
+
+Returns the export data as formatted JSON.
+
+**Response Headers:**
+
+- `Content-Type: application/json`
+- `Content-Disposition: attachment; filename="anchorpipe-export-{requestId}.json"`
+
+### CSV Format
+
+**GET** `/api/dsr/export/:requestId?format=csv`
+
+Returns the export data as CSV for easy import into spreadsheet applications.
+
+**Response Headers:**
+
+- `Content-Type: text/csv`
+- `Content-Disposition: attachment; filename="anchorpipe-export-{requestId}.csv"`
+
+**CSV Structure:**
+
+- User information section (ID, email, GitHub login, name, etc.)
+- Repository roles section (with repository details)
+- Role audit logs section (with action history)
+- Proper CSV escaping for all values (commas, quotes, newlines)
+
+**Example Usage:**
+
+```bash
+# Download JSON format (default)
+curl -H "Cookie: session=..." https://api.anchorpipe.dev/api/dsr/export/abc123
+
+# Download CSV format
+curl -H "Cookie: session=..." "https://api.anchorpipe.dev/api/dsr/export/abc123?format=csv"
+```
 
 ## Deletion Workflow
 
