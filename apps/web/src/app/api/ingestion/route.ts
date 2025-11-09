@@ -7,19 +7,20 @@ import {
   extractRequestContext,
   writeAuditLog,
 } from '@/lib/server/audit-service';
+import { IngestionPayloadSchema } from '@/lib/server/ingestion-schema';
+import { processIngestion } from '@/lib/server/ingestion-service';
+import { logger } from '@/lib/server/logger';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30; // 30 seconds max for ingestion
 
 /**
- * POST /api/ingestion
- * Ingestion endpoint for CI systems to submit test reports
- * Requires: Authorization: Bearer <repo_id> and X-FR-Sig: <hmac_signature>
+ * Check rate limit and return result
  */
-export async function POST(request: NextRequest) {
-  const context = extractRequestContext(request);
-
-  // Rate limiting with violation logging
+async function checkRateLimit(
+  request: NextRequest,
+  context: { userAgent: string | null }
+): Promise<{ allowed: boolean; headers?: Record<string, string> }> {
   const rateLimitResult = await rateLimit('ingestion:submit', request, (violationIp, key) => {
     writeAuditLog({
       action: AUDIT_ACTIONS.loginFailure, // Using loginFailure as generic security event
@@ -31,61 +32,168 @@ export async function POST(request: NextRequest) {
     });
   });
 
+  return rateLimitResult;
+}
+
+/**
+ * Validate request body size
+ */
+function validateBodySize(body: string): { valid: boolean; error?: string } {
+  if (!body || body.length === 0) {
+    return { valid: false, error: 'Request body is required' };
+  }
+
+  const maxSizeBytes = 50 * 1024 * 1024; // 50MB
+  if (body.length > maxSizeBytes) {
+    return {
+      valid: false,
+      error: `Payload too large. Maximum size is ${maxSizeBytes} bytes.`,
+    };
+  }
+
+  return { valid: true };
+}
+
+/**
+ * Authenticate request and extract repo ID
+ */
+async function authenticateRequest(
+  request: NextRequest,
+  body: string
+): Promise<{ success: boolean; repoId?: string; error?: string }> {
+  const authResult = await authenticateHmacRequest(request, body);
+  if (!authResult.success) {
+    return { success: false, error: authResult.error || 'Authentication failed' };
+  }
+
+  const repoId = authResult.repoId;
+  if (!repoId) {
+    return { success: false, error: 'Repository ID not found in authentication' };
+  }
+
+  return { success: true, repoId };
+}
+
+/**
+ * Parse and validate JSON payload
+ */
+function parseAndValidatePayload(
+  body: string,
+  repoId: string
+): { success: boolean; payload?: unknown; error?: string; details?: unknown } {
+  let payload: unknown;
+  try {
+    payload = JSON.parse(body);
+  } catch (error) {
+    return { success: false, error: 'Invalid JSON payload' };
+  }
+
+  const validationResult = IngestionPayloadSchema.safeParse(payload);
+  if (!validationResult.success) {
+    logger.warn('Invalid ingestion payload', {
+      repoId,
+      errors: validationResult.error.issues,
+    });
+    return {
+      success: false,
+      error: 'Invalid payload',
+      details: validationResult.error.issues.map((e) => ({
+        path: e.path.join('.'),
+        message: e.message,
+      })),
+    };
+  }
+
+  const validatedPayload = validationResult.data;
+
+  // Verify repo_id matches authenticated repo
+  if (validatedPayload.repo_id !== repoId) {
+    return { success: false, error: 'Repository ID mismatch' };
+  }
+
+  return { success: true, payload: validatedPayload };
+}
+
+/**
+ * POST /api/ingestion
+ * Ingestion endpoint for CI systems to submit test reports
+ * Requires: Authorization: Bearer <repo_id> and X-FR-Sig: <hmac_signature>
+ */
+export async function POST(request: NextRequest) {
+  const context = extractRequestContext(request);
+
+  // Check rate limit
+  const rateLimitResult = await checkRateLimit(request, context);
   if (!rateLimitResult.allowed) {
     return NextResponse.json(
       { error: 'Too many requests. Please try again later.' },
       {
         status: 429,
-        headers: rateLimitResult.headers, // Retry-After is now included in headers
+        headers: rateLimitResult.headers,
       }
     );
   }
 
   try {
-    // Read request body
+    // Read and validate request body
     const body = await request.text();
-    if (!body || body.length === 0) {
+    const bodyValidation = validateBodySize(body);
+    if (!bodyValidation.valid) {
       return NextResponse.json(
-        { error: 'Request body is required' },
-        { status: 400, headers: rateLimitResult.headers }
+        { error: bodyValidation.error },
+        {
+          status: bodyValidation.error?.includes('too large') ? 413 : 400,
+          headers: rateLimitResult.headers,
+        }
       );
     }
 
-    // Check payload size (50MB limit per PRD)
-    const maxSizeBytes = 50 * 1024 * 1024; // 50MB
-    if (body.length > maxSizeBytes) {
-      return NextResponse.json(
-        { error: `Payload too large. Maximum size is ${maxSizeBytes} bytes.` },
-        { status: 413, headers: rateLimitResult.headers }
-      );
-    }
-
-    // Authenticate using HMAC
-    const authResult = await authenticateHmacRequest(request, body);
-    if (!authResult.success) {
+    // Authenticate request
+    const authResult = await authenticateRequest(request, body);
+    if (!authResult.success || !authResult.repoId) {
       return NextResponse.json(
         { error: authResult.error || 'Authentication failed' },
         { status: 401, headers: rateLimitResult.headers }
       );
     }
 
-    // TODO: Parse test report (JUnit XML, Jest JSON, PyTest JSON, etc.)
-    // TODO: Validate idempotency key (repo_id, commit_sha, run_id, framework)
-    // TODO: Store metadata in database
-    // TODO: Publish to message queue for async processing
-    // TODO: Upload large artifacts to object storage
+    // Parse and validate payload
+    const payloadResult = parseAndValidatePayload(body, authResult.repoId);
+    if (!payloadResult.success || !payloadResult.payload) {
+      const responseBody: { error: string; details?: unknown } = {
+        error: payloadResult.error || 'Invalid payload',
+      };
+      if (payloadResult.details) {
+        responseBody.details = payloadResult.details;
+      }
+      return NextResponse.json(
+        responseBody,
+        {
+          status: payloadResult.error?.includes('mismatch') ? 403 : 400,
+          headers: rateLimitResult.headers,
+        }
+      );
+    }
 
-    // For now, return a placeholder response
-    const runId = `run-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+    // Process ingestion
+    const result = await processIngestion(
+      payloadResult.payload as Parameters<typeof processIngestion>[0],
+      authResult.repoId,
+      context
+    );
+
+    if (!result.success) {
+      return NextResponse.json(
+        { error: result.error || 'Ingestion failed' },
+        { status: 500, headers: rateLimitResult.headers }
+      );
+    }
 
     return NextResponse.json(
       {
-        runId,
-        message: 'Test report received',
-        summary: {
-          tests_parsed: 0, // TODO: Parse and count
-          flaky_candidates: 0, // TODO: Identify candidates
-        },
+        runId: result.runId,
+        message: result.message,
+        summary: result.summary,
       },
       {
         status: 200,
@@ -93,7 +201,10 @@ export async function POST(request: NextRequest) {
       }
     );
   } catch (error) {
-    console.error('Ingestion error:', error);
+    logger.error('Ingestion error', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+    });
     const errorMessage = error instanceof Error ? error.message : 'Ingestion failed';
     return NextResponse.json(
       { error: errorMessage },
