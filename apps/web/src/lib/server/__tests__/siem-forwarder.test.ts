@@ -6,33 +6,30 @@
  * Story: ST-206 (Medium Priority Gap)
  */
 
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { prisma } from '@anchorpipe/database';
 import { forwardAuditLogsToSiem, getSiemForwarder } from '../siem-forwarder';
+import { SiemAdapter, SiemForwardResult } from '../siem-adapter';
 
 // Mock dependencies
-vi.mock('@anchorpipe/database', () => ({
+jest.mock('@anchorpipe/database', () => ({
   prisma: {
     auditLog: {
-      findMany: vi.fn(),
+      findMany: jest.fn(),
     },
   },
 }));
 
-vi.mock('../logger', () => ({
+jest.mock('../logger', () => ({
   logger: {
-    info: vi.fn(),
-    warn: vi.fn(),
-    error: vi.fn(),
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
   },
 }));
 
 describe('SIEM Forwarder', () => {
-  let prismaMock: any;
-
-  beforeEach(async () => {
-    vi.clearAllMocks();
-    const { prisma } = await import('@anchorpipe/database');
-    prismaMock = prisma as any;
+  beforeEach(() => {
+    jest.clearAllMocks();
     // Reset environment variables
     delete process.env.SIEM_ENABLED;
     delete process.env.SIEM_TYPE;
@@ -65,7 +62,7 @@ describe('SIEM Forwarder', () => {
       process.env.SIEM_TYPE = 'http';
       process.env.SIEM_HTTP_URL = 'https://siem.example.com/api/logs';
 
-      prismaMock.auditLog.findMany.mockResolvedValue([]);
+      (prisma.auditLog.findMany as jest.Mock).mockResolvedValue([]);
 
       const result = await forwardAuditLogsToSiem();
       expect(result).toEqual({ success: 0, failed: 0 });
@@ -93,13 +90,13 @@ describe('SIEM Forwarder', () => {
         },
       ];
 
-      prismaMock.auditLog.findMany.mockResolvedValue(mockLogs);
+      (prisma.auditLog.findMany as jest.Mock).mockResolvedValue(mockLogs);
 
       // Mock fetch for HTTP adapter
-      global.fetch = vi.fn().mockResolvedValue({
+      global.fetch = jest.fn().mockResolvedValue({
         ok: true,
         status: 200,
-        text: vi.fn().mockResolvedValue('OK'),
+        text: jest.fn().mockResolvedValue('OK'),
       });
 
       const result = await forwardAuditLogsToSiem();
@@ -116,10 +113,10 @@ describe('SIEM Forwarder', () => {
       process.env.SIEM_HTTP_URL = 'https://siem.example.com/api/logs';
 
       // Mock fetch for HTTP adapter
-      global.fetch = vi.fn().mockResolvedValue({
+      global.fetch = jest.fn().mockResolvedValue({
         ok: true,
         status: 200,
-        text: vi.fn().mockResolvedValue('OK'),
+        text: jest.fn().mockResolvedValue('OK'),
       });
 
       const forwarder = getSiemForwarder();

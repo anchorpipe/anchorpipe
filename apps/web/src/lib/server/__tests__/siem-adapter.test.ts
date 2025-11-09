@@ -6,7 +6,6 @@
  * Story: ST-206 (Medium Priority Gap)
  */
 
-import { describe, expect, it } from 'vitest';
 import {
   convertAuditLogToSiemEntry,
   formatAsCEF,
