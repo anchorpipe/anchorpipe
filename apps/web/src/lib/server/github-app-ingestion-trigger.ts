@@ -15,39 +15,180 @@ import { writeAuditLog, AUDIT_ACTIONS, AUDIT_SUBJECTS } from './audit-service';
 import { decryptField } from './secrets';
 
 /**
+ * Request metadata for audit logging
+ */
+interface RequestMetadata {
+  ipAddress?: string | null;
+  userAgent?: string | null;
+}
+
+/**
+ * Workflow run ingestion parameters
+ */
+interface WorkflowRunIngestionParams {
+  workflowRunId: number;
+  repositoryId: number;
+  repositoryFullName: string;
+  headSha: string;
+  headBranch: string;
+  installationId: number;
+  metadata?: RequestMetadata;
+}
+
+/**
+ * Check run ingestion parameters
+ */
+interface CheckRunIngestionParams {
+  checkRunId: number;
+  repositoryId: number;
+  repositoryFullName: string;
+  headSha: string;
+  headBranch: string;
+  installationId: number;
+  metadata?: RequestMetadata;
+}
+
+/**
+ * Test result from artifact parsing
+ */
+interface TestResult {
+  framework: string;
+  payload: string;
+}
+
+/**
+ * Ingestion submission parameters
+ */
+interface IngestionSubmissionParams {
+  repoId: string;
+  commitSha: string;
+  runId: string;
+  framework: string;
+  payload: string;
+  metadata?: RequestMetadata;
+}
+
+/**
+ * GitHub artifact structure
+ */
+interface GitHubArtifact {
+  id: number;
+  name: string;
+  size_in_bytes: number;
+}
+
+/**
+ * Find repository by GitHub ID
+ */
+async function findRepositoryByGitHubId(
+  repositoryId: number
+): Promise<{ id: string; name: string; owner: string } | null> {
+  const repo = await prisma.repo.findUnique({
+    where: { ghId: BigInt(repositoryId) },
+  });
+
+  return repo;
+}
+
+/**
+ * Process and submit test results from artifacts
+ */
+async function processAndSubmitTestResults(
+  testResults: TestResult[],
+  params: {
+    repoId: string;
+    headSha: string;
+    runId: string;
+    metadata?: RequestMetadata;
+  }
+): Promise<void> {
+  for (const testResult of testResults) {
+    const submissionParams: IngestionSubmissionParams = {
+      repoId: params.repoId,
+      commitSha: params.headSha,
+      runId: params.runId,
+      framework: testResult.framework,
+      payload: testResult.payload,
+      metadata: params.metadata,
+    };
+
+    const result = await submitToIngestion(submissionParams);
+
+    if (!result.success) {
+      logger.error('Failed to submit test results to ingestion', {
+        repoId: params.repoId,
+        runId: params.runId,
+        framework: testResult.framework,
+        error: result.error,
+      });
+      // Continue with other test results even if one fails
+    }
+  }
+}
+
+/**
+ * Log ingestion completion
+ */
+async function logIngestionCompletion(params: {
+  workflowRunId: number;
+  repoId: string;
+  repositoryFullName: string;
+  headSha: string;
+  headBranch: string;
+  artifactsProcessed: number;
+  testResultsSubmitted: number;
+  metadata?: RequestMetadata;
+}): Promise<void> {
+  await writeAuditLog({
+    action: AUDIT_ACTIONS.configUpdated,
+    subject: AUDIT_SUBJECTS.repo,
+    subjectId: params.repoId,
+    description: `Triggered ingestion for workflow run ${params.workflowRunId}`,
+    metadata: {
+      workflowRunId: params.workflowRunId,
+      repositoryId: params.repoId,
+      repositoryFullName: params.repositoryFullName,
+      headSha: params.headSha,
+      headBranch: params.headBranch,
+      artifactsProcessed: params.artifactsProcessed,
+      testResultsSubmitted: params.testResultsSubmitted,
+    },
+    ipAddress: params.metadata?.ipAddress ?? null,
+    userAgent: params.metadata?.userAgent ?? null,
+  });
+
+  logger.info('Successfully triggered ingestion for workflow run', {
+    workflowRunId: params.workflowRunId,
+    repositoryId: params.repoId,
+    testResultsSubmitted: params.testResultsSubmitted,
+  });
+}
+
+/**
  * Trigger ingestion for a completed workflow run
  */
 export async function triggerIngestionForWorkflowRun(
-  workflowRunId: number,
-  repositoryId: number,
-  repositoryFullName: string,
-  headSha: string,
-  headBranch: string,
-  installationId: number,
-  metadata?: { ipAddress?: string | null; userAgent?: string | null }
+  params: WorkflowRunIngestionParams
 ): Promise<{ success: boolean; error?: string }> {
   try {
     logger.info('Triggering ingestion for workflow run', {
-      workflowRunId,
-      repositoryId,
-      repositoryFullName,
-      headSha,
-      headBranch,
-      installationId,
+      workflowRunId: params.workflowRunId,
+      repositoryId: params.repositoryId,
+      repositoryFullName: params.repositoryFullName,
+      headSha: params.headSha,
+      headBranch: params.headBranch,
+      installationId: params.installationId,
     });
 
     // Get installation token
-    const token = await getInstallationToken(BigInt(installationId));
+    const token = await getInstallationToken(BigInt(params.installationId));
 
     // Find repository in our database
-    const repo = await prisma.repo.findUnique({
-      where: { ghId: BigInt(repositoryId) },
-    });
-
+    const repo = await findRepositoryByGitHubId(params.repositoryId);
     if (!repo) {
       logger.warn('Repository not found in database', {
-        repositoryId,
-        repositoryFullName,
+        repositoryId: params.repositoryId,
+        repositoryFullName: params.repositoryFullName,
       });
       return {
         success: false,
@@ -57,15 +198,15 @@ export async function triggerIngestionForWorkflowRun(
 
     // Fetch workflow run artifacts
     const artifacts = await fetchWorkflowRunArtifacts(
-      workflowRunId,
-      repositoryFullName,
+      params.workflowRunId,
+      params.repositoryFullName,
       token
     );
 
     if (artifacts.length === 0) {
       logger.info('No artifacts found for workflow run', {
-        workflowRunId,
-        repositoryFullName,
+        workflowRunId: params.workflowRunId,
+        repositoryFullName: params.repositoryFullName,
       });
       return { success: true }; // Not an error, just no test results
     }
@@ -73,69 +214,43 @@ export async function triggerIngestionForWorkflowRun(
     // Download and parse test results from artifacts
     const testResults = await downloadAndParseArtifacts(
       artifacts,
-      repositoryFullName,
+      params.repositoryFullName,
       token
     );
 
     if (testResults.length === 0) {
       logger.info('No test results found in artifacts', {
-        workflowRunId,
-        repositoryFullName,
+        workflowRunId: params.workflowRunId,
+        repositoryFullName: params.repositoryFullName,
       });
       return { success: true }; // Not an error, just no test results
     }
 
     // Submit test results to ingestion endpoint
-    for (const testResult of testResults) {
-      const result = await submitToIngestion(
-        repo.id,
-        headSha,
-        workflowRunId.toString(),
-        testResult.framework,
-        testResult.payload,
-        metadata
-      );
-
-      if (!result.success) {
-        logger.error('Failed to submit test results to ingestion', {
-          workflowRunId,
-          repositoryId: repo.id,
-          framework: testResult.framework,
-          error: result.error,
-        });
-        // Continue with other test results even if one fails
-      }
-    }
-
-    await writeAuditLog({
-      action: AUDIT_ACTIONS.configUpdated,
-      subject: AUDIT_SUBJECTS.repo,
-      subjectId: repo.id,
-      description: `Triggered ingestion for workflow run ${workflowRunId}`,
-      metadata: {
-        workflowRunId,
-        repositoryId: repo.id,
-        repositoryFullName,
-        headSha,
-        headBranch,
-        artifactsProcessed: artifacts.length,
-        testResultsSubmitted: testResults.length,
-      },
-      ipAddress: metadata?.ipAddress ?? null,
-      userAgent: metadata?.userAgent ?? null,
+    await processAndSubmitTestResults(testResults, {
+      repoId: repo.id,
+      headSha: params.headSha,
+      runId: params.workflowRunId.toString(),
+      metadata: params.metadata,
     });
 
-    logger.info('Successfully triggered ingestion for workflow run', {
-      workflowRunId,
-      repositoryId: repo.id,
+    // Log completion
+    await logIngestionCompletion({
+      workflowRunId: params.workflowRunId,
+      repoId: repo.id,
+      repositoryFullName: params.repositoryFullName,
+      headSha: params.headSha,
+      headBranch: params.headBranch,
+      artifactsProcessed: artifacts.length,
       testResultsSubmitted: testResults.length,
+      metadata: params.metadata,
     });
 
     return { success: true };
   } catch (error) {
     logger.error('Failed to trigger ingestion for workflow run', {
-      workflowRunId,
-      repositoryId,
+      workflowRunId: params.workflowRunId,
+      repositoryId: params.repositoryId,
       error: error instanceof Error ? error.message : 'Unknown error',
     });
 
@@ -150,36 +265,27 @@ export async function triggerIngestionForWorkflowRun(
  * Trigger ingestion for a completed check run
  */
 export async function triggerIngestionForCheckRun(
-  checkRunId: number,
-  repositoryId: number,
-  repositoryFullName: string,
-  headSha: string,
-  headBranch: string,
-  installationId: number,
-  metadata?: { ipAddress?: string | null; userAgent?: string | null }
+  params: CheckRunIngestionParams
 ): Promise<{ success: boolean; error?: string }> {
   try {
     logger.info('Triggering ingestion for check run', {
-      checkRunId,
-      repositoryId,
-      repositoryFullName,
-      headSha,
-      headBranch,
-      installationId,
+      checkRunId: params.checkRunId,
+      repositoryId: params.repositoryId,
+      repositoryFullName: params.repositoryFullName,
+      headSha: params.headSha,
+      headBranch: params.headBranch,
+      installationId: params.installationId,
     });
 
     // Get installation token
-    const token = await getInstallationToken(BigInt(installationId));
+    const token = await getInstallationToken(BigInt(params.installationId));
 
     // Find repository in our database
-    const repo = await prisma.repo.findUnique({
-      where: { ghId: BigInt(repositoryId) },
-    });
-
+    const repo = await findRepositoryByGitHubId(params.repositoryId);
     if (!repo) {
       logger.warn('Repository not found in database', {
-        repositoryId,
-        repositoryFullName,
+        repositoryId: params.repositoryId,
+        repositoryFullName: params.repositoryFullName,
       });
       return {
         success: false,
@@ -191,8 +297,8 @@ export async function triggerIngestionForCheckRun(
     // This is a simplified version - in practice, we'd need to determine
     // if the check run is part of a workflow run or standalone
     logger.info('Check run ingestion not fully implemented yet', {
-      checkRunId,
-      repositoryFullName,
+      checkRunId: params.checkRunId,
+      repositoryFullName: params.repositoryFullName,
     });
 
     // TODO: Implement check run artifact fetching
@@ -201,8 +307,8 @@ export async function triggerIngestionForCheckRun(
     return { success: true };
   } catch (error) {
     logger.error('Failed to trigger ingestion for check run', {
-      checkRunId,
-      repositoryId,
+      checkRunId: params.checkRunId,
+      repositoryId: params.repositoryId,
       error: error instanceof Error ? error.message : 'Unknown error',
     });
 
@@ -220,7 +326,7 @@ async function fetchWorkflowRunArtifacts(
   workflowRunId: number,
   repositoryFullName: string,
   token: string
-): Promise<Array<{ id: number; name: string; size_in_bytes: number }>> {
+): Promise<GitHubArtifact[]> {
   try {
     const response = await fetch(
       `https://api.github.com/repos/${repositoryFullName}/actions/runs/${workflowRunId}/artifacts`,
@@ -242,7 +348,7 @@ async function fetchWorkflowRunArtifacts(
     }
 
     const data = (await response.json()) as {
-      artifacts: Array<{ id: number; name: string; size_in_bytes: number }>;
+      artifacts: GitHubArtifact[];
     };
 
     return data.artifacts || [];
@@ -260,11 +366,11 @@ async function fetchWorkflowRunArtifacts(
  * Download and parse artifacts to extract test results
  */
 async function downloadAndParseArtifacts(
-  artifacts: Array<{ id: number; name: string; size_in_bytes: number }>,
+  artifacts: GitHubArtifact[],
   repositoryFullName: string,
   token: string
-): Promise<Array<{ framework: string; payload: string }>> {
-  const testResults: Array<{ framework: string; payload: string }> = [];
+): Promise<TestResult[]> {
+  const testResults: TestResult[] = [];
 
   for (const artifact of artifacts) {
     // Only process artifacts that look like test results
@@ -400,92 +506,122 @@ async function downloadArtifact(
 }
 
 /**
+ * Get HMAC secret for repository
+ */
+async function getHmacSecretForRepo(repoId: string): Promise<string | null> {
+  const secrets = await findActiveSecretsForRepo(repoId);
+  if (secrets.length === 0) {
+    logger.warn('No active HMAC secrets found for repository', { repoId });
+    return null;
+  }
+
+  const secret = secrets[0];
+  const decryptedSecret = decryptField(secret.secretValue);
+  return decryptedSecret;
+}
+
+/**
+ * Get ingestion endpoint URL
+ */
+function getIngestionEndpointUrl(): string {
+  const baseUrl =
+    process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL || 'http://localhost:3000';
+  return `${baseUrl}/api/ingestion`;
+}
+
+/**
+ * Submit request to ingestion endpoint
+ */
+async function sendIngestionRequest(
+  url: string,
+  repoId: string,
+  signature: string,
+  payload: string
+): Promise<{ success: boolean; error?: string; runId?: string }> {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${repoId}`,
+      'X-FR-Sig': signature,
+      'Content-Type': 'application/json',
+    },
+    body: payload,
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    logger.error('Failed to submit to ingestion endpoint', {
+      repoId,
+      status: response.status,
+      error,
+    });
+    return {
+      success: false,
+      error: `Ingestion endpoint returned ${response.status}: ${error}`,
+    };
+  }
+
+  const result = (await response.json()) as {
+    runId: string;
+    message: string;
+    summary?: {
+      tests_parsed: number;
+      flaky_candidates: number;
+    };
+  };
+
+  return { success: true, runId: result.runId };
+}
+
+/**
  * Submit test results to ingestion endpoint with HMAC authentication
  */
 async function submitToIngestion(
-  repoId: string,
-  commitSha: string,
-  runId: string,
-  framework: string,
-  payload: string,
-  metadata?: { ipAddress?: string | null; userAgent?: string | null }
+  params: IngestionSubmissionParams
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    // Get active HMAC secrets for this repository
-    const secrets = await findActiveSecretsForRepo(repoId);
-    if (secrets.length === 0) {
-      logger.warn('No active HMAC secrets found for repository', { repoId });
+    // Get active HMAC secret for this repository
+    const secret = await getHmacSecretForRepo(params.repoId);
+    if (!secret) {
       return {
         success: false,
         error: 'No active HMAC secrets found for repository',
       };
     }
 
-    // Use the first active secret
-    const secret = secrets[0];
-    const decryptedSecret = decryptField(secret.secretValue);
-    if (!decryptedSecret) {
-      return {
-        success: false,
-        error: 'Failed to decrypt HMAC secret',
-      };
-    }
-
     // Compute HMAC signature
-    const signature = computeHmac(decryptedSecret, payload);
+    const signature = computeHmac(secret, params.payload);
 
     // Get ingestion endpoint URL
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL || 'http://localhost:3000';
-    const ingestionUrl = `${baseUrl}/api/ingestion`;
+    const ingestionUrl = getIngestionEndpointUrl();
 
     // Submit to ingestion endpoint
-    const response = await fetch(ingestionUrl, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${repoId}`,
-        'X-FR-Sig': signature,
-        'Content-Type': 'application/json',
-      },
-      body: payload,
-    });
+    const result = await sendIngestionRequest(
+      ingestionUrl,
+      params.repoId,
+      signature,
+      params.payload
+    );
 
-    if (!response.ok) {
-      const error = await response.text();
-      logger.error('Failed to submit to ingestion endpoint', {
-        repoId,
-        status: response.status,
-        error,
-      });
-      return {
-        success: false,
-        error: `Ingestion endpoint returned ${response.status}: ${error}`,
-      };
+    if (!result.success) {
+      return result;
     }
 
-    const result = (await response.json()) as {
-      runId: string;
-      message: string;
-      summary?: {
-        tests_parsed: number;
-        flaky_candidates: number;
-      };
-    };
-
     logger.info('Successfully submitted test results to ingestion', {
-      repoId,
-      commitSha,
-      runId,
-      framework,
+      repoId: params.repoId,
+      commitSha: params.commitSha,
+      runId: params.runId,
+      framework: params.framework,
       ingestionRunId: result.runId,
     });
 
     return { success: true };
   } catch (error) {
     logger.error('Failed to submit to ingestion endpoint', {
-      repoId,
-      commitSha,
-      runId,
-      framework,
+      repoId: params.repoId,
+      commitSha: params.commitSha,
+      runId: params.runId,
+      framework: params.framework,
       error: error instanceof Error ? error.message : 'Unknown error',
     });
 
@@ -495,4 +631,3 @@ async function submitToIngestion(
     };
   }
 }
-
