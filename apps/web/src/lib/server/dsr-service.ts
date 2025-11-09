@@ -275,7 +275,7 @@ export async function requestDataExport(userId: string, context?: RequestContext
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://anchorpipe.dev';
   const downloadUrl = `${appUrl}/api/dsr/export/${request.id}`;
   await queueConfirmationTelemetry(userId, request.id, DSR_TYPE.export, DSR_STATUS.completed);
-  
+
   // Also queue email with download URL for email processor
   try {
     const { queueEmail } = await import('./email-queue-processor');
