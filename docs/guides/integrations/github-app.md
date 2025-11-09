@@ -49,6 +49,11 @@ GitHub → Webhook Event → Signature Verification → Event Processing → Dat
    - Tracks repository access
    - Records suspension status
 
+5. **Test Report Parsing** (`test-report-parsers`)
+   - Automatically parses test reports from workflow artifacts
+   - Supports Jest, PyTest, Playwright, and JUnit formats
+   - Converts to standardized ingestion format
+
 ## Setup
 
 ### 1. Create GitHub App
@@ -350,6 +355,44 @@ Refresh and validate installation permissions from GitHub API. This endpoint fet
 - Permissions are validated against required permissions
 - An audit log entry is created for the refresh
 - Webhook events for `new_permissions_accepted` automatically trigger permission validation
+
+## Test Report Parsing
+
+When workflow runs or check runs complete, the GitHub App integration automatically:
+
+1. **Downloads test artifacts** from the workflow run
+2. **Detects the test framework** from artifact names (Jest, PyTest, Playwright, JUnit, etc.)
+3. **Parses test reports** using the appropriate parser:
+   - **JUnit XML** - Parsed using fast-xml-parser
+   - **Jest JSON** - Native JSON parsing
+   - **PyTest JSON** - Native JSON parsing
+   - **Playwright JSON** - Native JSON parsing
+4. **Converts to standardized format** - All test reports are converted to the Anchorpipe ingestion format
+5. **Submits to ingestion service** - Parsed test results are submitted via the ingestion API
+
+### Supported Test Report Formats
+
+The following test report formats are automatically parsed:
+
+- **Jest** (`jest`) - JavaScript/TypeScript test results (JSON format)
+- **PyTest** (`pytest`) - Python test results (JSON format)
+- **Playwright** (`playwright`) - End-to-end test results (JSON format)
+- **JUnit** (`junit`) - Java/XML test results (XML format)
+
+### Framework Detection
+
+Frameworks are detected from artifact names using pattern matching:
+- Files containing `junit` or ending in `.xml` → JUnit
+- Files containing `jest` → Jest
+- Files containing `pytest` → PyTest
+- Files containing `playwright` → Playwright
+
+### Error Handling
+
+If a test report cannot be parsed:
+- The error is logged for debugging
+- Other artifacts continue to be processed
+- The workflow run ingestion continues with successfully parsed reports
 
 ## Security
 
