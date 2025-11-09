@@ -318,6 +318,39 @@ Update repository selection for a GitHub App installation. This endpoint allows 
 - Repositories are automatically synced to the local database
 - An audit log entry is created for the update
 
+### POST /api/github-app/installations/[installationId]/permissions/refresh
+
+Refresh and validate installation permissions from GitHub API. This endpoint fetches the latest permissions from GitHub and validates them against required permissions.
+
+**Response:**
+
+```json
+{
+  "message": "Permissions refreshed successfully",
+  "installationId": "123456",
+  "validation": {
+    "valid": true,
+    "missing": [],
+    "warnings": []
+  }
+}
+```
+
+**Status Codes:**
+
+- `200`: Permissions refreshed successfully
+- `401`: Unauthorized
+- `404`: Installation not found
+- `500`: Internal server error
+
+**Notes:**
+
+- This endpoint fetches current permissions from GitHub API
+- The database record is automatically updated with latest permissions
+- Permissions are validated against required permissions
+- An audit log entry is created for the refresh
+- Webhook events for `new_permissions_accepted` automatically trigger permission validation
+
 ## Security
 
 ### Webhook Signature Verification
