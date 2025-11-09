@@ -19,7 +19,7 @@ const DSR_TYPE = {
 type DsrStatus = (typeof DSR_STATUS)[keyof typeof DSR_STATUS];
 type DsrType = (typeof DSR_TYPE)[keyof typeof DSR_TYPE];
 
-interface DsrExportPayload {
+export interface DsrExportPayload {
   user: {
     id: string;
     email: string | null;
