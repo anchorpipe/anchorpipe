@@ -9,6 +9,7 @@
 import { XMLParser } from 'fast-xml-parser';
 import { TestReportParser, ParseResult, ParsedTestCase } from './types';
 import { logger } from '../logger';
+import { validateContentSize, sanitizePath, sanitizeString, updateTestStats } from './utils';
 
 /**
  * JUnit XML structure
@@ -66,86 +67,25 @@ export class JUnitParser implements TestReportParser {
 
   async parse(content: string): Promise<ParseResult> {
     try {
-      // Validate input size to prevent resource exhaustion
-      const MAX_CONTENT_SIZE = 50 * 1024 * 1024; // 50MB
-      if (content.length > MAX_CONTENT_SIZE) {
+      // Validate input size
+      const sizeValidation = validateContentSize(content);
+      if (!sizeValidation.valid) {
         return {
           success: false,
           testCases: [],
-          error: `Content too large. Maximum size is ${MAX_CONTENT_SIZE} bytes.`,
+          error: sizeValidation.error,
         };
       }
 
       const parsed = this.parser.parse(content) as JUnitTestSuite;
-      const testCases: ParsedTestCase[] = [];
-      let totalTests = 0;
-      let passed = 0;
-      let failed = 0;
-      let skipped = 0;
-      let totalDuration = 0;
-
-      // Handle testsuites wrapper
-      const suites = parsed.testsuites?.testsuite
-        ? Array.isArray(parsed.testsuites.testsuite)
-          ? parsed.testsuites.testsuite
-          : [parsed.testsuites.testsuite]
-        : parsed.testsuite
-          ? [parsed.testsuite]
-          : [];
-
-      for (const suite of suites) {
-        if (!suite) continue;
-
-        const suiteTimestamp = suite['@_timestamp']
-          ? new Date(suite['@_timestamp']).toISOString()
-          : new Date().toISOString();
-        const suiteTime = parseFloat(suite['@_time'] || '0');
-
-        const testCasesInSuite = Array.isArray(suite.testcase)
-          ? suite.testcase
-          : suite.testcase
-            ? [suite.testcase]
-            : [];
-
-        for (const testCase of testCasesInSuite) {
-          totalTests++;
-          const status = this.determineStatus(testCase);
-          if (status === 'pass') passed++;
-          else if (status === 'fail') failed++;
-          else if (status === 'skip') skipped++;
-
-          const duration = parseFloat(testCase['@_time'] || '0');
-          totalDuration += duration;
-
-          // Extract path and name
-          const className = testCase['@_classname'] || suite['@_name'] || 'unknown';
-          const testName = testCase['@_name'] || 'unknown';
-          const path = this.extractPath(className);
-
-          // Extract failure/error details
-          const failureDetails = this.extractFailureDetails(testCase);
-
-          testCases.push({
-            path,
-            name: testName,
-            status,
-            durationMs: duration > 0 ? Math.round(duration * 1000) : undefined, // Convert seconds to ms
-            startedAt: suiteTimestamp,
-            failureDetails,
-          });
-        }
-      }
+      const suites = this.extractTestSuites(parsed);
+      const testCases = this.processTestSuites(suites);
+      const metadata = this.calculateMetadata(testCases);
 
       return {
         success: true,
         testCases,
-        metadata: {
-          totalTests,
-          passed,
-          failed,
-          skipped,
-          duration: totalDuration > 0 ? Math.round(totalDuration * 1000) : undefined,
-        },
+        metadata,
       };
     } catch (error) {
       logger.error('Failed to parse JUnit XML report', {
@@ -157,6 +97,99 @@ export class JUnitParser implements TestReportParser {
         error: error instanceof Error ? error.message : 'Failed to parse JUnit XML report',
       };
     }
+  }
+
+  /**
+   * Extract test suites from parsed XML
+   */
+  private extractTestSuites(parsed: JUnitTestSuite): Array<JUnitTestSuite['testsuite']> {
+    if (parsed.testsuites?.testsuite) {
+      return Array.isArray(parsed.testsuites.testsuite)
+        ? parsed.testsuites.testsuite
+        : [parsed.testsuites.testsuite];
+    }
+    if (parsed.testsuite) {
+      return [parsed.testsuite];
+    }
+    return [];
+  }
+
+  /**
+   * Process test suites into test cases
+   */
+  private processTestSuites(suites: Array<JUnitTestSuite['testsuite']>): ParsedTestCase[] {
+    const testCases: ParsedTestCase[] = [];
+
+    for (const suite of suites) {
+      if (!suite) continue;
+      const suiteCases = this.processTestSuite(suite);
+      testCases.push(...suiteCases);
+    }
+
+    return testCases;
+  }
+
+  /**
+   * Process a single test suite
+   */
+  private processTestSuite(suite: NonNullable<JUnitTestSuite['testsuite']>): ParsedTestCase[] {
+    const suiteTimestamp = suite['@_timestamp']
+      ? new Date(suite['@_timestamp']).toISOString()
+      : new Date().toISOString();
+
+    const testCasesInSuite = Array.isArray(suite.testcase)
+      ? suite.testcase
+      : suite.testcase
+        ? [suite.testcase]
+        : [];
+
+    const testCases: ParsedTestCase[] = [];
+
+    for (const testCase of testCasesInSuite) {
+      const status = this.determineStatus(testCase);
+      const duration = parseFloat(testCase['@_time'] || '0');
+      const className = testCase['@_classname'] || suite['@_name'] || 'unknown';
+      const testName = testCase['@_name'] || 'unknown';
+      const path = this.extractPath(className);
+      const failureDetails = this.extractFailureDetails(testCase);
+
+      testCases.push({
+        path,
+        name: sanitizeString(testName),
+        status,
+        durationMs: duration > 0 ? Math.round(duration * 1000) : undefined,
+        startedAt: suiteTimestamp,
+        failureDetails,
+      });
+    }
+
+    return testCases;
+  }
+
+  /**
+   * Calculate metadata from test cases
+   */
+  private calculateMetadata(testCases: ParsedTestCase[]): {
+    totalTests: number;
+    passed: number;
+    failed: number;
+    skipped: number;
+    duration?: number;
+  } {
+    const stats = { totalTests: 0, passed: 0, failed: 0, skipped: 0 };
+    let totalDuration = 0;
+
+    for (const testCase of testCases) {
+      updateTestStats(stats, testCase.status);
+      if (testCase.durationMs) {
+        totalDuration += testCase.durationMs;
+      }
+    }
+
+    return {
+      ...stats,
+      duration: totalDuration > 0 ? totalDuration : undefined,
+    };
   }
 
   /**
@@ -218,12 +251,6 @@ export class JUnitParser implements TestReportParser {
       path = className.replace(/\./g, '/');
     }
 
-    // Sanitize path: remove path traversal sequences and limit length
-    path = path.replace(/\.\./g, '').replace(/[<>:"|?*]/g, '');
-    if (path.length > 500) {
-      path = path.substring(0, 500);
-    }
-
-    return path || 'unknown';
+    return sanitizePath(path);
   }
 }

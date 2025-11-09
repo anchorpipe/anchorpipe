@@ -8,6 +8,7 @@
 
 import { TestReportParser, ParseResult, ParsedTestCase } from './types';
 import { logger } from '../logger';
+import { validateContentSize, sanitizePath, sanitizeString, updateTestStats } from './utils';
 
 /**
  * PyTest test result format
@@ -42,65 +43,26 @@ export class PyTestParser implements TestReportParser {
 
   async parse(content: string): Promise<ParseResult> {
     try {
-      // Validate input size to prevent resource exhaustion
-      const MAX_CONTENT_SIZE = 50 * 1024 * 1024; // 50MB
-      if (content.length > MAX_CONTENT_SIZE) {
+      // Validate input size
+      const sizeValidation = validateContentSize(content);
+      if (!sizeValidation.valid) {
         return {
           success: false,
           testCases: [],
-          error: `Content too large. Maximum size is ${MAX_CONTENT_SIZE} bytes.`,
+          error: sizeValidation.error,
         };
       }
 
       const report: PyTestReport = JSON.parse(content);
       const tests = report.report?.tests || report.tests || [];
 
-      const testCases: ParsedTestCase[] = [];
-      let totalTests = 0;
-      let passed = 0;
-      let failed = 0;
-      let skipped = 0;
-      let totalDuration = 0;
-      const startTime = new Date().toISOString();
-
-      for (const test of tests) {
-        totalTests++;
-        const status = this.mapPyTestOutcome(test.outcome);
-        if (status === 'pass') passed++;
-        else if (status === 'fail') failed++;
-        else if (status === 'skip') skipped++;
-
-        // Calculate total duration (setup + call + teardown)
-        const duration =
-          (test.setup?.duration || 0) +
-          (test.call?.duration || test.duration || 0) +
-          (test.teardown?.duration || 0);
-        totalDuration += duration;
-
-        // Extract file path and test name from nodeid
-        // Format: "path/to/test_file.py::TestClass::test_method" or "path/to/test_file.py::test_function"
-        const { path, name } = this.parseNodeId(test.nodeid);
-
-        testCases.push({
-          path,
-          name,
-          status,
-          durationMs: duration > 0 ? Math.round(duration * 1000) : undefined, // Convert seconds to ms
-          startedAt: startTime,
-          failureDetails: test.call?.longrepr || undefined,
-        });
-      }
+      const testCases = this.processTests(tests);
+      const metadata = this.calculateMetadata(testCases);
 
       return {
         success: true,
         testCases,
-        metadata: {
-          totalTests,
-          passed,
-          failed,
-          skipped,
-          duration: totalDuration > 0 ? Math.round(totalDuration * 1000) : undefined,
-        },
+        metadata,
       };
     } catch (error) {
       logger.error('Failed to parse PyTest report', {
@@ -112,6 +74,82 @@ export class PyTestParser implements TestReportParser {
         error: error instanceof Error ? error.message : 'Failed to parse PyTest report',
       };
     }
+  }
+
+  /**
+   * Process PyTest tests into test cases
+   */
+  private processTests(
+    tests: Array<{
+      nodeid: string;
+      outcome: 'passed' | 'failed' | 'skipped';
+      duration: number;
+      setup?: { outcome: string; duration: number };
+      call?: { outcome: string; duration: number; longrepr?: string };
+      teardown?: { outcome: string; duration: number };
+    }>
+  ): ParsedTestCase[] {
+    const testCases: ParsedTestCase[] = [];
+    const startTime = new Date().toISOString();
+
+    for (const test of tests) {
+      const status = this.mapPyTestOutcome(test.outcome);
+      const duration = this.calculateTestDuration(test);
+      const { path, name } = this.parseNodeId(test.nodeid);
+
+      testCases.push({
+        path,
+        name,
+        status,
+        durationMs: duration > 0 ? Math.round(duration * 1000) : undefined,
+        startedAt: startTime,
+        failureDetails: test.call?.longrepr || undefined,
+      });
+    }
+
+    return testCases;
+  }
+
+  /**
+   * Calculate test duration from setup, call, and teardown
+   */
+  private calculateTestDuration(test: {
+    setup?: { duration: number };
+    call?: { duration: number };
+    duration: number;
+    teardown?: { duration: number };
+  }): number {
+    return (
+      (test.setup?.duration || 0) +
+      (test.call?.duration || test.duration || 0) +
+      (test.teardown?.duration || 0)
+    );
+  }
+
+  /**
+   * Calculate metadata from test cases
+   */
+  private calculateMetadata(testCases: ParsedTestCase[]): {
+    totalTests: number;
+    passed: number;
+    failed: number;
+    skipped: number;
+    duration?: number;
+  } {
+    const stats = { totalTests: 0, passed: 0, failed: 0, skipped: 0 };
+    let totalDuration = 0;
+
+    for (const testCase of testCases) {
+      updateTestStats(stats, testCase.status);
+      if (testCase.durationMs) {
+        totalDuration += testCase.durationMs;
+      }
+    }
+
+    return {
+      ...stats,
+      duration: totalDuration > 0 ? totalDuration : undefined,
+    };
   }
 
   /**
@@ -138,20 +176,13 @@ export class PyTestParser implements TestReportParser {
     // Format: "path/to/test_file.py::TestClass::test_method" or "path/to/test_file.py::test_function"
     const parts = nodeid.split('::');
     if (parts.length === 0) {
-      const sanitized = nodeid.replace(/\.\./g, '').replace(/[<>:"|?*]/g, '');
-      const safePath = sanitized.length > 500 ? sanitized.substring(0, 500) : sanitized;
+      const safePath = sanitizePath(nodeid);
       return { path: safePath, name: safePath };
     }
 
-    // Sanitize path: remove path traversal sequences and limit length
-    let path = parts[0].replace(/\.\./g, '').replace(/[<>:"|?*]/g, '');
-    if (path.length > 500) {
-      path = path.substring(0, 500);
-    }
+    const path = sanitizePath(parts[0]);
+    const name = sanitizeString(parts.slice(1).join('::') || path);
 
-    const name = parts.slice(1).join('::') || path;
-    const safeName = name.length > 500 ? name.substring(0, 500) : name;
-
-    return { path: path || 'unknown', name: safeName };
+    return { path, name };
   }
 }
