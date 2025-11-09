@@ -7,7 +7,7 @@
  */
 
 import { prisma } from '@anchorpipe/database';
-import { AUDIT_ACTIONS } from './audit-service';
+import { AUDIT_ACTIONS, AUDIT_SUBJECTS } from './audit-service';
 import { logger } from './logger';
 
 /**
@@ -265,7 +265,7 @@ export async function detectRapidRoleChanges(
           repoId,
           changeCount: logs.length,
           timeWindow: config.roleChangeWindowMs,
-          changes: logs.map((log: { action: string; actorId: string | null; createdAt: Date }) => ({
+          changes: logs.map((log) => ({
             action: log.action,
             actorId: log.actorId,
             timestamp: log.createdAt,
