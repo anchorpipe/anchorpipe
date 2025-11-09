@@ -10,12 +10,10 @@
 import { logger } from './logger';
 import {
   DetectedPattern,
-  SuspiciousPatternType,
   detectAllSuspiciousPatterns,
   PatternDetectionConfig,
 } from './pattern-detection';
 import { getEmailService } from './email-service';
-import { forwardAuditLogsToSiem } from './siem-forwarder';
 
 /**
  * Alert channel types
