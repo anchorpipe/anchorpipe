@@ -41,6 +41,8 @@ GitHub → Webhook Event → Signature Verification → Event Processing → Dat
    - Lists all installations
    - Gets installation by ID
    - Filters by account login
+   - Uninstalls installations (DELETE endpoint)
+   - Checks installation health
 
 4. **Database Schema** (`GitHubAppInstallation`)
    - Stores installation metadata
@@ -115,6 +117,14 @@ curl -H "Authorization: Bearer $TOKEN" \
 # Get a specific installation
 curl -H "Authorization: Bearer $TOKEN" \
   https://api.anchorpipe.dev/api/github-app/installations/123456
+
+# Check installation health
+curl -H "Authorization: Bearer $TOKEN" \
+  https://api.anchorpipe.dev/api/github-app/installations/123456/health
+
+# Uninstall an installation
+curl -X DELETE -H "Authorization: Bearer $TOKEN" \
+  https://api.anchorpipe.dev/api/github-app/installations/123456
 ```
 
 ### Webhook Events
@@ -183,9 +193,81 @@ Get a specific GitHub App installation.
     "suspendedReason": null,
     "createdAt": "2025-11-09T00:00:00Z",
     "updatedAt": "2025-11-09T00:00:00Z"
+  },
+  "permissions": {
+    "valid": true,
+    "missing": [],
+    "warnings": []
   }
 }
 ```
+
+### DELETE /api/github-app/installations/[installationId]
+
+Uninstall a GitHub App installation. This removes the installation from the database and clears any cached tokens.
+
+**Response:**
+
+```json
+{
+  "message": "Installation uninstalled successfully",
+  "installationId": "123456"
+}
+```
+
+**Status Codes:**
+
+- `200`: Installation uninstalled successfully
+- `401`: Unauthorized
+- `404`: Installation not found
+- `500`: Internal server error
+
+### GET /api/github-app/installations/[installationId]/health
+
+Check health of a GitHub App installation. Performs comprehensive checks to verify the installation is functioning correctly.
+
+**Response:**
+
+```json
+{
+  "healthy": true,
+  "installationId": "123456",
+  "accountLogin": "testuser",
+  "checks": {
+    "exists": { "status": "pass" },
+    "notSuspended": { "status": "pass" },
+    "tokenGeneration": { "status": "pass" },
+    "permissions": {
+      "status": "pass",
+      "details": {
+        "valid": true,
+        "missing": [],
+        "warnings": []
+      }
+    },
+    "repositoryAccess": {
+      "status": "pass",
+      "accessibleRepos": 2
+    }
+  },
+  "summary": "Installation is healthy"
+}
+```
+
+**Status Codes:**
+
+- `200`: Installation is healthy
+- `401`: Unauthorized
+- `503`: Installation has critical issues (unhealthy)
+- `500`: Internal server error
+
+**Health Checks:**
+
+- **exists**: Installation exists in database
+- **notSuspended**: Installation is not suspended
+- **tokenGeneration**: Can generate installation access tokens (GitHub API access)
+- **permissions**: Installation has required permissions
+- **repositoryAccess**: Can access repositories (if repositories are configured)
 
 ## Security
 

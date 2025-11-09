@@ -48,3 +48,6 @@ coverage/
 tmp/
 temp/
 .tmp/
+
+# Gap analysis (local analysis directory)
+gap-analysis/
