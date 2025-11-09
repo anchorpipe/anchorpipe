@@ -13,7 +13,6 @@ import {
   getGitHubAppInstallationById,
   validateInstallationPermissions,
   deleteGitHubAppInstallation,
-  checkInstallationHealth,
 } from '@/lib/server/github-app-service';
 import { clearInstallationTokenCache } from '@/lib/server/github-app-tokens';
 import { logger } from '@/lib/server/logger';

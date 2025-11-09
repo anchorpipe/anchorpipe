@@ -13,7 +13,6 @@ import {
   deleteGitHubAppInstallation,
   syncRepositoriesFromInstallation,
   validateInstallationPermissions,
-  refreshInstallationPermissions,
   type GitHubAppInstallationData,
 } from '@/lib/server/github-app-service';
 import { logger } from '@/lib/server/logger';
