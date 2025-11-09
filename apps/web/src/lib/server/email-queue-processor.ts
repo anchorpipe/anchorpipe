@@ -17,76 +17,6 @@ import {
 import { logger } from './logger';
 
 /**
- * Email type detection rules
- */
-const EMAIL_TYPE_DETECTORS: Array<{ key: string; type: string }> = [
-  { key: 'requestId', type: 'dsr.confirmation' },
-  { key: 'resetUrl', type: 'password.reset' },
-  { key: 'verificationUrl', type: 'email.verification' },
-];
-
-/**
- * Extract email type from event data
- */
-function extractEmailType(eventData: Record<string, unknown>): string | null {
-  // New format: emailType is explicitly set
-  if (eventData.emailType) {
-    return eventData.emailType as string;
-  }
-
-  // Old format: infer from eventData structure
-  for (const detector of EMAIL_TYPE_DETECTORS) {
-    if (eventData[detector.key]) {
-      return detector.type;
-    }
-  }
-
-  return null;
-}
-
-/**
- * Get user email for event
- */
-async function getUserEmail(userId: string | null): Promise<string | null> {
-  if (!userId) {
-    return null;
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { email: true },
-  });
-
-  return user?.email || null;
-}
-
-/**
- * Process a single email event
- */
-async function processEmailEvent(event: {
-  id: string;
-  userId: string | null;
-  eventData: unknown;
-}): Promise<{ success: boolean; error?: string }> {
-  const eventData = (event.eventData as Record<string, unknown>) || {};
-  const emailType = extractEmailType(eventData);
-
-  if (!emailType) {
-    logger.warn('Email event missing emailType', { eventId: event.id });
-    return { success: false, error: 'Missing emailType' };
-  }
-
-  const userEmail = await getUserEmail(event.userId);
-  if (!userEmail) {
-    logger.warn('Email event missing user or email', { eventId: event.id, userId: event.userId });
-    return { success: false, error: 'Missing user or email' };
-  }
-
-  // Process based on email type
-  return await processEmailByType(emailType, eventData, userEmail);
-}
-
-/**
  * Process queued email telemetry events
  */
 export async function processEmailQueue(
@@ -100,6 +30,8 @@ export async function processEmailQueue(
     const events = await prisma.telemetryEvent.findMany({
       where: {
         eventType: 'dsr.email_queued',
+        // Add a processed flag in eventData to track processed events
+        // For now, we'll process all and mark them (or delete them)
       },
       take: batchSize,
       orderBy: {
@@ -109,11 +41,38 @@ export async function processEmailQueue(
 
     for (const event of events) {
       try {
-        const result = await processEmailEvent(event);
+        const eventData = (event.eventData as Record<string, unknown>) || {};
+        const emailType = eventData.emailType as string | undefined;
+
+        if (!emailType) {
+          logger.warn('Email event missing emailType', { eventId: event.id });
+          failed++;
+          continue;
+        }
+
+        // Get user to find email address
+        const user = event.userId
+          ? await prisma.user.findUnique({
+              where: { id: event.userId },
+              select: { email: true },
+            })
+          : null;
+
+        if (!user || !user.email) {
+          logger.warn('Email event missing user or email', {
+            eventId: event.id,
+            userId: event.userId,
+          });
+          failed++;
+          continue;
+        }
+
+        // Process based on email type
+        const result = await processEmailByType(emailType, eventData, user.email);
 
         if (result.success) {
           processed++;
-          // Delete the processed event
+          // Delete the processed event (or mark as processed)
           await prisma.telemetryEvent.delete({
             where: { id: event.id },
           });
@@ -121,6 +80,7 @@ export async function processEmailQueue(
           failed++;
           logger.error('Failed to process email event', {
             eventId: event.id,
+            emailType,
             error: result.error,
           });
         }

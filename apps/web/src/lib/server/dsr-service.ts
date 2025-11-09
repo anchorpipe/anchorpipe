@@ -233,19 +233,13 @@ async function logExportAudit(
   });
 }
 
-/**
- * Parameters for logging deletion audit
- */
-interface LogDeletionAuditParams {
-  userId: string;
-  requestId: string;
-  status: DsrStatus;
-  extraMetadata: Record<string, unknown>;
-  context?: RequestContext;
-}
-
-async function logDeletionAudit(params: LogDeletionAuditParams) {
-  const { userId, requestId, status, extraMetadata, context } = params;
+async function logDeletionAudit(
+  userId: string,
+  requestId: string,
+  status: DsrStatus,
+  extraMetadata: Record<string, unknown>,
+  context?: RequestContext
+) {
   await writeAuditLog({
     actorId: userId,
     action: AUDIT_ACTIONS.dsrDeletionRequest,
@@ -281,7 +275,7 @@ export async function requestDataExport(userId: string, context?: RequestContext
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://anchorpipe.dev';
   const downloadUrl = `${appUrl}/api/dsr/export/${request.id}`;
   await queueConfirmationTelemetry(userId, request.id, DSR_TYPE.export, DSR_STATUS.completed);
-
+  
   // Also queue email with download URL for email processor
   try {
     const { queueEmail } = await import('./email-queue-processor');
@@ -301,11 +295,26 @@ export async function requestDataExport(userId: string, context?: RequestContext
   return request as any;
 }
 
-/**
- * Create deletion request record
- */
-async function createDeletionRequest(userId: string, reason: string | undefined, dueAt: Date) {
-  return await prismaWithDsr.dataSubjectRequest.create({
+export async function requestDataDeletion(
+  userId: string,
+  reason?: string,
+  context?: RequestContext
+): Promise<any> {
+  const now = new Date();
+  const dueAt = addDays(now, DEFAULT_SLA_DAYS);
+
+  const user = await prismaWithDsr.user.findUnique({
+    where: { id: userId },
+    include: {
+      repoRoles: true,
+    },
+  });
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  const request = await prismaWithDsr.dataSubjectRequest.create({
     data: {
       userId,
       type: DSR_TYPE.deletion,
@@ -330,19 +339,19 @@ async function createDeletionRequest(userId: string, reason: string | undefined,
       },
     },
   });
-}
 
-/**
- * Execute user data deletion transaction
- */
-async function executeUserDeletion(
-  userId: string,
-  requestId: string,
-  summary: Record<string, unknown>,
-  reason: string | undefined,
-  rolesCount: number,
-  now: Date
-) {
+  const summary = redactUserForDeletion(user);
+
+  await logDeletionAudit(
+    userId,
+    request.id,
+    DSR_STATUS.processing,
+    {
+      reason: reason ?? null,
+    },
+    context
+  );
+
   await prismaWithDsr.$transaction([
     prismaWithDsr.session.deleteMany({ where: { userId } }),
     prismaWithDsr.account.deleteMany({ where: { userId } }),
@@ -358,7 +367,7 @@ async function executeUserDeletion(
       },
     }),
     prismaWithDsr.dataSubjectRequest.update({
-      where: { id: requestId },
+      where: { id: request.id },
       data: {
         status: DSR_STATUS.completed,
         processedAt: now,
@@ -366,28 +375,22 @@ async function executeUserDeletion(
         metadata: {
           ...((reason ? { requestedReason: reason } : {}) as object),
           ...summary,
-          rolesRemoved: rolesCount,
+          rolesRemoved: user.repoRoles.length,
           processedAt: now.toISOString(),
         },
       },
     }),
   ]);
-}
 
-/**
- * Complete deletion request workflow
- */
-async function completeDeletionRequest(
-  requestId: string,
-  userId: string,
-  rolesCount: number,
-  context: RequestContext | undefined
-) {
-  await recordEvent(requestId, DSR_STATUS.completed, 'Personal data redacted; deletion completed.');
-  await queueConfirmationTelemetry(userId, requestId, DSR_TYPE.deletion, DSR_STATUS.completed);
+  await recordEvent(
+    request.id,
+    DSR_STATUS.completed,
+    'Personal data redacted; deletion completed.'
+  );
+  await queueConfirmationTelemetry(userId, request.id, DSR_TYPE.deletion, DSR_STATUS.completed);
 
   const updated = await prismaWithDsr.dataSubjectRequest.findUnique({
-    where: { id: requestId },
+    where: { id: request.id },
     include: {
       events: {
         orderBy: { createdAt: 'desc' },
@@ -395,54 +398,17 @@ async function completeDeletionRequest(
     },
   });
 
-  await logDeletionAudit({
+  await logDeletionAudit(
     userId,
-    requestId,
-    status: DSR_STATUS.completed,
-    extraMetadata: {
-      rolesRemoved: rolesCount,
+    request.id,
+    DSR_STATUS.completed,
+    {
+      rolesRemoved: user.repoRoles.length,
     },
-    context,
-  });
+    context
+  );
 
-  return updated;
-}
-
-export async function requestDataDeletion(
-  userId: string,
-  reason?: string,
-  context?: RequestContext
-): Promise<any> {
-  const now = new Date();
-  const dueAt = addDays(now, DEFAULT_SLA_DAYS);
-
-  const user = await prismaWithDsr.user.findUnique({
-    where: { id: userId },
-    include: {
-      repoRoles: true,
-    },
-  });
-
-  if (!user) {
-    throw new Error('User not found');
-  }
-
-  const request = await createDeletionRequest(userId, reason, dueAt);
-  const summary = redactUserForDeletion(user);
-
-  await logDeletionAudit({
-    userId,
-    requestId: request.id,
-    status: DSR_STATUS.processing,
-    extraMetadata: {
-      reason: reason ?? null,
-    },
-    context,
-  });
-
-  await executeUserDeletion(userId, request.id, summary, reason, user.repoRoles.length, now);
-
-  return await completeDeletionRequest(request.id, userId, user.repoRoles.length, context);
+  return updated as any;
 }
 
 export async function getExportPayload(userId: string, requestId: string) {
