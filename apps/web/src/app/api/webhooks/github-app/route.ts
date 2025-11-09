@@ -222,8 +222,9 @@ async function handleInstallationEvent(
   }
 
   // Handle suspend/unsuspend actions (GitHub API terms)
-  // cSpell:ignore unsuspend
-  if (action === 'suspend' || action === 'unsuspend') {
+  // cSpell:ignore unsuspend unsuspended
+  const suspendActions = ['suspend', 'unsuspend', 'unsuspended'];
+  if (suspendActions.includes(action)) {
     await upsertGitHubAppInstallation(installation, {
       ipAddress: context.ipAddress,
       userAgent: context.userAgent,
@@ -391,10 +392,14 @@ function triggerWorkflowRunIngestion(
 ): void {
   triggerIngestionForWorkflowRun({
     workflowRunId: workflowRun.id,
-    repositoryId: workflowRun.repository.id,
-    repositoryFullName: workflowRun.repository.full_name,
-    headSha: workflowRun.head_sha,
-    headBranch: workflowRun.head_branch,
+    repository: {
+      id: workflowRun.repository.id,
+      fullName: workflowRun.repository.full_name,
+    },
+    commit: {
+      sha: workflowRun.head_sha,
+      branch: workflowRun.head_branch,
+    },
     installationId,
     metadata: context,
   }).catch((error) => {
@@ -407,20 +412,27 @@ function triggerWorkflowRunIngestion(
 }
 
 /**
- * Validate and log run event (workflow or check run)
+ * Run event validation result
  */
-function validateAndLogRunEvent<T extends { id: number; status: string }>(params: {
+interface RunEventValidationResult<T> {
+  isValid: boolean;
+  run: T | null;
+}
+
+/**
+ * Validate run event (workflow or check run)
+ */
+function validateRunEvent<T extends { id: number; status: string }>(params: {
   run: T | undefined;
   runType: 'workflow_run' | 'check_run';
   action: string;
   shouldProcess: (action: string, run: T) => boolean;
-  logInfo: (run: T, action: string, installationId?: number) => void;
-}): T | null {
-  const { run, runType, action, shouldProcess, logInfo } = params;
+}): RunEventValidationResult<T> {
+  const { run, runType, action, shouldProcess } = params;
 
   if (!run) {
     logger.warn(`GitHub App ${runType} event missing ${runType} data`, { action });
-    return null;
+    return { isValid: false, run: null };
   }
 
   if (!shouldProcess(action, run)) {
@@ -429,10 +441,85 @@ function validateAndLogRunEvent<T extends { id: number; status: string }>(params
       status: run.status,
       runId: run.id,
     });
-    return null;
+    return { isValid: false, run: null };
   }
 
-  return run;
+  return { isValid: true, run };
+}
+
+/**
+ * Log run event completion
+ */
+function logRunEventCompletion<T extends { id: number; name: string }>(params: {
+  run: T;
+  runType: 'workflow_run' | 'check_run';
+  action: string;
+  installationId?: number;
+  additionalFields?: Record<string, unknown>;
+}): void {
+  const { run, runType, action, installationId, additionalFields } = params;
+
+  const baseLog = {
+    action,
+    [`${runType}Id`]: run.id,
+    [`${runType}Name`]: run.name,
+    installationId,
+    ...additionalFields,
+  };
+
+  logger.info(`GitHub App ${runType} completed`, baseLog);
+}
+
+/**
+ * Extract additional fields for workflow run logging
+ */
+function extractWorkflowRunFields(
+  run: WorkflowRunPayload['workflow_run']
+): Record<string, unknown> {
+  return {
+    repositoryId: run.repository.id,
+    repositoryFullName: run.repository.full_name,
+    headSha: run.head_sha,
+    headBranch: run.head_branch,
+    conclusion: run.conclusion,
+  };
+}
+
+/**
+ * Extract additional fields for check run logging
+ */
+function extractCheckRunFields(run: CheckRunPayload['check_run']): Record<string, unknown> {
+  return {
+    repositoryId: run.repository.id,
+    repositoryFullName: run.repository.full_name,
+    headSha: run.head_sha,
+    headBranch: run.check_suite.head_branch,
+    conclusion: run.conclusion,
+  };
+}
+
+/**
+ * Process validated run event
+ */
+function processValidatedRunEvent<T extends { id: number; name: string }>(params: {
+  run: T;
+  runType: 'workflow_run' | 'check_run';
+  action: string;
+  installationId?: number;
+  additionalFields: Record<string, unknown>;
+  onTrigger: () => void;
+}): void {
+  logRunEventCompletion({
+    run: params.run,
+    runType: params.runType,
+    action: params.action,
+    installationId: params.installationId,
+    additionalFields: params.additionalFields,
+  });
+
+  if (params.installationId) {
+    params.onTrigger();
+  }
 }
 
 /**
@@ -446,34 +533,32 @@ async function handleWorkflowRunEvent(
 ): Promise<void> {
   const { workflow_run, installation } = payload;
 
-  const validatedRun = validateAndLogRunEvent({
+  const validation = validateRunEvent({
     run: workflow_run,
     runType: 'workflow_run',
     action,
     shouldProcess: shouldProcessWorkflowRun,
-    logInfo: (run, act, instId) => {
-      logger.info('GitHub App workflow_run completed', {
-        action: act,
-        workflowRunId: run.id,
-        workflowName: run.name,
-        repositoryId: run.repository.id,
-        repositoryFullName: run.repository.full_name,
-        headSha: run.head_sha,
-        headBranch: run.head_branch,
-        conclusion: run.conclusion,
-        installationId: instId,
-      });
-    },
   });
 
+  if (!validation.isValid || !validation.run) {
+    return;
+  }
+
+  const validatedRun = validation.run;
   if (!validatedRun) {
     return;
   }
 
-  // Trigger ingestion service to fetch test results
-  if (installation?.id) {
-    triggerWorkflowRunIngestion(validatedRun, installation.id, context);
-  }
+  processValidatedRunEvent({
+    run: validatedRun,
+    runType: 'workflow_run',
+    action,
+    installationId: installation?.id,
+    additionalFields: extractWorkflowRunFields(validatedRun),
+    onTrigger: () => {
+      triggerWorkflowRunIngestion(validatedRun, installation!.id, context);
+    },
+  });
 }
 
 /**
@@ -493,10 +578,14 @@ function triggerCheckRunIngestion(
 ): void {
   triggerIngestionForCheckRun({
     checkRunId: checkRun.id,
-    repositoryId: checkRun.repository.id,
-    repositoryFullName: checkRun.repository.full_name,
-    headSha: checkRun.head_sha,
-    headBranch: checkRun.check_suite.head_branch,
+    repository: {
+      id: checkRun.repository.id,
+      fullName: checkRun.repository.full_name,
+    },
+    commit: {
+      sha: checkRun.head_sha,
+      branch: checkRun.check_suite.head_branch,
+    },
     installationId,
     metadata: context,
   }).catch((error) => {
@@ -519,32 +608,30 @@ async function handleCheckRunEvent(
 ): Promise<void> {
   const { check_run, installation } = payload;
 
-  const validatedRun = validateAndLogRunEvent({
+  const validation = validateRunEvent({
     run: check_run,
     runType: 'check_run',
     action,
     shouldProcess: shouldProcessCheckRun,
-    logInfo: (run, act, instId) => {
-      logger.info('GitHub App check_run completed', {
-        action: act,
-        checkRunId: run.id,
-        checkRunName: run.name,
-        repositoryId: run.repository.id,
-        repositoryFullName: run.repository.full_name,
-        headSha: run.head_sha,
-        headBranch: run.check_suite.head_branch,
-        conclusion: run.conclusion,
-        installationId: instId,
-      });
-    },
   });
 
+  if (!validation.isValid || !validation.run) {
+    return;
+  }
+
+  const validatedRun = validation.run;
   if (!validatedRun) {
     return;
   }
 
-  // Trigger ingestion service to fetch test results
-  if (installation?.id) {
-    triggerCheckRunIngestion(validatedRun, installation.id, context);
-  }
+  processValidatedRunEvent({
+    run: validatedRun,
+    runType: 'check_run',
+    action,
+    installationId: installation?.id,
+    additionalFields: extractCheckRunFields(validatedRun),
+    onTrigger: () => {
+      triggerCheckRunIngestion(validatedRun, installation!.id, context);
+    },
+  });
 }

@@ -6,6 +6,7 @@
  * Story: ST-301 (Phase 1.3)
  */
 
+// cSpell:ignore anchorpipe
 import { prisma } from '@anchorpipe/database';
 import { getInstallationToken } from './github-app-tokens';
 import { findActiveSecretsForRepo } from './hmac-secrets';
@@ -23,14 +24,28 @@ interface RequestMetadata {
 }
 
 /**
+ * Repository information value object
+ */
+interface RepositoryInfo {
+  id: number;
+  fullName: string;
+}
+
+/**
+ * Commit information value object
+ */
+interface CommitInfo {
+  sha: string;
+  branch: string;
+}
+
+/**
  * Workflow run ingestion parameters
  */
 interface WorkflowRunIngestionParams {
   workflowRunId: number;
-  repositoryId: number;
-  repositoryFullName: string;
-  headSha: string;
-  headBranch: string;
+  repository: RepositoryInfo;
+  commit: CommitInfo;
   installationId: number;
   metadata?: RequestMetadata;
 }
@@ -40,10 +55,8 @@ interface WorkflowRunIngestionParams {
  */
 interface CheckRunIngestionParams {
   checkRunId: number;
-  repositoryId: number;
-  repositoryFullName: string;
-  headSha: string;
-  headBranch: string;
+  repository: RepositoryInfo;
+  commit: CommitInfo;
   installationId: number;
   metadata?: RequestMetadata;
 }
@@ -165,6 +178,124 @@ async function logIngestionCompletion(params: {
 }
 
 /**
+ * Prepare workflow run ingestion context
+ */
+async function prepareWorkflowRunContext(params: {
+  installationId: number;
+  repositoryId: number;
+  repositoryFullName: string;
+}): Promise<{
+  token: string;
+  repo: { id: string; name: string; owner: string } | null;
+}> {
+  const token = await getInstallationToken(BigInt(params.installationId));
+  const repo = await findRepositoryByGitHubId(params.repositoryId);
+
+  return { token, repo };
+}
+
+/**
+ * Fetch and process artifacts for workflow run
+ */
+async function fetchAndProcessArtifacts(params: {
+  workflowRunId: number;
+  repositoryFullName: string;
+  token: string;
+}): Promise<{ artifacts: GitHubArtifact[]; testResults: TestResult[] }> {
+  const artifacts = await fetchWorkflowRunArtifacts(
+    params.workflowRunId,
+    params.repositoryFullName,
+    params.token
+  );
+
+  if (artifacts.length === 0) {
+    return { artifacts: [], testResults: [] };
+  }
+
+  const testResults = await downloadAndParseArtifacts(
+    artifacts,
+    params.repositoryFullName,
+    params.token
+  );
+
+  return { artifacts, testResults };
+}
+
+/**
+ * Validate repository exists in database
+ */
+function validateRepository(
+  repo: { id: string; name: string; owner: string } | null,
+  repositoryInfo: RepositoryInfo
+): { isValid: boolean; repoId?: string; error?: string } {
+  if (!repo) {
+    logger.warn('Repository not found in database', {
+      repositoryId: repositoryInfo.id,
+      repositoryFullName: repositoryInfo.fullName,
+    });
+    return {
+      isValid: false,
+      error: 'Repository not found in database',
+    };
+  }
+
+  return { isValid: true, repoId: repo.id };
+}
+
+/**
+ * Handle empty artifacts or test results
+ */
+function handleEmptyResults(
+  type: 'artifacts' | 'testResults',
+  workflowRunId: number,
+  repositoryFullName: string
+): { shouldContinue: boolean } {
+  logger.info(
+    type === 'artifacts'
+      ? 'No artifacts found for workflow run'
+      : 'No test results found in artifacts',
+    {
+      workflowRunId,
+      repositoryFullName,
+    }
+  );
+  return { shouldContinue: false };
+}
+
+/**
+ * Process workflow run ingestion workflow
+ */
+async function processWorkflowRunIngestion(params: {
+  workflowRunId: number;
+  repository: RepositoryInfo;
+  commit: CommitInfo;
+  repoId: string;
+  artifacts: GitHubArtifact[];
+  testResults: TestResult[];
+  metadata?: RequestMetadata;
+}): Promise<void> {
+  // Submit test results to ingestion endpoint
+  await processAndSubmitTestResults(params.testResults, {
+    repoId: params.repoId,
+    headSha: params.commit.sha,
+    runId: params.workflowRunId.toString(),
+    metadata: params.metadata,
+  });
+
+  // Log completion
+  await logIngestionCompletion({
+    workflowRunId: params.workflowRunId,
+    repoId: params.repoId,
+    repositoryFullName: params.repository.fullName,
+    headSha: params.commit.sha,
+    headBranch: params.commit.branch,
+    artifactsProcessed: params.artifacts.length,
+    testResultsSubmitted: params.testResults.length,
+    metadata: params.metadata,
+  });
+}
+
+/**
  * Trigger ingestion for a completed workflow run
  */
 export async function triggerIngestionForWorkflowRun(
@@ -173,76 +304,55 @@ export async function triggerIngestionForWorkflowRun(
   try {
     logger.info('Triggering ingestion for workflow run', {
       workflowRunId: params.workflowRunId,
-      repositoryId: params.repositoryId,
-      repositoryFullName: params.repositoryFullName,
-      headSha: params.headSha,
-      headBranch: params.headBranch,
+      repositoryId: params.repository.id,
+      repositoryFullName: params.repository.fullName,
+      headSha: params.commit.sha,
+      headBranch: params.commit.branch,
       installationId: params.installationId,
     });
 
-    // Get installation token
-    const token = await getInstallationToken(BigInt(params.installationId));
+    // Prepare context (token and repository lookup)
+    const { token, repo } = await prepareWorkflowRunContext({
+      installationId: params.installationId,
+      repositoryId: params.repository.id,
+      repositoryFullName: params.repository.fullName,
+    });
 
-    // Find repository in our database
-    const repo = await findRepositoryByGitHubId(params.repositoryId);
-    if (!repo) {
-      logger.warn('Repository not found in database', {
-        repositoryId: params.repositoryId,
-        repositoryFullName: params.repositoryFullName,
-      });
+    // Validate repository
+    const repoValidation = validateRepository(repo, params.repository);
+    if (!repoValidation.isValid) {
       return {
         success: false,
-        error: 'Repository not found in database',
+        error: repoValidation.error,
       };
     }
 
-    // Fetch workflow run artifacts
-    const artifacts = await fetchWorkflowRunArtifacts(
-      params.workflowRunId,
-      params.repositoryFullName,
-      token
-    );
-
-    if (artifacts.length === 0) {
-      logger.info('No artifacts found for workflow run', {
-        workflowRunId: params.workflowRunId,
-        repositoryFullName: params.repositoryFullName,
-      });
-      return { success: true }; // Not an error, just no test results
-    }
-
-    // Download and parse test results from artifacts
-    const testResults = await downloadAndParseArtifacts(
-      artifacts,
-      params.repositoryFullName,
-      token
-    );
-
-    if (testResults.length === 0) {
-      logger.info('No test results found in artifacts', {
-        workflowRunId: params.workflowRunId,
-        repositoryFullName: params.repositoryFullName,
-      });
-      return { success: true }; // Not an error, just no test results
-    }
-
-    // Submit test results to ingestion endpoint
-    await processAndSubmitTestResults(testResults, {
-      repoId: repo.id,
-      headSha: params.headSha,
-      runId: params.workflowRunId.toString(),
-      metadata: params.metadata,
+    // Fetch and process artifacts
+    const { artifacts, testResults } = await fetchAndProcessArtifacts({
+      workflowRunId: params.workflowRunId,
+      repositoryFullName: params.repository.fullName,
+      token,
     });
 
-    // Log completion
-    await logIngestionCompletion({
+    // Handle empty results
+    if (artifacts.length === 0) {
+      handleEmptyResults('artifacts', params.workflowRunId, params.repository.fullName);
+      return { success: true };
+    }
+
+    if (testResults.length === 0) {
+      handleEmptyResults('testResults', params.workflowRunId, params.repository.fullName);
+      return { success: true };
+    }
+
+    // Process ingestion
+    await processWorkflowRunIngestion({
       workflowRunId: params.workflowRunId,
-      repoId: repo.id,
-      repositoryFullName: params.repositoryFullName,
-      headSha: params.headSha,
-      headBranch: params.headBranch,
-      artifactsProcessed: artifacts.length,
-      testResultsSubmitted: testResults.length,
+      repository: params.repository,
+      commit: params.commit,
+      repoId: repoValidation.repoId!,
+      artifacts,
+      testResults,
       metadata: params.metadata,
     });
 
@@ -250,7 +360,7 @@ export async function triggerIngestionForWorkflowRun(
   } catch (error) {
     logger.error('Failed to trigger ingestion for workflow run', {
       workflowRunId: params.workflowRunId,
-      repositoryId: params.repositoryId,
+      repositoryId: params.repository.id,
       error: error instanceof Error ? error.message : 'Unknown error',
     });
 
@@ -270,22 +380,24 @@ export async function triggerIngestionForCheckRun(
   try {
     logger.info('Triggering ingestion for check run', {
       checkRunId: params.checkRunId,
-      repositoryId: params.repositoryId,
-      repositoryFullName: params.repositoryFullName,
-      headSha: params.headSha,
-      headBranch: params.headBranch,
+      repositoryId: params.repository.id,
+      repositoryFullName: params.repository.fullName,
+      headSha: params.commit.sha,
+      headBranch: params.commit.branch,
       installationId: params.installationId,
     });
 
-    // Get installation token
-    const token = await getInstallationToken(BigInt(params.installationId));
+    // Prepare context (token and repository lookup)
+    const { token, repo } = await prepareWorkflowRunContext({
+      installationId: params.installationId,
+      repositoryId: params.repository.id,
+      repositoryFullName: params.repository.fullName,
+    });
 
-    // Find repository in our database
-    const repo = await findRepositoryByGitHubId(params.repositoryId);
     if (!repo) {
       logger.warn('Repository not found in database', {
-        repositoryId: params.repositoryId,
-        repositoryFullName: params.repositoryFullName,
+        repositoryId: params.repository.id,
+        repositoryFullName: params.repository.fullName,
       });
       return {
         success: false,
@@ -298,7 +410,7 @@ export async function triggerIngestionForCheckRun(
     // if the check run is part of a workflow run or standalone
     logger.info('Check run ingestion not fully implemented yet', {
       checkRunId: params.checkRunId,
-      repositoryFullName: params.repositoryFullName,
+      repositoryFullName: params.repository.fullName,
     });
 
     // TODO: Implement check run artifact fetching
@@ -308,7 +420,7 @@ export async function triggerIngestionForCheckRun(
   } catch (error) {
     logger.error('Failed to trigger ingestion for check run', {
       checkRunId: params.checkRunId,
-      repositoryId: params.repositoryId,
+      repositoryId: params.repository.id,
       error: error instanceof Error ? error.message : 'Unknown error',
     });
 
@@ -432,23 +544,26 @@ function isTestResultArtifact(name: string): boolean {
 }
 
 /**
+ * Framework detection patterns
+ */
+const FRAMEWORK_PATTERNS: Array<{ pattern: RegExp; name: string }> = [
+  { pattern: /junit/i, name: 'junit' },
+  { pattern: /\.xml$/i, name: 'junit' },
+  { pattern: /jest/i, name: 'jest' },
+  // cSpell:ignore pytest
+  { pattern: /pytest/i, name: 'pytest' },
+  { pattern: /mocha/i, name: 'mocha' },
+  { pattern: /playwright/i, name: 'playwright' },
+];
+
+/**
  * Detect framework from artifact name or content
  */
 function detectFramework(name: string): string | null {
-  if (/junit/i.test(name) || /\.xml$/i.test(name)) {
-    return 'junit';
-  }
-  if (/jest/i.test(name)) {
-    return 'jest';
-  }
-  if (/pytest/i.test(name)) {
-    return 'pytest';
-  }
-  if (/mocha/i.test(name)) {
-    return 'mocha';
-  }
-  if (/playwright/i.test(name)) {
-    return 'playwright';
+  for (const { pattern, name: frameworkName } of FRAMEWORK_PATTERNS) {
+    if (pattern.test(name)) {
+      return frameworkName;
+    }
   }
 
   return null;
