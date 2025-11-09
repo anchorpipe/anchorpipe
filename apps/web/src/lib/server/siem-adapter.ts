@@ -60,7 +60,6 @@ export interface SiemForwardResult {
 export interface SiemAdapterConfig {
   type: 'syslog' | 'http' | 'splunk' | 'elasticsearch';
   enabled: boolean;
-  endpoint?: string;
   format?: 'json' | 'cef' | 'leef';
   batchSize?: number;
   retryAttempts?: number;
