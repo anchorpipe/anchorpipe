@@ -27,13 +27,46 @@ export async function GET(
 
     const context = extractRequestContext(request);
 
+    // Check if CSV format is requested
+    const { searchParams } = new URL(request.url);
+    const format = searchParams.get('format')?.toLowerCase();
+
+    // Return CSV format if requested
+    if (format === 'csv') {
+      const { convertDsrPayloadToCsv } = await import('@/lib/server/csv-export');
+      const csv = convertDsrPayloadToCsv(payload as any);
+
+      await writeAuditLog({
+        actorId: userId,
+        action: AUDIT_ACTIONS.dsrExportDownload,
+        subject: AUDIT_SUBJECTS.dsr,
+        subjectId: requestId,
+        description: 'User downloaded data export (CSV).',
+        metadata: {
+          format: 'csv',
+          sizeBytes: csv.length,
+        },
+        ipAddress: context.ipAddress,
+        userAgent: context.userAgent,
+      });
+
+      return new NextResponse(csv, {
+        headers: {
+          'Content-Type': 'text/csv',
+          'Content-Disposition': `attachment; filename="anchorpipe-export-${requestId}.csv"`,
+        },
+      });
+    }
+
+    // Default: Return JSON format
     await writeAuditLog({
       actorId: userId,
       action: AUDIT_ACTIONS.dsrExportDownload,
       subject: AUDIT_SUBJECTS.dsr,
       subjectId: requestId,
-      description: 'User downloaded data export.',
+      description: 'User downloaded data export (JSON).',
       metadata: {
+        format: 'json',
         sizeBytes: JSON.stringify(payload).length,
       },
       ipAddress: context.ipAddress,
