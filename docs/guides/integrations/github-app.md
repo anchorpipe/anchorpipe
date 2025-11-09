@@ -131,11 +131,17 @@ curl -X PUT -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"repositoryIds": [123456, 789012]}' \
   https://api.anchorpipe.dev/api/github-app/installations/123456/repositories
+
+# Refresh installation permissions
+curl -X POST -H "Authorization: Bearer $TOKEN" \
+  https://api.anchorpipe.dev/api/github-app/installations/123456/permissions/refresh
 ```
 
 ### Webhook Events
 
 The app handles the following webhook events:
+
+- `installation` - Installation lifecycle events (created, deleted, suspended, unsuspended, new_permissions_accepted)
 
 - **`installation.created`**: New installation created
 - **`installation.deleted`**: Installation removed
