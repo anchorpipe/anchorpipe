@@ -207,3 +207,165 @@ Monitor SIEM forwarding via:
 - Dead letter queue for permanently failed logs
 - Metrics and monitoring dashboard
 - Additional SIEM provider support
+
+## Security Alerting
+
+Anchorpipe includes automated alerting for suspicious patterns detected in audit logs. This helps identify potential security threats early.
+
+### Supported Patterns
+
+The system detects the following suspicious patterns:
+
+- **Multiple Failed Logins**: Repeated failed login attempts from the same IP address
+- **HMAC Auth Failures**: Multiple failed HMAC authentication attempts for a repository
+- **Rapid Role Changes**: Unusual number of role assignments/removals in a short time
+- **Token Abuse**: Unusual number of token revocations by a single user
+
+### Alert Channels
+
+Alerts can be sent via multiple channels:
+
+- **Email**: Send alerts to configured email addresses
+- **Webhook**: POST alerts to a configured webhook endpoint
+- **SIEM**: Forward alerts to SIEM systems (via SIEM integration)
+
+### Configuration
+
+Enable security alerting via environment variables:
+
+```bash
+# Enable security alerts
+SECURITY_ALERTS_ENABLED=true
+
+# Alert channels (comma-separated: email, webhook, siem, all)
+SECURITY_ALERTS_CHANNELS=email,webhook
+
+# Email recipients (comma-separated)
+SECURITY_ALERTS_EMAIL_RECIPIENTS=security@example.com,admin@example.com
+
+# Webhook configuration
+SECURITY_ALERTS_WEBHOOK_URL=https://alerts.example.com/webhook
+SECURITY_ALERTS_WEBHOOK_SECRET=your-webhook-secret
+
+# Pattern detection thresholds
+ALERT_FAILED_LOGIN_THRESHOLD=10        # Number of failed logins to trigger alert
+ALERT_FAILED_LOGIN_WINDOW_MS=900000    # 15 minutes
+ALERT_BRUTE_FORCE_THRESHOLD=20         # Number of attempts for brute force detection
+ALERT_BRUTE_FORCE_WINDOW_MS=1800000    # 30 minutes
+ALERT_HMAC_FAILURE_THRESHOLD=10        # Number of HMAC failures to trigger alert
+ALERT_HMAC_FAILURE_WINDOW_MS=900000    # 15 minutes
+ALERT_ROLE_CHANGE_THRESHOLD=5          # Number of role changes to trigger alert
+ALERT_ROLE_CHANGE_WINDOW_MS=3600000    # 1 hour
+ALERT_TOKEN_REVOCATION_THRESHOLD=10   # Number of token revocations to trigger alert
+ALERT_TOKEN_REVOCATION_WINDOW_MS=3600000 # 1 hour
+```
+
+### API Endpoint
+
+#### Check Security Patterns
+
+```bash
+POST /api/admin/security-alerts/check
+```
+
+Manually trigger security pattern detection and alerting. Requires admin authentication.
+
+**Response:**
+
+```json
+{
+  "message": "Security pattern detection completed",
+  "patternsDetected": 2,
+  "alertsSent": 2,
+  "errors": []
+}
+```
+
+### Alert Severity Levels
+
+- **Low**: Minor suspicious activity
+- **Medium**: Moderate security concern (e.g., multiple failed logins)
+- **High**: Significant security threat (e.g., brute force attempts, HMAC failures)
+- **Critical**: Immediate security threat requiring immediate action
+
+### Automatic Detection
+
+In production, set up a scheduled job to automatically check for suspicious patterns:
+
+```typescript
+// Example: Scheduled job (every 5 minutes)
+import { checkAndAlertSuspiciousPatterns } from '@/lib/server/security-alerts';
+
+setInterval(
+  async () => {
+    await checkAndAlertSuspiciousPatterns();
+  },
+  5 * 60 * 1000
+);
+```
+
+### Webhook Payload
+
+When using webhook alerts, the payload format is:
+
+```json
+{
+  "type": "security_alert",
+  "pattern": {
+    "type": "multiple_failed_logins",
+    "severity": "medium",
+    "description": "Multiple failed login attempts from IP 192.168.1.1",
+    "count": 15,
+    "timeWindow": 900000,
+    "detectedAt": "2025-01-01T00:00:00.000Z",
+    "metadata": {
+      "ipAddress": "192.168.1.1",
+      "failureCount": 15,
+      "timeWindow": 900000,
+      "firstAttempt": "2025-01-01T00:00:00.000Z",
+      "lastAttempt": "2025-01-01T00:15:00.000Z"
+    }
+  },
+  "timestamp": "2025-01-01T00:15:00.000Z"
+}
+```
+
+If `SECURITY_ALERTS_WEBHOOK_SECRET` is configured, the webhook includes an HMAC signature in the `X-Webhook-Signature` header:
+
+```
+X-Webhook-Signature: sha256=<hmac_signature>
+```
+
+### Monitoring
+
+Monitor security alerts via:
+
+- Admin API endpoint (`/api/admin/security-alerts/check`)
+- Application logs (pattern detection and alert sending)
+- Email notifications (if configured)
+- Webhook responses (if configured)
+- SIEM dashboards (if SIEM integration is enabled)
+
+### Troubleshooting
+
+**Alerts not being sent:**
+
+1. Verify `SECURITY_ALERTS_ENABLED=true` is set
+2. Check alert channel configuration
+3. Verify email recipients or webhook URL
+4. Review application logs for errors
+5. Test manually using `/api/admin/security-alerts/check`
+
+**Too many false positives:**
+
+1. Adjust threshold values (increase thresholds)
+2. Adjust time windows (increase window duration)
+3. Review detected patterns in logs
+4. Fine-tune pattern detection logic
+
+**Alerts not appearing in SIEM:**
+
+1. Verify SIEM integration is configured
+2. Check SIEM forwarding status
+3. Review SIEM system logs
+4. Verify network connectivity
