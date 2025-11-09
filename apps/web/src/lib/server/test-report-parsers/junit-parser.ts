@@ -66,6 +66,16 @@ export class JUnitParser implements TestReportParser {
 
   async parse(content: string): Promise<ParseResult> {
     try {
+      // Validate input size to prevent resource exhaustion
+      const MAX_CONTENT_SIZE = 50 * 1024 * 1024; // 50MB
+      if (content.length > MAX_CONTENT_SIZE) {
+        return {
+          success: false,
+          testCases: [],
+          error: `Content too large. Maximum size is ${MAX_CONTENT_SIZE} bytes.`,
+        };
+      }
+
       const parsed = this.parser.parse(content) as JUnitTestSuite;
       const testCases: ParsedTestCase[] = [];
       let totalTests = 0;
@@ -196,14 +206,24 @@ export class JUnitParser implements TestReportParser {
 
   /**
    * Extract file path from classname
+   * Sanitizes path to prevent path traversal attacks
    */
   private extractPath(className: string): string {
     // JUnit classname format: "package.ClassName" or "path/to/file.ClassName"
-    // Try to extract file path
+    let path: string;
     if (className.includes('/') || className.includes('\\')) {
-      return className;
+      path = className;
+    } else {
+      // Convert package format to path format
+      path = className.replace(/\./g, '/');
     }
-    // Convert package format to path format
-    return className.replace(/\./g, '/');
+
+    // Sanitize path: remove path traversal sequences and limit length
+    path = path.replace(/\.\./g, '').replace(/[<>:"|?*]/g, '');
+    if (path.length > 500) {
+      path = path.substring(0, 500);
+    }
+
+    return path || 'unknown';
   }
 }

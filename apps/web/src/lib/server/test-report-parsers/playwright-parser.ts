@@ -46,6 +46,16 @@ export class PlaywrightParser implements TestReportParser {
 
   async parse(content: string): Promise<ParseResult> {
     try {
+      // Validate input size to prevent resource exhaustion
+      const MAX_CONTENT_SIZE = 50 * 1024 * 1024; // 50MB
+      if (content.length > MAX_CONTENT_SIZE) {
+        return {
+          success: false,
+          testCases: [],
+          error: `Content too large. Maximum size is ${MAX_CONTENT_SIZE} bytes.`,
+        };
+      }
+
       const report: PlaywrightReport = JSON.parse(content);
       const suites = report.suites || [];
 
@@ -72,9 +82,22 @@ export class PlaywrightParser implements TestReportParser {
               // Build full test name
               const fullName = [suite.title, spec.title, test.title].filter(Boolean).join(' > ');
 
+              // Sanitize path to prevent path traversal attacks
+              let path = spec.file || suite.file || 'unknown';
+              path = path.replace(/\.\./g, '').replace(/[<>:"|?*]/g, '');
+              if (path.length > 500) {
+                path = path.substring(0, 500);
+              }
+
+              // Sanitize test name
+              let testName = fullName || test.title;
+              if (testName.length > 500) {
+                testName = testName.substring(0, 500);
+              }
+
               testCases.push({
-                path: spec.file || suite.file || 'unknown',
-                name: fullName || test.title,
+                path: path || 'unknown',
+                name: testName,
                 status,
                 durationMs: duration > 0 ? Math.round(duration) : undefined,
                 startedAt: result.startTime || new Date().toISOString(),

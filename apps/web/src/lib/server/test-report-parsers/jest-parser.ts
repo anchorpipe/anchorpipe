@@ -45,6 +45,16 @@ export class JestParser implements TestReportParser {
 
   async parse(content: string): Promise<ParseResult> {
     try {
+      // Validate input size to prevent resource exhaustion
+      const MAX_CONTENT_SIZE = 50 * 1024 * 1024; // 50MB
+      if (content.length > MAX_CONTENT_SIZE) {
+        return {
+          success: false,
+          testCases: [],
+          error: `Content too large. Maximum size is ${MAX_CONTENT_SIZE} bytes.`,
+        };
+      }
+
       const report: JestReport = JSON.parse(content);
       const testResults = Array.isArray(report) ? report : [report];
 
@@ -152,12 +162,13 @@ export class JestParser implements TestReportParser {
 
   /**
    * Extract file path from test name
+   * Sanitizes path to prevent path traversal attacks
    */
   private extractPath(fullName: string, fallback: string): string {
     // Try to extract file path from fullName (e.g., "src/utils.test.ts > Utils > should work")
     const parts = fullName.split(' > ');
     if (parts.length > 0) {
-      const firstPart = parts[0];
+      let firstPart = parts[0];
       // Check if it looks like a file path
       if (
         firstPart.includes('/') ||
@@ -165,9 +176,16 @@ export class JestParser implements TestReportParser {
         firstPart.endsWith('.ts') ||
         firstPart.endsWith('.js')
       ) {
-        return firstPart;
+        // Sanitize path: remove path traversal sequences and limit length
+        firstPart = firstPart.replace(/\.\./g, '').replace(/[<>:"|?*]/g, '');
+        if (firstPart.length > 500) {
+          firstPart = firstPart.substring(0, 500);
+        }
+        return firstPart || fallback;
       }
     }
-    return fallback;
+    // Sanitize fallback as well
+    const sanitizedFallback = fallback.replace(/\.\./g, '').replace(/[<>:"|?*]/g, '');
+    return sanitizedFallback.length > 500 ? sanitizedFallback.substring(0, 500) : sanitizedFallback;
   }
 }

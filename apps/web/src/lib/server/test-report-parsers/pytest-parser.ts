@@ -42,6 +42,16 @@ export class PyTestParser implements TestReportParser {
 
   async parse(content: string): Promise<ParseResult> {
     try {
+      // Validate input size to prevent resource exhaustion
+      const MAX_CONTENT_SIZE = 50 * 1024 * 1024; // 50MB
+      if (content.length > MAX_CONTENT_SIZE) {
+        return {
+          success: false,
+          testCases: [],
+          error: `Content too large. Maximum size is ${MAX_CONTENT_SIZE} bytes.`,
+        };
+      }
+
       const report: PyTestReport = JSON.parse(content);
       const tests = report.report?.tests || report.tests || [];
 
@@ -122,17 +132,26 @@ export class PyTestParser implements TestReportParser {
 
   /**
    * Parse PyTest nodeid into path and name
+   * Sanitizes path to prevent path traversal attacks
    */
   private parseNodeId(nodeid: string): { path: string; name: string } {
     // Format: "path/to/test_file.py::TestClass::test_method" or "path/to/test_file.py::test_function"
     const parts = nodeid.split('::');
     if (parts.length === 0) {
-      return { path: nodeid, name: nodeid };
+      const sanitized = nodeid.replace(/\.\./g, '').replace(/[<>:"|?*]/g, '');
+      const safePath = sanitized.length > 500 ? sanitized.substring(0, 500) : sanitized;
+      return { path: safePath, name: safePath };
     }
 
-    const path = parts[0];
-    const name = parts.slice(1).join('::') || path;
+    // Sanitize path: remove path traversal sequences and limit length
+    let path = parts[0].replace(/\.\./g, '').replace(/[<>:"|?*]/g, '');
+    if (path.length > 500) {
+      path = path.substring(0, 500);
+    }
 
-    return { path, name };
+    const name = parts.slice(1).join('::') || path;
+    const safeName = name.length > 500 ? name.substring(0, 500) : name;
+
+    return { path: path || 'unknown', name: safeName };
   }
 }
