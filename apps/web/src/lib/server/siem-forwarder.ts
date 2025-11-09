@@ -100,7 +100,7 @@ function getSiemConfig(): SiemAdapterConfig | null {
       };
       break;
 
-    case 'http':
+    case 'http': {
       let headers: Record<string, string> = { 'Content-Type': 'application/json' };
       if (process.env.SIEM_HTTP_HEADERS) {
         try {
@@ -130,6 +130,7 @@ function getSiemConfig(): SiemAdapterConfig | null {
             : undefined,
       };
       break;
+    }
 
     case 'splunk':
       config.splunk = {

@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
  * GET /api/admin/siem/test
  * Test SIEM connection
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Require authentication (admin only)
     const session = await readSession();

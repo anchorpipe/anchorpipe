@@ -6,7 +6,6 @@
  * Story: ST-206 (Medium Priority Gap)
  */
 
-import { logger } from '../logger';
 import { SiemAdapter, SiemAdapterConfig, SiemLogEntry, SiemForwardResult } from '../siem-adapter';
 
 interface ElasticsearchAdapterConfig {
