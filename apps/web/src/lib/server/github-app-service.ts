@@ -35,105 +35,100 @@ export interface GitHubAppInstallationData {
 }
 
 /**
+ * Prepare installation data for database
+ */
+function prepareInstallationData(data: GitHubAppInstallationData) {
+  const installationId = BigInt(data.id);
+  const accountId = BigInt(data.account.id);
+  const targetId = data.target_id ? BigInt(data.target_id) : null;
+  const repositoryIds = data.repositories?.map((repo) => BigInt(repo.id)) ?? [];
+  const suspendedAt = data.suspended_at ? new Date(data.suspended_at) : null;
+
+  return {
+    installationId,
+    accountId,
+    targetId,
+    repositoryIds,
+    suspendedAt,
+    data: {
+      accountId,
+      accountType: data.account.type,
+      accountLogin: data.account.login,
+      targetType: data.target_type,
+      targetId,
+      repositoryIds,
+      permissions: data.permissions as any,
+      events: data.events,
+      suspendedAt,
+      suspendedBy: data.suspended_by?.id.toString() ?? null,
+      suspendedReason: data.suspended_reason ?? null,
+    },
+  };
+}
+
+/**
+ * Log installation audit event
+ */
+async function logInstallationAudit(
+  action: 'created' | 'updated',
+  data: GitHubAppInstallationData,
+  repositoryCount: number,
+  metadata?: { ipAddress?: string | null; userAgent?: string | null }
+) {
+  await writeAuditLog({
+    action: AUDIT_ACTIONS.configUpdated,
+    subject: AUDIT_SUBJECTS.system,
+    description: `GitHub App installation ${action}: ${data.account.login}`,
+    metadata: {
+      installationId: data.id,
+      accountLogin: data.account.login,
+      repositoryCount,
+    },
+    ipAddress: metadata?.ipAddress ?? null,
+    userAgent: metadata?.userAgent ?? null,
+  });
+
+  logger.info(`GitHub App installation ${action}`, {
+    installationId: data.id,
+    accountLogin: data.account.login,
+  });
+}
+
+/**
  * Create or update GitHub App installation
  */
 export async function upsertGitHubAppInstallation(
   data: GitHubAppInstallationData,
   metadata?: { ipAddress?: string | null; userAgent?: string | null }
 ): Promise<{ id: string; installationId: bigint }> {
-  const installationId = BigInt(data.id);
-  const accountId = BigInt(data.account.id);
-  const targetId = data.target_id ? BigInt(data.target_id) : null;
+  const { installationId, data: installationData, repositoryIds } = prepareInstallationData(data);
 
-  // Convert repository IDs to BigInt array
-  const repositoryIds = data.repositories?.map((repo) => BigInt(repo.id)) ?? [];
-
-  // Convert suspended_at to DateTime if present
-  const suspendedAt = data.suspended_at ? new Date(data.suspended_at) : null;
-
-  // Check if installation already exists
   const existing = await prisma.gitHubAppInstallation.findUnique({
     where: { installationId },
   });
 
   if (existing) {
-    // Update existing installation
     const updated = await prisma.gitHubAppInstallation.update({
       where: { installationId },
       data: {
-        accountId,
-        accountType: data.account.type,
-        accountLogin: data.account.login,
-        targetType: data.target_type,
-        targetId,
-        repositoryIds,
-        permissions: data.permissions as any,
-        events: data.events,
-        suspendedAt,
-        suspendedBy: data.suspended_by?.id.toString() ?? null,
-        suspendedReason: data.suspended_reason ?? null,
+        ...installationData,
         updatedAt: new Date(),
       },
     });
 
-    await writeAuditLog({
-      action: AUDIT_ACTIONS.configUpdated,
-      subject: AUDIT_SUBJECTS.system,
-      description: `GitHub App installation updated: ${data.account.login}`,
-      metadata: {
-        installationId: data.id,
-        accountLogin: data.account.login,
-        repositoryCount: repositoryIds.length,
-      },
-      ipAddress: metadata?.ipAddress ?? null,
-      userAgent: metadata?.userAgent ?? null,
-    });
-
-    logger.info('GitHub App installation updated', {
-      installationId: data.id,
-      accountLogin: data.account.login,
-    });
-
+    await logInstallationAudit('updated', data, repositoryIds.length, metadata);
     return { id: updated.id, installationId };
-  } else {
-    // Create new installation
-    const created = await prisma.gitHubAppInstallation.create({
-      data: {
-        installationId,
-        accountId,
-        accountType: data.account.type,
-        accountLogin: data.account.login,
-        targetType: data.target_type,
-        targetId,
-        repositoryIds,
-        permissions: data.permissions as any,
-        events: data.events,
-        suspendedAt,
-        suspendedBy: data.suspended_by?.id.toString() ?? null,
-        suspendedReason: data.suspended_reason ?? null,
-      },
-    });
-
-    await writeAuditLog({
-      action: AUDIT_ACTIONS.configUpdated,
-      subject: AUDIT_SUBJECTS.system,
-      description: `GitHub App installation created: ${data.account.login}`,
-      metadata: {
-        installationId: data.id,
-        accountLogin: data.account.login,
-        repositoryCount: repositoryIds.length,
-      },
-      ipAddress: metadata?.ipAddress ?? null,
-      userAgent: metadata?.userAgent ?? null,
-    });
-
-    logger.info('GitHub App installation created', {
-      installationId: data.id,
-      accountLogin: data.account.login,
-    });
-
-    return { id: created.id, installationId };
   }
+
+  const created = await prisma.gitHubAppInstallation.create({
+    data: {
+      ...installationData,
+      installationId,
+    },
+  });
+
+  await logInstallationAudit('created', data, repositoryIds.length, metadata);
+  return { id: created.id, installationId };
 }
 
 /**
@@ -317,6 +312,46 @@ export async function getGitHubAppInstallationsByAccount(accountLogin: string): 
 }
 
 /**
+ * Sync a single repository from GitHub App installation
+ */
+async function syncSingleRepository(repo: {
+  id: number;
+  name: string;
+  full_name: string;
+  owner: { login: string };
+  default_branch?: string;
+  private: boolean;
+}): Promise<'created' | 'updated'> {
+  const ghId = BigInt(repo.id);
+  const [owner, name] = repo.full_name.split('/');
+
+  const existing = await prisma.repo.findUnique({
+    where: { ghId },
+  });
+
+  const repoData = {
+    ghId,
+    name,
+    owner,
+    defaultBranch: repo.default_branch || 'main',
+    visibility: (repo.private ? 'private' : 'public') as RepoVisibility,
+  };
+
+  if (existing) {
+    await prisma.repo.update({
+      where: { ghId },
+      data: repoData,
+    });
+    return 'updated';
+  }
+
+  await prisma.repo.create({
+    data: repoData,
+  });
+  return 'created';
+}
+
+/**
  * Sync repositories from GitHub App installation
  * Creates or updates Repo records when repositories are added to an installation
  */
@@ -335,32 +370,11 @@ export async function syncRepositoriesFromInstallation(
   let updated = 0;
 
   for (const repo of repositories) {
-    const ghId = BigInt(repo.id);
-    const [owner, name] = repo.full_name.split('/');
-
-    const existing = await prisma.repo.findUnique({
-      where: { ghId },
-    });
-
-    const repoData = {
-      ghId,
-      name,
-      owner,
-      defaultBranch: repo.default_branch || 'main',
-      visibility: (repo.private ? 'private' : 'public') as RepoVisibility,
-    };
-
-    if (existing) {
-      await prisma.repo.update({
-        where: { ghId },
-        data: repoData,
-      });
-      updated++;
-    } else {
-      await prisma.repo.create({
-        data: repoData,
-      });
+    const result = await syncSingleRepository(repo);
+    if (result === 'created') {
       created++;
+    } else {
+      updated++;
     }
   }
 
@@ -389,6 +403,28 @@ export async function syncRepositoriesFromInstallation(
 }
 
 /**
+ * Check if a permission level meets the requirement
+ */
+function checkPermissionLevel(
+  actual: string | undefined,
+  required: string
+): { valid: boolean; missing: boolean; warning: boolean } {
+  if (!actual) {
+    return { valid: false, missing: true, warning: false };
+  }
+
+  if (actual === required || (required === 'read' && actual === 'write')) {
+    return { valid: true, missing: false, warning: false };
+  }
+
+  if (required === 'write' && actual === 'read') {
+    return { valid: false, missing: true, warning: false };
+  }
+
+  return { valid: true, missing: false, warning: true };
+}
+
+/**
  * Validate GitHub App installation permissions
  * Checks if installation has required permissions
  */
@@ -414,21 +450,16 @@ export async function validateInstallationPermissions(
 
   const missing: string[] = [];
   const warnings: string[] = [];
-
   const permissions = installation.permissions as Record<string, string>;
 
   for (const [permission, requiredLevel] of Object.entries(required)) {
     const actualLevel = permissions[permission];
+    const check = checkPermissionLevel(actualLevel, requiredLevel);
 
-    if (!actualLevel) {
+    if (check.missing) {
       missing.push(`${permission}:${requiredLevel}`);
-    } else if (actualLevel !== requiredLevel && actualLevel !== 'write') {
-      // If we need 'write' but only have 'read', that's a problem
-      if (requiredLevel === 'write' && actualLevel === 'read') {
-        missing.push(`${permission}:${requiredLevel}`);
-      } else {
-        warnings.push(`${permission} has ${actualLevel} but ${requiredLevel} is recommended`);
-      }
+    } else if (check.warning) {
+      warnings.push(`${permission} has ${actualLevel} but ${requiredLevel} is recommended`);
     }
   }
 

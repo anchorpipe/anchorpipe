@@ -18,12 +18,17 @@ import { prisma } from '@anchorpipe/database';
 // Mock Prisma client
 vi.mock('@anchorpipe/database', () => ({
   prisma: {
-    githubAppInstallation: {
+    gitHubAppInstallation: {
       create: vi.fn(),
       update: vi.fn(),
       delete: vi.fn(),
       findUnique: vi.fn(),
       findMany: vi.fn(),
+    },
+    repo: {
+      findUnique: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
     },
   },
 }));
@@ -48,12 +53,11 @@ vi.mock('../logger', () => ({
   },
 }));
 
-describe('GitHub App Service', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  const mockInstallationData: GitHubAppInstallationData = {
+// Helper function to create mock installation data
+function createMockInstallationData(
+  overrides?: Partial<GitHubAppInstallationData>
+): GitHubAppInstallationData {
+  return {
     id: 123456,
     account: {
       id: 789,
@@ -71,138 +75,112 @@ describe('GitHub App Service', () => {
       contents: 'read',
     },
     events: ['push', 'pull_request'],
+    ...overrides,
   };
+}
+
+// Helper function to create mock installation database record
+function createMockInstallation(overrides?: {
+  id?: string;
+  installationId?: bigint;
+  repositoryIds?: bigint[];
+  permissions?: Record<string, string>;
+  events?: string[];
+}) {
+  return {
+    id: overrides?.id ?? 'uuid-1',
+    installationId: overrides?.installationId ?? BigInt(123456),
+    accountId: BigInt(789),
+    accountType: 'User',
+    accountLogin: 'testuser',
+    targetType: 'User',
+    targetId: null,
+    repositoryIds: overrides?.repositoryIds ?? [BigInt(1), BigInt(2)],
+    permissions: overrides?.permissions ?? { metadata: 'read' },
+    events: overrides?.events ?? ['push'],
+    suspendedAt: null,
+    suspendedBy: null,
+    suspendedReason: null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+}
+
+describe('GitHub App Service', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
   describe('upsertGitHubAppInstallation', () => {
     it('should create a new installation when it does not exist', async () => {
-      const mockCreated = {
-        id: 'uuid-1',
-        installationId: BigInt(123456),
-        accountId: BigInt(789),
-        accountType: 'User',
-        accountLogin: 'testuser',
-        targetType: 'User',
-        targetId: null,
-        repositoryIds: [BigInt(1), BigInt(2)],
+      const mockCreated = createMockInstallation({
         permissions: { metadata: 'read', contents: 'read' },
         events: ['push', 'pull_request'],
-        suspendedAt: null,
-        suspendedBy: null,
-        suspendedReason: null,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+      });
 
-      vi.mocked(prisma.githubAppInstallation.findUnique).mockResolvedValue(null);
-      vi.mocked(prisma.githubAppInstallation.create).mockResolvedValue(mockCreated);
+      vi.mocked(prisma.gitHubAppInstallation.findUnique).mockResolvedValue(null);
+      vi.mocked(prisma.gitHubAppInstallation.create).mockResolvedValue(mockCreated);
 
-      const result = await upsertGitHubAppInstallation(mockInstallationData);
+      const result = await upsertGitHubAppInstallation(createMockInstallationData());
 
       expect(result).toEqual({
         id: 'uuid-1',
         installationId: BigInt(123456),
       });
-      expect(prisma.githubAppInstallation.create).toHaveBeenCalledOnce();
-      expect(prisma.githubAppInstallation.update).not.toHaveBeenCalled();
+      expect(prisma.gitHubAppInstallation.create).toHaveBeenCalledOnce();
+      expect(prisma.gitHubAppInstallation.update).not.toHaveBeenCalled();
     });
 
     it('should update an existing installation', async () => {
-      const mockExisting = {
-        id: 'uuid-1',
-        installationId: BigInt(123456),
-        accountId: BigInt(789),
-        accountType: 'User',
-        accountLogin: 'testuser',
-        targetType: 'User',
-        targetId: null,
+      const mockExisting = createMockInstallation({
         repositoryIds: [BigInt(1)],
-        permissions: { metadata: 'read' },
-        events: ['push'],
-        suspendedAt: null,
-        suspendedBy: null,
-        suspendedReason: null,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+      });
 
-      const mockUpdated = {
-        ...mockExisting,
+      const mockUpdated = createMockInstallation({
         repositoryIds: [BigInt(1), BigInt(2)],
         permissions: { metadata: 'read', contents: 'read' },
         events: ['push', 'pull_request'],
-      };
+      });
 
-      vi.mocked(prisma.githubAppInstallation.findUnique).mockResolvedValue(mockExisting);
-      vi.mocked(prisma.githubAppInstallation.update).mockResolvedValue(mockUpdated);
+      vi.mocked(prisma.gitHubAppInstallation.findUnique).mockResolvedValue(mockExisting);
+      vi.mocked(prisma.gitHubAppInstallation.update).mockResolvedValue(mockUpdated);
 
-      const result = await upsertGitHubAppInstallation(mockInstallationData);
+      const result = await upsertGitHubAppInstallation(createMockInstallationData());
 
       expect(result).toEqual({
         id: 'uuid-1',
         installationId: BigInt(123456),
       });
-      expect(prisma.githubAppInstallation.update).toHaveBeenCalledOnce();
-      expect(prisma.githubAppInstallation.create).not.toHaveBeenCalled();
+      expect(prisma.gitHubAppInstallation.update).toHaveBeenCalledOnce();
+      expect(prisma.gitHubAppInstallation.create).not.toHaveBeenCalled();
     });
   });
 
   describe('deleteGitHubAppInstallation', () => {
     it('should delete an existing installation', async () => {
-      const mockExisting = {
-        id: 'uuid-1',
-        installationId: BigInt(123456),
-        accountId: BigInt(789),
-        accountType: 'User',
-        accountLogin: 'testuser',
-        targetType: 'User',
-        targetId: null,
-        repositoryIds: [BigInt(1), BigInt(2)],
-        permissions: { metadata: 'read' },
-        events: ['push'],
-        suspendedAt: null,
-        suspendedBy: null,
-        suspendedReason: null,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+      const mockExisting = createMockInstallation();
 
-      vi.mocked(prisma.githubAppInstallation.findUnique).mockResolvedValue(mockExisting);
-      vi.mocked(prisma.githubAppInstallation.delete).mockResolvedValue(mockExisting);
+      vi.mocked(prisma.gitHubAppInstallation.findUnique).mockResolvedValue(mockExisting);
+      vi.mocked(prisma.gitHubAppInstallation.delete).mockResolvedValue(mockExisting);
 
       await deleteGitHubAppInstallation(BigInt(123456));
 
-      expect(prisma.githubAppInstallation.delete).toHaveBeenCalledOnce();
+      expect(prisma.gitHubAppInstallation.delete).toHaveBeenCalledOnce();
     });
 
     it('should not throw if installation does not exist', async () => {
-      vi.mocked(prisma.githubAppInstallation.findUnique).mockResolvedValue(null);
+      vi.mocked(prisma.gitHubAppInstallation.findUnique).mockResolvedValue(null);
 
       await expect(deleteGitHubAppInstallation(BigInt(123456))).resolves.not.toThrow();
-      expect(prisma.githubAppInstallation.delete).not.toHaveBeenCalled();
+      expect(prisma.gitHubAppInstallation.delete).not.toHaveBeenCalled();
     });
   });
 
   describe('getGitHubAppInstallationById', () => {
     it('should return installation when found', async () => {
-      const mockInstallation = {
-        id: 'uuid-1',
-        installationId: BigInt(123456),
-        accountId: BigInt(789),
-        accountType: 'User',
-        accountLogin: 'testuser',
-        targetType: 'User',
-        targetId: null,
-        repositoryIds: [BigInt(1), BigInt(2)],
-        permissions: { metadata: 'read' },
-        events: ['push'],
-        suspendedAt: null,
-        suspendedBy: null,
-        suspendedReason: null,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+      const mockInstallation = createMockInstallation();
 
-      vi.mocked(prisma.githubAppInstallation.findUnique).mockResolvedValue(mockInstallation);
+      vi.mocked(prisma.gitHubAppInstallation.findUnique).mockResolvedValue(mockInstallation);
 
       const result = await getGitHubAppInstallationById(BigInt(123456));
 
@@ -211,7 +189,7 @@ describe('GitHub App Service', () => {
     });
 
     it('should return null when installation not found', async () => {
-      vi.mocked(prisma.githubAppInstallation.findUnique).mockResolvedValue(null);
+      vi.mocked(prisma.gitHubAppInstallation.findUnique).mockResolvedValue(null);
 
       const result = await getGitHubAppInstallationById(BigInt(123456));
 
@@ -242,7 +220,7 @@ describe('GitHub App Service', () => {
         },
       ];
 
-      vi.mocked(prisma.githubAppInstallation.findMany).mockResolvedValue(mockInstallations);
+      vi.mocked(prisma.gitHubAppInstallation.findMany).mockResolvedValue(mockInstallations);
 
       const result = await listGitHubAppInstallations();
 
@@ -267,7 +245,7 @@ describe('GitHub App Service', () => {
         },
       ];
 
-      vi.mocked(prisma.githubAppInstallation.findMany).mockResolvedValue(mockInstallations);
+      vi.mocked(prisma.gitHubAppInstallation.findMany).mockResolvedValue(mockInstallations);
 
       const result = await getGitHubAppInstallationsByAccount('testuser');
 
@@ -276,4 +254,3 @@ describe('GitHub App Service', () => {
     });
   });
 });
-

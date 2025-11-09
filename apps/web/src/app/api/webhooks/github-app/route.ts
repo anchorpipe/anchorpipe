@@ -100,6 +100,45 @@ export async function POST(request: NextRequest) {
 }
 
 /**
+ * Handle installation created event
+ */
+async function handleInstallationCreated(
+  installation: GitHubAppInstallationData,
+  context: { ipAddress: string | null; userAgent: string | null }
+) {
+  await upsertGitHubAppInstallation(installation, {
+    ipAddress: context.ipAddress,
+    userAgent: context.userAgent,
+  });
+
+  const validation = await validateInstallationPermissions(BigInt(installation.id));
+  if (!validation.valid) {
+    logger.warn('GitHub App installation has insufficient permissions', {
+      installationId: installation.id,
+      missing: validation.missing,
+      warnings: validation.warnings,
+    });
+  }
+
+  if (installation.repositories && installation.repositories.length > 0) {
+    await syncRepositoriesFromInstallation(
+      installation.repositories.map((repo) => ({
+        id: repo.id,
+        name: repo.name,
+        full_name: repo.full_name,
+        owner: { login: repo.full_name.split('/')[0] },
+        default_branch: undefined,
+        private: false,
+      })),
+      {
+        ipAddress: context.ipAddress,
+        userAgent: context.userAgent,
+      }
+    );
+  }
+}
+
+/**
  * Handle installation events (created, deleted, suspended, unsuspended)
  */
 async function handleInstallationEvent(
@@ -114,58 +153,29 @@ async function handleInstallationEvent(
     return;
   }
 
-  switch (action) {
-    case 'created':
-    case 'suspend':
-    case 'unsuspend':
-      await upsertGitHubAppInstallation(installation, {
-        ipAddress: context.ipAddress,
-        userAgent: context.userAgent,
-      });
-
-      // Validate permissions after installation
-      if (action === 'created') {
-        const validation = await validateInstallationPermissions(BigInt(installation.id));
-        if (!validation.valid) {
-          logger.warn('GitHub App installation has insufficient permissions', {
-            installationId: installation.id,
-            missing: validation.missing,
-            warnings: validation.warnings,
-          });
-        }
-
-        // Sync repositories if provided
-        if (installation.repositories && installation.repositories.length > 0) {
-          await syncRepositoriesFromInstallation(
-            installation.repositories.map((repo) => ({
-              id: repo.id,
-              name: repo.name,
-              full_name: repo.full_name,
-              owner: { login: repo.full_name.split('/')[0] },
-              default_branch: undefined, // Not provided in installation event
-              private: false, // Not provided in installation event
-            })),
-            {
-              ipAddress: context.ipAddress,
-              userAgent: context.userAgent,
-            }
-          );
-        }
-      }
-      break;
-
-    case 'deleted':
-      await deleteGitHubAppInstallation(BigInt(installation.id), {
-        ipAddress: context.ipAddress,
-        userAgent: context.userAgent,
-      });
-      // Clear cached token for deleted installation
-      clearInstallationTokenCache(BigInt(installation.id));
-      break;
-
-    default:
-      logger.info('GitHub App installation action not handled', { action });
+  if (action === 'created') {
+    await handleInstallationCreated(installation, context);
+    return;
   }
+
+  if (action === 'deleted') {
+    await deleteGitHubAppInstallation(BigInt(installation.id), {
+      ipAddress: context.ipAddress,
+      userAgent: context.userAgent,
+    });
+    clearInstallationTokenCache(BigInt(installation.id));
+    return;
+  }
+
+  if (action === 'suspend' || action === 'unsuspend') {
+    await upsertGitHubAppInstallation(installation, {
+      ipAddress: context.ipAddress,
+      userAgent: context.userAgent,
+    });
+    return;
+  }
+
+  logger.info('GitHub App installation action not handled', { action });
 }
 
 /**
