@@ -54,60 +54,49 @@ Beyond preventing harassment, we actively work to build a diverse and inclusive 
 
 - ✅ Being respectful of differing opinions, viewpoints, and experiences
 - ✅ Giving and gracefully accepting constructive feedback
-
-  - *Example: "I see what you're trying to solve. Have you considered using X approach because Y?"*
+  - _Example: "I see what you're trying to solve. Have you considered using X approach because Y?"_
 
 - ✅ Accepting responsibility and apologizing to those affected by our mistakes
-
-  - *Example: "You're right, my comment was dismissive. I apologize. Let me explain my concern more constructively."*
+  - _Example: "You're right, my comment was dismissive. I apologize. Let me explain my concern more constructively."_
 
 - ✅ Focusing on what is best for the community and the project
 - ✅ Showing empathy towards other community members
 - ✅ **Welcoming and mentoring newcomers**
-
-  - *Example: "Great first issue! Here's a guide that might help you get started."*
+  - _Example: "Great first issue! Here's a guide that might help you get started."_
 
 - ✅ **Assuming good intent and asking for clarification**
-
-  - *Example: "I might be misunderstanding—could you help me understand your reasoning?"*
+  - _Example: "I might be misunderstanding—could you help me understand your reasoning?"_
 
 - ✅ **Celebrating others' contributions and achievements**
-
-  - *Example: "This PR is excellent—really clean solution to a tricky problem!"*
+  - _Example: "This PR is excellent—really clean solution to a tricky problem!"_
 
 - ✅ **Using inclusive language**
-
-  - *Example: "folks" instead of "guys", "main" instead of "master"*
+  - _Example: "folks" instead of "guys", "main" instead of "master"_
 
 ### Examples of Unacceptable Behavior
 
 - ❌ The use of sexualized language or imagery, and sexual attention or advances
 - ❌ Trolling, insulting/derogatory comments, and personal or political attacks
-
-  - *Example: "This code is garbage" vs. "This approach has performance issues because..."*
+  - _Example: "This code is garbage" vs. "This approach has performance issues because..."_
 
 - ❌ Public or private harassment
 - ❌ Publishing others' private information without explicit permission (doxxing)
 - ❌ **Sustained disruption of discussions or decision-making processes**
-
-  - *Example: Repeatedly derailing technical discussions with off-topic arguments*
+  - _Example: Repeatedly derailing technical discussions with off-topic arguments_
 
 - ❌ **"Gatekeeping" or making others feel unwelcome**
-
-  - *Example: "You shouldn't be contributing if you don't know X"*
+  - _Example: "You shouldn't be contributing if you don't know X"_
 
 - ❌ **Dismissing or belittling questions or contributions**
-
-  - *Example: "This is obvious", "RTFM", "Just Google it"*
+  - _Example: "This is obvious", "RTFM", "Just Google it"_
 
 - ❌ **Taking credit for others' work or ideas without attribution**
 - ❌ **Passive-aggressive behavior or backhanded compliments**
-
-  - *Example: "Even someone new should know this", "Surprised this works"*
+  - _Example: "Even someone new should know this", "Surprised this works"_
 
 - ❌ Other conduct that could reasonably be considered inappropriate in a professional setting
 
-**Gray Areas?** When in doubt, ask yourself: *"Would I say/do this in a face-to-face conversation with a colleague I respect?"*
+**Gray Areas?** When in doubt, ask yourself: _"Would I say/do this in a face-to-face conversation with a colleague I respect?"_
 
 ## Scope
 
@@ -222,11 +211,11 @@ Community leaders have the right and responsibility to remove, edit, or reject c
 
 ### Current Community Leaders
 
-| Role | Contact |
-|------|---------|
-| Project Owner | [GitHub Discussions](https://github.com/anchorpipe/anchorpipe/discussions) |
-| Code of Conduct Contact | conduct@anchorpipe.dev |
-| Security Contact | security@anchorpipe.dev |
+| Role                    | Contact                                                                    |
+| ----------------------- | -------------------------------------------------------------------------- |
+| Project Owner           | [GitHub Discussions](https://github.com/anchorpipe/anchorpipe/discussions) |
+| Code of Conduct Contact | conduct@anchorpipe.dev                                                     |
+| Security Contact        | security@anchorpipe.dev                                                    |
 
 **Updated quarterly** - See [GOVERNANCE.md](GOVERNANCE.md) for project structure.
 
