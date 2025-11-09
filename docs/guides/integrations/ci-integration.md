@@ -401,7 +401,59 @@ POST /api/ingestion
 
 ### Request Body
 
-JSON payload containing test results (format depends on test framework).
+JSON payload containing test results in the standardized Anchorpipe format. The payload must match the `IngestionPayload` schema:
+
+```json
+{
+  "repo_id": "550e8400-e29b-41d4-a716-446655440000",
+  "commit_sha": "a1b2c3d4e5f6789012345678901234567890abcd",
+  "run_id": "ci-run-12345",
+  "framework": "jest",
+  "tests": [
+    {
+      "path": "src/utils.test.ts",
+      "name": "should work",
+      "status": "pass",
+      "durationMs": 100,
+      "startedAt": "2025-01-01T00:00:00.000Z",
+      "tags": ["unit"],
+      "metadata": {}
+    }
+  ],
+  "branch": "main",
+  "pull_request": "123",
+  "environment": {
+    "CI": "github-actions",
+    "NODE_VERSION": "20"
+  }
+}
+```
+
+#### Supported Test Frameworks
+
+Anchorpipe supports parsing test reports from the following frameworks:
+
+- **Jest** (`jest`) - JavaScript/TypeScript testing framework
+- **PyTest** (`pytest`) - Python testing framework
+- **Playwright** (`playwright`) - End-to-end testing framework
+- **JUnit** (`junit`) - Java testing framework (XML format)
+- **Mocha** (`mocha`) - JavaScript testing framework
+- **Vitest** (`vitest`) - Fast Vite-native unit test framework
+
+#### Test Report Format
+
+Each test case in the `tests` array must include:
+
+- `path` (string, 1-500 chars): File path where the test is located
+- `name` (string, 1-500 chars): Test name/description
+- `status` (enum): `"pass"`, `"fail"`, or `"skip"`
+- `startedAt` (string): ISO 8601 datetime when the test started
+- `durationMs` (number, optional): Test duration in milliseconds
+- `failureDetails` (string, optional, max 10000 chars): Error message/details for failed tests
+- `tags` (array of strings, optional): Test tags/categories
+- `metadata` (object, optional): Additional framework-specific metadata
+
+**Note**: When using the GitHub App integration, test reports are automatically parsed from common formats (JUnit XML, Jest JSON, PyTest JSON, Playwright JSON). For direct API submissions, you must format your payload according to the schema above.
 
 ### Response
 

@@ -14,6 +14,8 @@ import { computeHmac } from './hmac';
 import { logger } from './logger';
 import { writeAuditLog, AUDIT_ACTIONS, AUDIT_SUBJECTS } from './audit-service';
 import { decryptField } from './secrets';
+import { parseTestReport } from './test-report-parsers';
+import type { IngestionPayload } from './ingestion-schema';
 
 /**
  * Request metadata for audit logging
@@ -124,7 +126,41 @@ interface SubmitTestResultsParams {
   repoId: string;
   commitSha: string;
   workflowRunId: number;
+  branch?: string;
   metadata?: RequestMetadata;
+}
+
+/**
+ * Parse test report and convert to ingestion payload format
+ */
+async function parseAndConvertTestReport(params: {
+  framework: string;
+  rawPayload: string;
+  repoId: string;
+  commitSha: string;
+  runId: string;
+  branch?: string;
+}): Promise<{ success: boolean; payload?: IngestionPayload; error?: string }> {
+  // Parse the test report
+  const parseResult = await parseTestReport(params.framework, params.rawPayload);
+  if (!parseResult.success || parseResult.testCases.length === 0) {
+    return {
+      success: false,
+      error: parseResult.error || 'No test cases found in report',
+    };
+  }
+
+  // Convert to ingestion payload format
+  const payload: IngestionPayload = {
+    repo_id: params.repoId,
+    commit_sha: params.commitSha,
+    run_id: params.runId,
+    framework: params.framework as IngestionPayload['framework'],
+    tests: parseResult.testCases,
+    ...(params.branch && { branch: params.branch }),
+  };
+
+  return { success: true, payload };
 }
 
 /**
@@ -133,17 +169,39 @@ interface SubmitTestResultsParams {
 async function submitAllTestResults(
   params: SubmitTestResultsParams
 ): Promise<{ submitted: number; failed: number }> {
-  const { testResults, repoId, commitSha, workflowRunId, metadata } = params;
+  const { testResults, repoId, commitSha, workflowRunId, branch, metadata } = params;
   let submitted = 0;
   let failed = 0;
 
   for (const testResult of testResults) {
+    // Parse and convert test report to standardized format
+    const parseResult = await parseAndConvertTestReport({
+      framework: testResult.framework,
+      rawPayload: testResult.payload,
+      repoId,
+      commitSha,
+      runId: workflowRunId.toString(),
+      branch,
+    });
+
+    if (!parseResult.success || !parseResult.payload) {
+      failed++;
+      logger.error('Failed to parse test report', {
+        workflowRunId,
+        repositoryId: repoId,
+        framework: testResult.framework,
+        error: parseResult.error,
+      });
+      continue;
+    }
+
+    // Submit to ingestion endpoint
     const result = await submitToIngestion({
       repoId,
       commitSha,
       runId: workflowRunId.toString(),
       framework: testResult.framework,
-      payload: testResult.payload,
+      payload: JSON.stringify(parseResult.payload),
       metadata,
     });
 

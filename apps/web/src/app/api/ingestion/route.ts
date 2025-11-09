@@ -115,6 +115,111 @@ function parseAndValidatePayload(
 }
 
 /**
+ * Handle rate limit error response
+ */
+function createRateLimitResponse(
+  headers?: Record<string, string>
+): NextResponse<{ error: string }> {
+  return NextResponse.json(
+    { error: 'Too many requests. Please try again later.' },
+    {
+      status: 429,
+      headers,
+    }
+  );
+}
+
+/**
+ * Handle body validation error response
+ */
+function createBodyValidationErrorResponse(
+  error: string | undefined,
+  headers?: Record<string, string>
+): NextResponse<{ error: string }> {
+  const status = error?.includes('too large') ? 413 : 400;
+  return NextResponse.json({ error: error || 'Invalid request body' }, { status, headers });
+}
+
+/**
+ * Handle authentication error response
+ */
+function createAuthErrorResponse(
+  error: string | undefined,
+  headers?: Record<string, string>
+): NextResponse<{ error: string }> {
+  return NextResponse.json({ error: error || 'Authentication failed' }, { status: 401, headers });
+}
+
+/**
+ * Handle payload validation error response
+ */
+function createPayloadValidationErrorResponse(
+  error: string | undefined,
+  details: unknown,
+  headers?: Record<string, string>
+): NextResponse<{ error: string; details?: unknown }> {
+  const responseBody: { error: string; details?: unknown } = {
+    error: error || 'Invalid payload',
+  };
+  if (details) {
+    responseBody.details = details;
+  }
+  const status = error?.includes('mismatch') ? 403 : 400;
+  return NextResponse.json(responseBody, { status, headers });
+}
+
+/**
+ * Handle ingestion processing error response
+ */
+function createIngestionErrorResponse(
+  error: string | undefined,
+  headers?: Record<string, string>
+): NextResponse<{ error: string }> {
+  return NextResponse.json({ error: error || 'Ingestion failed' }, { status: 500, headers });
+}
+
+/**
+ * Handle successful ingestion response
+ */
+function createSuccessResponse(
+  runId: string,
+  message: string,
+  summary: { tests_parsed: number; flaky_candidates: number } | undefined,
+  headers?: Record<string, string>
+): NextResponse<{
+  runId: string;
+  message: string;
+  summary?: { tests_parsed: number; flaky_candidates: number };
+}> {
+  return NextResponse.json(
+    {
+      runId,
+      message,
+      summary,
+    },
+    {
+      status: 200,
+      headers,
+    }
+  );
+}
+
+/**
+ * Handle unexpected errors
+ */
+function createUnexpectedErrorResponse(
+  error: unknown,
+  headers?: Record<string, string>
+): NextResponse<{ error: string }> {
+  logger.error('Ingestion error', {
+    error: error instanceof Error ? error.message : 'Unknown error',
+    stack: error instanceof Error ? error.stack : undefined,
+  });
+  const errorMessage = error instanceof Error ? error.message : 'Ingestion failed';
+  return NextResponse.json({ error: errorMessage }, { status: 500, headers });
+}
+
+/**
  * POST /api/ingestion
  * Ingestion endpoint for CI systems to submit test reports
  * Requires: Authorization: Bearer <repo_id> and X-FR-Sig: <hmac_signature>
@@ -125,13 +230,7 @@ export async function POST(request: NextRequest) {
   // Check rate limit
   const rateLimitResult = await checkRateLimit(request, context);
   if (!rateLimitResult.allowed) {
-    return NextResponse.json(
-      { error: 'Too many requests. Please try again later.' },
-      {
-        status: 429,
-        headers: rateLimitResult.headers,
-      }
-    );
+    return createRateLimitResponse(rateLimitResult.headers);
   }
 
   try {
@@ -139,37 +238,23 @@ export async function POST(request: NextRequest) {
     const body = await request.text();
     const bodyValidation = validateBodySize(body);
     if (!bodyValidation.valid) {
-      return NextResponse.json(
-        { error: bodyValidation.error },
-        {
-          status: bodyValidation.error?.includes('too large') ? 413 : 400,
-          headers: rateLimitResult.headers,
-        }
-      );
+      return createBodyValidationErrorResponse(bodyValidation.error, rateLimitResult.headers);
     }
 
     // Authenticate request
     const authResult = await authenticateRequest(request, body);
     if (!authResult.success || !authResult.repoId) {
-      return NextResponse.json(
-        { error: authResult.error || 'Authentication failed' },
-        { status: 401, headers: rateLimitResult.headers }
-      );
+      return createAuthErrorResponse(authResult.error, rateLimitResult.headers);
     }
 
     // Parse and validate payload
     const payloadResult = parseAndValidatePayload(body, authResult.repoId);
     if (!payloadResult.success || !payloadResult.payload) {
-      const responseBody: { error: string; details?: unknown } = {
-        error: payloadResult.error || 'Invalid payload',
-      };
-      if (payloadResult.details) {
-        responseBody.details = payloadResult.details;
-      }
-      return NextResponse.json(responseBody, {
-        status: payloadResult.error?.includes('mismatch') ? 403 : 400,
-        headers: rateLimitResult.headers,
-      });
+      return createPayloadValidationErrorResponse(
+        payloadResult.error,
+        payloadResult.details,
+        rateLimitResult.headers
+      );
     }
 
     // Process ingestion
@@ -180,32 +265,16 @@ export async function POST(request: NextRequest) {
     );
 
     if (!result.success) {
-      return NextResponse.json(
-        { error: result.error || 'Ingestion failed' },
-        { status: 500, headers: rateLimitResult.headers }
-      );
+      return createIngestionErrorResponse(result.error, rateLimitResult.headers);
     }
 
-    return NextResponse.json(
-      {
-        runId: result.runId,
-        message: result.message,
-        summary: result.summary,
-      },
-      {
-        status: 200,
-        headers: rateLimitResult.headers,
-      }
+    return createSuccessResponse(
+      result.runId,
+      result.message,
+      result.summary,
+      rateLimitResult.headers
     );
   } catch (error) {
-    logger.error('Ingestion error', {
-      error: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined,
-    });
-    const errorMessage = error instanceof Error ? error.message : 'Ingestion failed';
-    return NextResponse.json(
-      { error: errorMessage },
-      { status: 500, headers: rateLimitResult.headers }
-    );
+    return createUnexpectedErrorResponse(error, rateLimitResult.headers);
   }
 }
