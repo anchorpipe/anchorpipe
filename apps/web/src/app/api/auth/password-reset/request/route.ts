@@ -96,16 +96,17 @@ async function generatePasswordResetResponse(
     userAgent: context.userAgent,
   });
 
-  return {
+  const response: { message: string; token?: string; resetUrl?: string; expiresAt?: string } = {
     message: 'If an account with that email exists, a password reset link has been sent.',
-    ...(process.env.NODE_ENV === 'development' && {
-      devData: {
-        token,
-        resetUrl,
-        expiresAt: expiresAt.toISOString(),
-      },
-    }),
   };
+
+  if (process.env.NODE_ENV === 'development') {
+    response.token = token;
+    response.resetUrl = resetUrl;
+    response.expiresAt = expiresAt.toISOString();
+  }
+
+  return response;
 }
 
 /**
