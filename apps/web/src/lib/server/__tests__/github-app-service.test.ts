@@ -33,6 +33,9 @@ vi.mock('@anchorpipe/database', () => ({
   },
 }));
 
+// Type assertion for mocked prisma to avoid TypeScript errors
+const mockedPrisma = prisma as any;
+
 // Mock audit service
 vi.mock('../audit-service', () => ({
   writeAuditLog: vi.fn(),
@@ -119,6 +122,17 @@ describe('GitHub App Service', () => {
     vi.clearAllMocks();
   });
 
+  // Helper to setup mocks for upsert tests
+  function setupUpsertMocks(findUniqueResult: any, createResult?: any, updateResult?: any) {
+    vi.mocked(mockedPrisma.gitHubAppInstallation.findUnique).mockResolvedValue(findUniqueResult);
+    if (createResult) {
+      vi.mocked(mockedPrisma.gitHubAppInstallation.create).mockResolvedValue(createResult);
+    }
+    if (updateResult) {
+      vi.mocked(mockedPrisma.gitHubAppInstallation.update).mockResolvedValue(updateResult);
+    }
+  }
+
   describe('upsertGitHubAppInstallation', () => {
     it('should create a new installation when it does not exist', async () => {
       const mockCreated = createMockInstallation({
@@ -126,14 +140,13 @@ describe('GitHub App Service', () => {
         events: ['push', 'pull_request'],
       });
 
-      vi.mocked(prisma.gitHubAppInstallation.findUnique).mockResolvedValue(null);
-      vi.mocked(prisma.gitHubAppInstallation.create).mockResolvedValue(mockCreated);
+      setupUpsertMocks(null, mockCreated);
 
       const result = await upsertGitHubAppInstallation(createMockInstallationData());
 
       expectInstallationResult(result);
-      expect(prisma.gitHubAppInstallation.create).toHaveBeenCalledOnce();
-      expect(prisma.gitHubAppInstallation.update).not.toHaveBeenCalled();
+      expect(mockedPrisma.gitHubAppInstallation.create).toHaveBeenCalledOnce();
+      expect(mockedPrisma.gitHubAppInstallation.update).not.toHaveBeenCalled();
     });
 
     it('should update an existing installation', async () => {
@@ -147,14 +160,13 @@ describe('GitHub App Service', () => {
         events: ['push', 'pull_request'],
       });
 
-      vi.mocked(prisma.gitHubAppInstallation.findUnique).mockResolvedValue(mockExisting);
-      vi.mocked(prisma.gitHubAppInstallation.update).mockResolvedValue(mockUpdated);
+      setupUpsertMocks(mockExisting, undefined, mockUpdated);
 
       const result = await upsertGitHubAppInstallation(createMockInstallationData());
 
       expectInstallationResult(result);
-      expect(prisma.gitHubAppInstallation.update).toHaveBeenCalledOnce();
-      expect(prisma.gitHubAppInstallation.create).not.toHaveBeenCalled();
+      expect(mockedPrisma.gitHubAppInstallation.update).toHaveBeenCalledOnce();
+      expect(mockedPrisma.gitHubAppInstallation.create).not.toHaveBeenCalled();
     });
   });
 
@@ -162,19 +174,19 @@ describe('GitHub App Service', () => {
     it('should delete an existing installation', async () => {
       const mockExisting = createMockInstallation();
 
-      vi.mocked(prisma.gitHubAppInstallation.findUnique).mockResolvedValue(mockExisting);
-      vi.mocked(prisma.gitHubAppInstallation.delete).mockResolvedValue(mockExisting);
+      vi.mocked(mockedPrisma.gitHubAppInstallation.findUnique).mockResolvedValue(mockExisting);
+      vi.mocked(mockedPrisma.gitHubAppInstallation.delete).mockResolvedValue(mockExisting);
 
       await deleteGitHubAppInstallation(BigInt(123456));
 
-      expect(prisma.gitHubAppInstallation.delete).toHaveBeenCalledOnce();
+      expect(mockedPrisma.gitHubAppInstallation.delete).toHaveBeenCalledOnce();
     });
 
     it('should not throw if installation does not exist', async () => {
-      vi.mocked(prisma.gitHubAppInstallation.findUnique).mockResolvedValue(null);
+      vi.mocked(mockedPrisma.gitHubAppInstallation.findUnique).mockResolvedValue(null);
 
       await expect(deleteGitHubAppInstallation(BigInt(123456))).resolves.not.toThrow();
-      expect(prisma.gitHubAppInstallation.delete).not.toHaveBeenCalled();
+      expect(mockedPrisma.gitHubAppInstallation.delete).not.toHaveBeenCalled();
     });
   });
 
@@ -182,7 +194,7 @@ describe('GitHub App Service', () => {
     it('should return installation when found', async () => {
       const mockInstallation = createMockInstallation();
 
-      vi.mocked(prisma.gitHubAppInstallation.findUnique).mockResolvedValue(mockInstallation);
+      vi.mocked(mockedPrisma.gitHubAppInstallation.findUnique).mockResolvedValue(mockInstallation);
 
       const result = await getGitHubAppInstallationById(BigInt(123456));
 
@@ -191,7 +203,7 @@ describe('GitHub App Service', () => {
     });
 
     it('should return null when installation not found', async () => {
-      vi.mocked(prisma.gitHubAppInstallation.findUnique).mockResolvedValue(null);
+      vi.mocked(mockedPrisma.gitHubAppInstallation.findUnique).mockResolvedValue(null);
 
       const result = await getGitHubAppInstallationById(BigInt(123456));
 
@@ -222,7 +234,7 @@ describe('GitHub App Service', () => {
         },
       ];
 
-      vi.mocked(prisma.gitHubAppInstallation.findMany).mockResolvedValue(mockInstallations);
+      vi.mocked(mockedPrisma.gitHubAppInstallation.findMany).mockResolvedValue(mockInstallations);
 
       const result = await listGitHubAppInstallations();
 
@@ -247,7 +259,7 @@ describe('GitHub App Service', () => {
         },
       ];
 
-      vi.mocked(prisma.gitHubAppInstallation.findMany).mockResolvedValue(mockInstallations);
+      vi.mocked(mockedPrisma.gitHubAppInstallation.findMany).mockResolvedValue(mockInstallations);
 
       const result = await getGitHubAppInstallationsByAccount('testuser');
 

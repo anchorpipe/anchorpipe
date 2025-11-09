@@ -103,12 +103,12 @@ export async function upsertGitHubAppInstallation(
 ): Promise<{ id: string; installationId: bigint }> {
   const { installationId, data: installationData, repositoryIds } = prepareInstallationData(data);
 
-  const existing = await prisma.gitHubAppInstallation.findUnique({
+  const existing = await (prisma as any).gitHubAppInstallation.findUnique({
     where: { installationId },
   });
 
   if (existing) {
-    const updated = await prisma.gitHubAppInstallation.update({
+    const updated = await (prisma as any).gitHubAppInstallation.update({
       where: { installationId },
       data: {
         ...installationData,
@@ -120,7 +120,7 @@ export async function upsertGitHubAppInstallation(
     return { id: updated.id, installationId };
   }
 
-  const created = await prisma.gitHubAppInstallation.create({
+  const created = await (prisma as any).gitHubAppInstallation.create({
     data: {
       ...installationData,
       installationId,
@@ -138,7 +138,7 @@ export async function deleteGitHubAppInstallation(
   installationId: bigint,
   metadata?: { ipAddress?: string | null; userAgent?: string | null }
 ): Promise<void> {
-  const existing = await prisma.gitHubAppInstallation.findUnique({
+  const existing = await (prisma as any).gitHubAppInstallation.findUnique({
     where: { installationId },
   });
 
@@ -149,7 +149,7 @@ export async function deleteGitHubAppInstallation(
     return;
   }
 
-  await prisma.gitHubAppInstallation.delete({
+  await (prisma as any).gitHubAppInstallation.delete({
     where: { installationId },
   });
 
@@ -191,7 +191,7 @@ export async function getGitHubAppInstallationById(installationId: bigint): Prom
   createdAt: Date;
   updatedAt: Date;
 } | null> {
-  const installation = await prisma.gitHubAppInstallation.findUnique({
+  const installation = await (prisma as any).gitHubAppInstallation.findUnique({
     where: { installationId },
   });
 
@@ -277,20 +277,32 @@ function mapInstallationWithAccountType(inst: {
 }
 
 /**
+ * Common select fields for installation list queries
+ */
+const INSTALLATION_LIST_SELECT = {
+  id: true,
+  installationId: true,
+  accountLogin: true,
+  repositoryIds: true,
+  suspendedAt: true,
+  createdAt: true,
+} as const;
+
+/**
+ * Select fields for installation list with account type
+ */
+const INSTALLATION_LIST_WITH_ACCOUNT_TYPE_SELECT = {
+  ...INSTALLATION_LIST_SELECT,
+  accountType: true,
+} as const;
+
+/**
  * List all GitHub App installations
  */
 export async function listGitHubAppInstallations(): Promise<InstallationWithAccountType[]> {
-  const installations = await prisma.gitHubAppInstallation.findMany({
+  const installations = await (prisma as any).gitHubAppInstallation.findMany({
     orderBy: { createdAt: 'desc' },
-    select: {
-      id: true,
-      installationId: true,
-      accountLogin: true,
-      accountType: true,
-      repositoryIds: true,
-      suspendedAt: true,
-      createdAt: true,
-    },
+    select: INSTALLATION_LIST_WITH_ACCOUNT_TYPE_SELECT,
   });
 
   return installations.map(mapInstallationWithAccountType);
@@ -302,17 +314,10 @@ export async function listGitHubAppInstallations(): Promise<InstallationWithAcco
 export async function getGitHubAppInstallationsByAccount(
   accountLogin: string
 ): Promise<InstallationListItem[]> {
-  const installations = await prisma.gitHubAppInstallation.findMany({
+  const installations = await (prisma as any).gitHubAppInstallation.findMany({
     where: { accountLogin },
     orderBy: { createdAt: 'desc' },
-    select: {
-      id: true,
-      installationId: true,
-      accountLogin: true,
-      repositoryIds: true,
-      suspendedAt: true,
-      createdAt: true,
-    },
+    select: INSTALLATION_LIST_SELECT,
   });
 
   return installations.map(mapInstallationToListItem);
