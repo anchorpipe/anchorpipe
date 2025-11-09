@@ -7,6 +7,7 @@
  * Story: ST-206 (Medium Priority Gap)
  */
 
+import { logger } from '../logger';
 import {
   SiemAdapter,
   SiemAdapterConfig,
@@ -31,30 +32,12 @@ interface HttpAdapterConfig {
 /**
  * Create HTTP SIEM adapter
  */
-/**
- * Validate URL to prevent SSRF attacks
- */
-function validateUrl(url: string): boolean {
-  try {
-    const parsed = new URL(url);
-    // Only allow http and https protocols
-    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
-  } catch {
-    return false;
-  }
-}
-
 export function createHttpAdapter(
   config: HttpAdapterConfig,
   siemConfig: SiemAdapterConfig
 ): SiemAdapter {
   const format = siemConfig.format || 'json';
   const timeout = siemConfig.timeout || 5000;
-
-  // Validate URL on creation
-  if (!validateUrl(config.url)) {
-    throw new Error('Invalid SIEM HTTP URL: must be a valid http:// or https:// URL');
-  }
 
   return {
     async forwardLog(log: SiemLogEntry): Promise<{ success: boolean; error?: string }> {
@@ -76,12 +59,9 @@ export function createHttpAdapter(
 
         if (!response.ok) {
           const errorText = await response.text().catch(() => 'Unknown error');
-          // Limit error message length to prevent potential information disclosure
-          const truncatedError =
-            errorText.length > 200 ? errorText.substring(0, 200) + '...' : errorText;
           return {
             success: false,
-            error: `HTTP ${response.status}: ${truncatedError}`,
+            error: `HTTP ${response.status}: ${errorText}`,
           };
         }
 

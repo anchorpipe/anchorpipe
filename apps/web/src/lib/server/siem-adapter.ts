@@ -7,6 +7,8 @@
  * Story: ST-206 (Medium Priority Gap)
  */
 
+import { logger } from './logger';
+
 /**
  * SIEM adapter interface
  */
@@ -60,6 +62,7 @@ export interface SiemForwardResult {
 export interface SiemAdapterConfig {
   type: 'syslog' | 'http' | 'splunk' | 'elasticsearch';
   enabled: boolean;
+  endpoint?: string;
   format?: 'json' | 'cef' | 'leef';
   batchSize?: number;
   retryAttempts?: number;
