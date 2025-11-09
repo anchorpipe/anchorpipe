@@ -7,7 +7,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { extractRequestContext } from '@/lib/server/auth';
+import { extractRequestContext } from '@/lib/server/audit-service';
 import {
   upsertGitHubAppInstallation,
   deleteGitHubAppInstallation,
