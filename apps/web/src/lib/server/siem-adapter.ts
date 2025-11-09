@@ -7,8 +7,6 @@
  * Story: ST-206 (Medium Priority Gap)
  */
 
-import { logger } from './logger';
-
 /**
  * SIEM adapter interface
  */

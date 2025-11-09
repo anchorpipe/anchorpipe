@@ -32,7 +32,7 @@ interface SyslogAdapterConfig {
  */
 export function createSyslogAdapter(
   config: SyslogAdapterConfig,
-  siemConfig: SiemAdapterConfig
+  _siemConfig: SiemAdapterConfig
 ): SiemAdapter {
   logger.warn('Syslog adapter is a placeholder - requires syslog library implementation');
 
