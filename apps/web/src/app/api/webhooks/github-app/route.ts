@@ -471,17 +471,40 @@ function logRunEventCompletion<T extends { id: number; name: string }>(params: {
 }
 
 /**
+ * Common repository fields from run event
+ */
+interface RunRepositoryFields {
+  repositoryId: number;
+  repositoryFullName: string;
+  headSha: string;
+  conclusion: string | null;
+}
+
+/**
+ * Extract common repository fields from run
+ */
+function extractCommonRepositoryFields(
+  repository: { id: number; full_name: string },
+  headSha: string,
+  conclusion: string | null
+): RunRepositoryFields {
+  return {
+    repositoryId: repository.id,
+    repositoryFullName: repository.full_name,
+    headSha,
+    conclusion,
+  };
+}
+
+/**
  * Extract additional fields for workflow run logging
  */
 function extractWorkflowRunFields(
   run: WorkflowRunPayload['workflow_run']
 ): Record<string, unknown> {
   return {
-    repositoryId: run.repository.id,
-    repositoryFullName: run.repository.full_name,
-    headSha: run.head_sha,
+    ...extractCommonRepositoryFields(run.repository, run.head_sha, run.conclusion),
     headBranch: run.head_branch,
-    conclusion: run.conclusion,
   };
 }
 
@@ -490,11 +513,8 @@ function extractWorkflowRunFields(
  */
 function extractCheckRunFields(run: CheckRunPayload['check_run']): Record<string, unknown> {
   return {
-    repositoryId: run.repository.id,
-    repositoryFullName: run.repository.full_name,
-    headSha: run.head_sha,
+    ...extractCommonRepositoryFields(run.repository, run.head_sha, run.conclusion),
     headBranch: run.check_suite.head_branch,
-    conclusion: run.conclusion,
   };
 }
 
@@ -523,6 +543,45 @@ function processValidatedRunEvent<T extends { id: number; name: string }>(params
 }
 
 /**
+ * Process run event with validation and ingestion trigger
+ */
+function processRunEventWithIngestion<T extends { id: number; name: string }>(params: {
+  run: T | undefined;
+  runType: 'workflow_run' | 'check_run';
+  action: string;
+  shouldProcess: (action: string, run: T) => boolean;
+  extractFields: (run: T) => Record<string, unknown>;
+  triggerIngestion: (run: T, installationId: number) => void;
+  installationId?: number;
+}): void {
+  const validation = validateRunEvent({
+    run: params.run,
+    runType: params.runType,
+    action: params.action,
+    shouldProcess: params.shouldProcess,
+  });
+
+  if (!validation.isValid || !validation.run) {
+    return;
+  }
+
+  const validatedRun = validation.run;
+
+  processValidatedRunEvent({
+    run: validatedRun,
+    runType: params.runType,
+    action: params.action,
+    installationId: params.installationId,
+    additionalFields: params.extractFields(validatedRun),
+    onTrigger: () => {
+      if (params.installationId) {
+        params.triggerIngestion(validatedRun, params.installationId);
+      }
+    },
+  });
+}
+
+/**
  * Handle workflow_run events
  * Triggers when a GitHub Actions workflow run completes
  */
@@ -533,31 +592,16 @@ async function handleWorkflowRunEvent(
 ): Promise<void> {
   const { workflow_run, installation } = payload;
 
-  const validation = validateRunEvent({
+  processRunEventWithIngestion({
     run: workflow_run,
     runType: 'workflow_run',
     action,
     shouldProcess: shouldProcessWorkflowRun,
-  });
-
-  if (!validation.isValid || !validation.run) {
-    return;
-  }
-
-  const validatedRun = validation.run;
-  if (!validatedRun) {
-    return;
-  }
-
-  processValidatedRunEvent({
-    run: validatedRun,
-    runType: 'workflow_run',
-    action,
-    installationId: installation?.id,
-    additionalFields: extractWorkflowRunFields(validatedRun),
-    onTrigger: () => {
-      triggerWorkflowRunIngestion(validatedRun, installation!.id, context);
+    extractFields: extractWorkflowRunFields,
+    triggerIngestion: (run, instId) => {
+      triggerWorkflowRunIngestion(run, instId, context);
     },
+    installationId: installation?.id,
   });
 }
 
@@ -608,30 +652,15 @@ async function handleCheckRunEvent(
 ): Promise<void> {
   const { check_run, installation } = payload;
 
-  const validation = validateRunEvent({
+  processRunEventWithIngestion({
     run: check_run,
     runType: 'check_run',
     action,
     shouldProcess: shouldProcessCheckRun,
-  });
-
-  if (!validation.isValid || !validation.run) {
-    return;
-  }
-
-  const validatedRun = validation.run;
-  if (!validatedRun) {
-    return;
-  }
-
-  processValidatedRunEvent({
-    run: validatedRun,
-    runType: 'check_run',
-    action,
-    installationId: installation?.id,
-    additionalFields: extractCheckRunFields(validatedRun),
-    onTrigger: () => {
-      triggerCheckRunIngestion(validatedRun, installation!.id, context);
+    extractFields: extractCheckRunFields,
+    triggerIngestion: (run, instId) => {
+      triggerCheckRunIngestion(run, instId, context);
     },
+    installationId: installation?.id,
   });
 }

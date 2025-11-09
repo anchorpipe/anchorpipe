@@ -6,6 +6,7 @@
  * Story: ST-301
  */
 
+// cSpell:ignore anchorpipe
 import { prisma } from '@anchorpipe/database';
 import { writeAuditLog, AUDIT_ACTIONS, AUDIT_SUBJECTS } from './audit-service';
 import { logger } from './logger';
@@ -613,6 +614,73 @@ async function checkRepositoryAccess(
 }
 
 /**
+ * Create health check result for missing installation
+ */
+function createNotFoundHealthCheck(installationId: bigint): InstallationHealthCheck {
+  return {
+    healthy: false,
+    installationId,
+    accountLogin: 'unknown',
+    checks: {
+      exists: { status: 'fail', message: 'Installation not found in database' },
+      notSuspended: { status: 'fail', message: 'Cannot check - installation not found' },
+      tokenGeneration: { status: 'fail', message: 'Cannot check - installation not found' },
+      permissions: { status: 'fail', message: 'Cannot check - installation not found' },
+    },
+    summary: 'Installation not found in database',
+  };
+}
+
+/**
+ * Check if installation is suspended
+ */
+function checkSuspendedStatus(suspendedAt: Date | null): {
+  status: 'pass' | 'warning';
+  message?: string;
+} {
+  return suspendedAt
+    ? {
+        status: 'warning',
+        message: `Installation suspended at ${suspendedAt.toISOString()}`,
+      }
+    : { status: 'pass' };
+}
+
+/**
+ * Determine permission check status
+ */
+function determinePermissionStatus(validation: {
+  valid: boolean;
+  missing: string[];
+  warnings: string[];
+}): { status: 'pass' | 'fail' | 'warning'; message?: string } {
+  return {
+    status: validation.valid ? 'pass' : validation.missing.length > 0 ? 'fail' : 'warning',
+    message: validation.valid ? undefined : `Missing permissions: ${validation.missing.join(', ')}`,
+  };
+}
+
+/**
+ * Determine overall health status
+ */
+function determineHealthStatus(checks: InstallationHealthCheck['checks']): {
+  healthy: boolean;
+  summary: string;
+} {
+  const hasFailures = Object.values(checks).some((check) => check.status === 'fail');
+  const hasWarnings = Object.values(checks).some((check) => check.status === 'warning');
+
+  const healthy = !hasFailures;
+  const summary = hasFailures
+    ? 'Installation has critical issues'
+    : hasWarnings
+      ? 'Installation has warnings but is functional'
+      : 'Installation is healthy';
+
+  return { healthy, summary };
+}
+
+/**
  * Perform health check on GitHub App installation
  */
 export async function checkInstallationHealth(
@@ -622,28 +690,13 @@ export async function checkInstallationHealth(
 
   // Check if installation exists
   if (!installation) {
-    return {
-      healthy: false,
-      installationId,
-      accountLogin: 'unknown',
-      checks: {
-        exists: { status: 'fail', message: 'Installation not found in database' },
-        notSuspended: { status: 'fail', message: 'Cannot check - installation not found' },
-        tokenGeneration: { status: 'fail', message: 'Cannot check - installation not found' },
-        permissions: { status: 'fail', message: 'Cannot check - installation not found' },
-      },
-      summary: 'Installation not found in database',
-    };
+    return createNotFoundHealthCheck(installationId);
   }
 
+  // Run health checks
   const checks: InstallationHealthCheck['checks'] = {
     exists: { status: 'pass' },
-    notSuspended: installation.suspendedAt
-      ? {
-          status: 'warning',
-          message: `Installation suspended at ${installation.suspendedAt.toISOString()}`,
-        }
-      : { status: 'pass' },
+    notSuspended: checkSuspendedStatus(installation.suspendedAt),
     tokenGeneration: await checkTokenGeneration(installationId),
     permissions: { status: 'pass' },
   };
@@ -651,14 +704,7 @@ export async function checkInstallationHealth(
   // Check permissions
   const permissionValidation = await validateInstallationPermissions(installationId);
   checks.permissions = {
-    status: permissionValidation.valid
-      ? 'pass'
-      : permissionValidation.missing.length > 0
-        ? 'fail'
-        : 'warning',
-    message: permissionValidation.valid
-      ? undefined
-      : `Missing permissions: ${permissionValidation.missing.join(', ')}`,
+    ...determinePermissionStatus(permissionValidation),
     details: permissionValidation,
   };
 
@@ -671,15 +717,7 @@ export async function checkInstallationHealth(
   }
 
   // Determine overall health
-  const hasFailures = Object.values(checks).some((check) => check.status === 'fail');
-  const hasWarnings = Object.values(checks).some((check) => check.status === 'warning');
-
-  const healthy = !hasFailures;
-  const summary = hasFailures
-    ? 'Installation has critical issues'
-    : hasWarnings
-      ? 'Installation has warnings but is functional'
-      : 'Installation is healthy';
+  const { healthy, summary } = determineHealthStatus(checks);
 
   return {
     healthy,
