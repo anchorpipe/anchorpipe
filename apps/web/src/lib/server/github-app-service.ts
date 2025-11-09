@@ -498,3 +498,194 @@ export async function validateInstallationPermissions(
 
   return { valid, missing, warnings };
 }
+
+/**
+ * Installation health check result
+ */
+export interface InstallationHealthCheck {
+  healthy: boolean;
+  installationId: bigint;
+  accountLogin: string;
+  checks: {
+    exists: { status: 'pass' | 'fail'; message?: string };
+    notSuspended: { status: 'pass' | 'fail' | 'warning'; message?: string };
+    tokenGeneration: { status: 'pass' | 'fail'; message?: string };
+    permissions: {
+      status: 'pass' | 'fail' | 'warning';
+      message?: string;
+      details?: { valid: boolean; missing: string[]; warnings: string[] };
+    };
+    repositoryAccess?: {
+      status: 'pass' | 'fail' | 'warning';
+      message?: string;
+      accessibleRepos?: number;
+    };
+  };
+  summary: string;
+}
+
+/**
+ * Check if installation can generate tokens (verify GitHub API access)
+ */
+async function checkTokenGeneration(installationId: bigint): Promise<{
+  status: 'pass' | 'fail';
+  message?: string;
+}> {
+  try {
+    const { getInstallationToken } = await import('./github-app-tokens');
+    await getInstallationToken(installationId);
+    return { status: 'pass' };
+  } catch (error) {
+    return {
+      status: 'fail',
+      message: error instanceof Error ? error.message : 'Failed to generate token',
+    };
+  }
+}
+
+/**
+ * Check if installation can access repositories
+ */
+async function checkRepositoryAccess(
+  installationId: bigint,
+  repositoryIds: bigint[]
+): Promise<{
+  status: 'pass' | 'fail' | 'warning';
+  message?: string;
+  accessibleRepos?: number;
+}> {
+  if (repositoryIds.length === 0) {
+    return {
+      status: 'warning',
+      message: 'No repositories configured for this installation',
+    };
+  }
+
+  try {
+    const { getInstallationToken } = await import('./github-app-tokens');
+    const token = await getInstallationToken(installationId);
+
+    // Try to access the first repository to verify access
+    // We'll check if we can get repository info from GitHub API
+    // For now, we'll just verify token works - full repo access check would require repo full_name
+    // This is a simplified check - in production, you might want to verify specific repos
+
+    // Check if we can access repositories using the installation token
+    // Use the installation repositories endpoint
+    const response = await fetch('https://api.github.com/installation/repositories', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/vnd.github.v3+json',
+      },
+    });
+
+    if (!response.ok) {
+      return {
+        status: 'fail',
+        message: `Cannot access repositories: ${response.status}`,
+      };
+    }
+
+    const data = (await response.json()) as {
+      repositories: Array<{ id: number }>;
+    };
+
+    const accessibleRepos = data.repositories?.length ?? 0;
+
+    if (accessibleRepos === 0) {
+      return {
+        status: 'warning',
+        message: 'No accessible repositories found',
+        accessibleRepos: 0,
+      };
+    }
+
+    return {
+      status: 'pass',
+      accessibleRepos,
+    };
+  } catch (error) {
+    return {
+      status: 'fail',
+      message: error instanceof Error ? error.message : 'Failed to check repository access',
+    };
+  }
+}
+
+/**
+ * Perform health check on GitHub App installation
+ */
+export async function checkInstallationHealth(
+  installationId: bigint
+): Promise<InstallationHealthCheck> {
+  const installation = await getGitHubAppInstallationById(installationId);
+
+  // Check if installation exists
+  if (!installation) {
+    return {
+      healthy: false,
+      installationId,
+      accountLogin: 'unknown',
+      checks: {
+        exists: { status: 'fail', message: 'Installation not found in database' },
+        notSuspended: { status: 'fail', message: 'Cannot check - installation not found' },
+        tokenGeneration: { status: 'fail', message: 'Cannot check - installation not found' },
+        permissions: { status: 'fail', message: 'Cannot check - installation not found' },
+      },
+      summary: 'Installation not found in database',
+    };
+  }
+
+  const checks: InstallationHealthCheck['checks'] = {
+    exists: { status: 'pass' },
+    notSuspended: installation.suspendedAt
+      ? {
+          status: 'warning',
+          message: `Installation suspended at ${installation.suspendedAt.toISOString()}`,
+        }
+      : { status: 'pass' },
+    tokenGeneration: await checkTokenGeneration(installationId),
+    permissions: { status: 'pass' },
+  };
+
+  // Check permissions
+  const permissionValidation = await validateInstallationPermissions(installationId);
+  checks.permissions = {
+    status: permissionValidation.valid
+      ? 'pass'
+      : permissionValidation.missing.length > 0
+        ? 'fail'
+        : 'warning',
+    message: permissionValidation.valid
+      ? undefined
+      : `Missing permissions: ${permissionValidation.missing.join(', ')}`,
+    details: permissionValidation,
+  };
+
+  // Check repository access if there are repositories
+  if (installation.repositoryIds.length > 0) {
+    checks.repositoryAccess = await checkRepositoryAccess(
+      installationId,
+      installation.repositoryIds
+    );
+  }
+
+  // Determine overall health
+  const hasFailures = Object.values(checks).some((check) => check.status === 'fail');
+  const hasWarnings = Object.values(checks).some((check) => check.status === 'warning');
+
+  const healthy = !hasFailures;
+  const summary = hasFailures
+    ? 'Installation has critical issues'
+    : hasWarnings
+      ? 'Installation has warnings but is functional'
+      : 'Installation is healthy';
+
+  return {
+    healthy,
+    installationId,
+    accountLogin: installation.accountLogin,
+    checks,
+    summary,
+  };
+}
