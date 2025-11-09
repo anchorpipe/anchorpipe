@@ -31,7 +31,7 @@ export const runtime = 'nodejs';
 async function checkRateLimit(
   request: NextRequest,
   context: { userAgent: string | null }
-): Promise<{ allowed: boolean; headers?: Headers }> {
+): Promise<{ allowed: boolean; headers?: Record<string, string> }> {
   return await rateLimit('auth:password-reset', request, (violationIp, key) => {
     writeAuditLog({
       action: AUDIT_ACTIONS.loginFailure,
