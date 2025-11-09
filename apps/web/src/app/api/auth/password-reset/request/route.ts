@@ -145,10 +145,9 @@ export async function POST(request: NextRequest) {
 
     // Always return success (don't reveal if email exists) - prevents email enumeration
     if (!user || !hasPassword) {
+      // Log minimal information to avoid revealing account state
       logger.info('Password reset requested for invalid account', {
         email,
-        hasUser: Boolean(user),
-        hasPassword,
         ipAddress: context.ipAddress,
       });
       return NextResponse.json({
