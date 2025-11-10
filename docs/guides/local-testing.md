@@ -143,7 +143,7 @@ Create `test-data/reports/jest-report.json`:
 Run the parser test script:
 
 ```bash
-node scripts/test-parser.js jest test-data/reports/jest-report.json
+node tempo-local/scripts/test-parser.js jest test-data/reports/jest-report.json
 ```
 
 ### Test PyTest Parser
@@ -179,7 +179,7 @@ Create `test-data/reports/pytest-report.json`:
 ```
 
 ```bash
-node scripts/test-parser.js pytest test-data/reports/pytest-report.json
+node tempo-local/scripts/test-parser.js pytest test-data/reports/pytest-report.json
 ```
 
 ### Test JUnit Parser
@@ -197,7 +197,7 @@ Create `test-data/reports/junit-report.xml`:
 ```
 
 ```bash
-node scripts/test-parser.js junit test-data/reports/junit-report.xml
+node tempo-local/scripts/test-parser.js junit test-data/reports/junit-report.xml
 ```
 
 ### Test Playwright Parser
@@ -248,7 +248,7 @@ Create `test-data/reports/playwright-report.json`:
 ```
 
 ```bash
-node scripts/test-parser.js playwright test-data/reports/playwright-report.json
+node tempo-local/scripts/test-parser.js playwright test-data/reports/playwright-report.json
 ```
 
 ## Testing Ingestion Endpoint
@@ -258,7 +258,7 @@ node scripts/test-parser.js playwright test-data/reports/playwright-report.json
 First, you need to create a test repository in the database and generate an HMAC secret. Use the admin script:
 
 ```bash
-node scripts/create-test-repo.js
+node tempo-local/scripts/create-test-repo.js
 ```
 
 This will output:
@@ -306,7 +306,7 @@ Create `test-data/ingestion-payload.json`:
 
 ```bash
 # Using Node.js
-node scripts/compute-hmac.js test-data/ingestion-payload.json YOUR_HMAC_SECRET
+node tempo-local/scripts/compute-hmac.js test-data/ingestion-payload.json YOUR_HMAC_SECRET
 
 # Or using OpenSSL
 SIGNATURE=$(cat test-data/ingestion-payload.json | openssl dgst -sha256 -hmac "YOUR_HMAC_SECRET" | cut -d' ' -f2)
@@ -404,7 +404,7 @@ curl -X POST http://localhost:3000/api/auth/password-reset/request \
 Create a simple HTTP server to receive SIEM logs:
 
 ```bash
-node scripts/mock-siem-server.js
+node tempo-local/scripts/mock-siem-server.js
 ```
 
 This starts a server on `http://localhost:3001` that logs all received events.
