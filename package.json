@@ -24,14 +24,14 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
-    "@nx/js": "^20.0.0",
+    "@nx/js": "^22.0.2",
     "@nx/next": "^22.0.2",
     "@nx/node": "^22.0.2",
-    "@prisma/client": "^6.18.0",
+    "@prisma/client": "^6.19.0",
     "eslint": "^9.39.1",
     "nx": "^22.0.2",
     "prettier": "^3.3.2",
-    "prisma": "^6.18.0",
+    "prisma": "^6.19.0",
     "swagger-cli": "^4.0.4",
     "typescript": "^5.6.2"
   },

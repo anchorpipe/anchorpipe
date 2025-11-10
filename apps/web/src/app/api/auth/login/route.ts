@@ -6,6 +6,11 @@ import { validateRequest } from '@/lib/validation';
 import { loginSchema } from '@/lib/schemas/auth';
 import { rateLimit } from '@/lib/server/rate-limit';
 import {
+  checkBruteForceLock,
+  recordFailedAttempt,
+  clearFailedAttempts,
+} from '@/lib/server/brute-force';
+import {
   AUDIT_ACTIONS,
   AUDIT_SUBJECTS,
   extractRequestContext,
@@ -19,8 +24,21 @@ const prisma = new PrismaClient();
 
 export async function POST(request: Request) {
   try {
-    // Rate limiting
-    const rateLimitResult = await rateLimit('auth:login', request);
+    const context = extractRequestContext(request as unknown as NextRequest);
+    const ip = context.ipAddress || 'unknown';
+
+    // Rate limiting with violation logging
+    const rateLimitResult = await rateLimit('auth:login', request, (violationIp, key) => {
+      writeAuditLog({
+        action: AUDIT_ACTIONS.loginFailure,
+        subject: AUDIT_SUBJECTS.security,
+        description: `Rate limit violation: ${key} exceeded for IP ${violationIp}`,
+        metadata: { key, ip: violationIp },
+        ipAddress: violationIp,
+        userAgent: context.userAgent,
+      });
+    });
+
     if (!rateLimitResult.allowed) {
       return NextResponse.json(
         { error: 'Too many requests. Please try again later.' },
@@ -41,11 +59,38 @@ export async function POST(request: Request) {
     }
 
     const { email, password } = validation.data;
-    const context = extractRequestContext(request as unknown as NextRequest);
+
+    // Check brute force lock
+    const bruteForceCheck = checkBruteForceLock(ip, email || undefined);
+    if (bruteForceCheck.locked) {
+      await writeAuditLog({
+        action: AUDIT_ACTIONS.loginFailure,
+        subject: AUDIT_SUBJECTS.security,
+        description: `Brute force lock: Account locked due to repeated failed attempts`,
+        metadata: { email, ip, retryAfter: bruteForceCheck.retryAfter },
+        ipAddress: ip,
+        userAgent: context.userAgent,
+      });
+      return NextResponse.json(
+        {
+          error:
+            'Account temporarily locked due to repeated failed login attempts. Please try again later.',
+        },
+        {
+          status: 429,
+          headers: {
+            ...rateLimitResult.headers,
+            'Retry-After': String(bruteForceCheck.retryAfter || 900),
+          },
+        }
+      );
+    }
 
     // Find user
     const user = await prisma.user.findFirst({ where: { email } });
     if (!user) {
+      // Record failed attempt for brute force tracking
+      const bruteForceResult = recordFailedAttempt(ip, email || undefined);
       await writeAuditLog({
         action: AUDIT_ACTIONS.loginFailure,
         subject: AUDIT_SUBJECTS.security,
@@ -55,10 +100,13 @@ export async function POST(request: Request) {
         userAgent: context.userAgent,
       });
       // Don't reveal if user exists (security best practice)
-      return NextResponse.json(
-        { error: 'Invalid credentials' },
-        { status: 401, headers: rateLimitResult.headers }
-      );
+      const headers = bruteForceResult.locked
+        ? {
+            ...rateLimitResult.headers,
+            'Retry-After': String(bruteForceResult.retryAfter || 900),
+          }
+        : rateLimitResult.headers;
+      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401, headers });
     }
 
     // Verify password
@@ -83,6 +131,8 @@ export async function POST(request: Request) {
 
     const isValid = await verifyPassword(password, passwordHash);
     if (!isValid) {
+      // Record failed attempt for brute force tracking
+      const bruteForceResult = recordFailedAttempt(ip, email || undefined);
       await writeAuditLog({
         actorId: user.id,
         action: AUDIT_ACTIONS.loginFailure,
@@ -93,11 +143,17 @@ export async function POST(request: Request) {
         ipAddress: context.ipAddress,
         userAgent: context.userAgent,
       });
-      return NextResponse.json(
-        { error: 'Invalid credentials' },
-        { status: 401, headers: rateLimitResult.headers }
-      );
+      const headers = bruteForceResult.locked
+        ? {
+            ...rateLimitResult.headers,
+            'Retry-After': String(bruteForceResult.retryAfter || 900),
+          }
+        : rateLimitResult.headers;
+      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401, headers });
     }
+
+    // Successful login - clear brute force tracking
+    clearFailedAttempts(ip, email || undefined);
 
     // Update last login
     await prisma.user.update({

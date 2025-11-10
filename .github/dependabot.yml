@@ -14,8 +14,12 @@ updates:
     commit-message:
       prefix: 'chore'
       include: 'scope'
-    # Group minor and patch updates
+    # Group updates by type
     groups:
+      security-updates:
+        dependency-type: 'production'
+        update-types:
+          - 'security'
       production-dependencies:
         dependency-type: 'production'
         update-types:

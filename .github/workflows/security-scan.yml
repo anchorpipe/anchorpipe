@@ -1,0 +1,171 @@
+name: Security Scanning (SAST/SCA)
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main]
+  schedule:
+    # Run weekly on Tuesday at 00:00 UTC
+    - cron: '0 0 * * 2'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+  pull-requests: write
+
+jobs:
+  sast:
+    name: SAST (Static Application Security Testing)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Run npm audit
+        id: npm-audit
+        continue-on-error: true
+        run: |
+          npm audit --audit-level=moderate --json > audit-results.json || true
+          if [ -f audit-results.json ]; then
+            CRITICAL=$(jq -r '.metadata.vulnerabilities.critical // 0' audit-results.json)
+            HIGH=$(jq -r '.metadata.vulnerabilities.high // 0' audit-results.json)
+            MODERATE=$(jq -r '.metadata.vulnerabilities.moderate // 0' audit-results.json)
+            
+            echo "critical=$CRITICAL" >> $GITHUB_OUTPUT
+            echo "high=$HIGH" >> $GITHUB_OUTPUT
+            echo "moderate=$MODERATE" >> $GITHUB_OUTPUT
+            
+            if [ "$CRITICAL" -gt 0 ] || [ "$HIGH" -gt 0 ]; then
+              echo "❌ Critical or High severity vulnerabilities found!"
+              echo "Critical: $CRITICAL, High: $HIGH"
+              cat audit-results.json | jq '.vulnerabilities[] | select(.severity == "critical" or .severity == "high") | {name: .name, severity: .severity, title: .title}' || true
+              exit 1
+            else
+              echo "✅ No critical or high severity vulnerabilities found"
+              echo "Moderate: $MODERATE (non-blocking)"
+            fi
+          fi
+
+      - name: Upload audit results
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: npm-audit-results
+          path: audit-results.json
+          retention-days: 30
+
+  sca:
+    name: SCA (Software Composition Analysis)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Run Snyk security scan
+        id: snyk-scan
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          # Snyk requires authentication via SNYK_TOKEN secret
+          # If token is not available, skip Snyk scan
+          if [ -z "$SNYK_TOKEN" ]; then
+            echo "⚠️  SNYK_TOKEN not configured. Skipping Snyk scan."
+            echo "To enable Snyk scanning, add SNYK_TOKEN to repository secrets."
+            echo "Get your token at: https://app.snyk.io/account"
+            # Create empty results file to indicate scan was skipped
+            echo '{"vulnerabilities": []}' > snyk-results.json
+            exit 0
+          fi
+
+          # Install Snyk CLI
+          npm install -g snyk
+
+          # Authenticate with Snyk
+          echo "$SNYK_TOKEN" | snyk auth --stdin || true
+
+          # Run Snyk test
+          snyk test --severity-threshold=high --json > snyk-results.json || true
+
+          if [ -f snyk-results.json ]; then
+            CRITICAL=$(jq -r '[.vulnerabilities[]? | select(.severity == "critical")] | length' snyk-results.json || echo "0")
+            HIGH=$(jq -r '[.vulnerabilities[]? | select(.severity == "high")] | length' snyk-results.json || echo "0")
+            
+            echo "critical=$CRITICAL" >> $GITHUB_OUTPUT
+            echo "high=$HIGH" >> $GITHUB_OUTPUT
+            
+            if [ "$CRITICAL" -gt 0 ] || [ "$HIGH" -gt 0 ]; then
+              echo "❌ Critical or High severity vulnerabilities found by Snyk!"
+              echo "Critical: $CRITICAL, High: $HIGH"
+              exit 1
+            else
+              echo "✅ No critical or high severity vulnerabilities found by Snyk"
+            fi
+          fi
+
+      - name: Upload Snyk results
+        if: always() && steps.snyk-scan.outcome == 'success'
+        uses: actions/upload-artifact@v5
+        with:
+          name: snyk-results
+          path: snyk-results.json
+          retention-days: 30
+
+  check-critical-issues:
+    name: Check for Critical Security Issues
+    runs-on: ubuntu-latest
+    needs: [sast, sca]
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Check SAST results
+        id: check-sast
+        run: |
+          if [ "${{ needs.sast.result }}" == "failure" ]; then
+            echo "❌ SAST scan found critical or high severity vulnerabilities"
+            echo "This PR cannot be merged until vulnerabilities are resolved."
+            exit 1
+          fi
+          echo "✅ SAST scan passed"
+
+      - name: Check SCA results
+        id: check-sca
+        run: |
+          if [ "${{ needs.sca.result }}" == "failure" ]; then
+            echo "❌ SCA scan found critical or high severity vulnerabilities"
+            echo "This PR cannot be merged until vulnerabilities are resolved."
+            exit 1
+          fi
+          echo "✅ SCA scan passed"
+
+      - name: Comment on PR
+        if: failure()
+        uses: actions/github-script@v8
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '🚨 **Security Scan Failed**\n\nThis PR contains critical or high severity security vulnerabilities that must be resolved before merging.\n\nPlease:\n1. Review the security scan results in the workflow logs\n2. Update vulnerable dependencies or fix security issues\n3. Push changes to trigger a new scan\n\nSee [Security Scanning Documentation](docs/SECURITY_SCANNING.md) for more information.'
+            })

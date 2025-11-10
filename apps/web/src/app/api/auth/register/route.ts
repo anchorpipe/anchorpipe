@@ -11,6 +11,8 @@ import {
   extractRequestContext,
   writeAuditLog,
 } from '@/lib/server/audit-service';
+import { createEmailVerificationToken } from '@/lib/server/email-verification';
+import { logger } from '@/lib/server/logger';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -19,8 +21,20 @@ const prisma = new PrismaClient();
 
 export async function POST(request: Request) {
   try {
-    // Rate limiting
-    const rateLimitResult = await rateLimit('auth:register', request);
+    const context = extractRequestContext(request as unknown as NextRequest);
+
+    // Rate limiting with violation logging
+    const rateLimitResult = await rateLimit('auth:register', request, (violationIp, key) => {
+      writeAuditLog({
+        action: AUDIT_ACTIONS.loginFailure,
+        subject: AUDIT_SUBJECTS.security,
+        description: `Rate limit violation: ${key} exceeded for IP ${violationIp}`,
+        metadata: { key, ip: violationIp },
+        ipAddress: violationIp,
+        userAgent: context.userAgent,
+      });
+    });
+
     if (!rateLimitResult.allowed) {
       return NextResponse.json(
         { error: 'Too many requests. Please try again later.' },
@@ -41,7 +55,6 @@ export async function POST(request: Request) {
     }
 
     const { email, password } = validation.data;
-    const context = extractRequestContext(request as unknown as NextRequest);
 
     // Check if user already exists
     const existing = await prisma.user.findFirst({ where: { email } });
@@ -70,8 +83,40 @@ export async function POST(request: Request) {
         // Store password hash in preferences for now (in future, use Account model with provider='password')
         preferences: {
           passwordHash: hashedPassword,
+          emailVerified: false, // Email not verified yet
         },
       },
+    });
+
+    // Generate email verification token
+    const { token: verificationToken, expiresAt } = await createEmailVerificationToken(
+      user.id,
+      email
+    );
+
+    const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/verify-email?token=${verificationToken}`;
+
+    // Queue email for sending
+    try {
+      const { queueEmail } = await import('@/lib/server/email-queue-processor');
+      await queueEmail(user.id, 'email.verification', {
+        verificationUrl,
+        expiresIn: '24 hours',
+      });
+    } catch (error) {
+      logger.warn('Failed to queue email verification email', {
+        userId: user.id,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
+
+    logger.info('Email verification token generated', {
+      userId: user.id,
+      email,
+      expiresAt,
+      // In development, log the URL (remove in production)
+      ...(process.env.NODE_ENV === 'development' && { verificationUrl }),
+      ipAddress: context.ipAddress,
     });
 
     // Create session
@@ -84,12 +129,28 @@ export async function POST(request: Request) {
       subject: AUDIT_SUBJECTS.user,
       subjectId: user.id,
       description: 'User account registered.',
-      metadata: { email },
+      metadata: {
+        email,
+        emailVerificationRequired: true,
+        expiresAt: expiresAt.toISOString(),
+      },
       ipAddress: context.ipAddress,
       userAgent: context.userAgent,
     });
 
-    return NextResponse.json({ ok: true }, { status: 201, headers: rateLimitResult.headers });
+    return NextResponse.json(
+      {
+        ok: true,
+        message: 'User registered successfully. Please check your email to verify your account.',
+        // In development, include the token for testing
+        ...(process.env.NODE_ENV === 'development' && {
+          verificationToken,
+          verificationUrl,
+          expiresAt: expiresAt.toISOString(),
+        }),
+      },
+      { status: 201, headers: rateLimitResult.headers }
+    );
   } catch (error) {
     console.error('Registration error:', error);
     return NextResponse.json({ error: 'Unexpected error' }, { status: 500 });
