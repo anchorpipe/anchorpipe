@@ -12,7 +12,6 @@
  *   node scripts/create-test-repo.js my-test-repo
  */
 
-const crypto = require('crypto');
 const path = require('path');
 const fs = require('fs');
 

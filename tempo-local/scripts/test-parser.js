@@ -16,7 +16,6 @@
  */
 
 const fs = require('fs');
-const path = require('path');
 
 // Register TypeScript support
 require('ts-node').register({
