@@ -50,4 +50,4 @@ temp/
 .tmp/
 
 # Gap analysis (local analysis directory)
-gap-analysis/
+gap-analysis/\ntempo-local/scripts/
