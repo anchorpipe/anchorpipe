@@ -12,48 +12,75 @@
  *   node scripts/create-test-repo.js my-test-repo
  */
 
-const { PrismaClient } = require('@anchorpipe/database');
 const crypto = require('crypto');
+const path = require('path');
+const fs = require('fs');
 
-const prisma = new PrismaClient();
+// Load environment variables from .env.local
+const envPath = path.join(__dirname, '..', '.env.local');
+if (fs.existsSync(envPath)) {
+  const envContent = fs.readFileSync(envPath, 'utf-8');
+  envContent.split('\n').forEach((line) => {
+    const trimmed = line.trim();
+    if (trimmed && !trimmed.startsWith('#')) {
+      const [key, ...valueParts] = trimmed.split('=');
+      if (key && valueParts.length > 0) {
+        const value = valueParts.join('=').replace(/^["']|["']$/g, '');
+        process.env[key.trim()] = value;
+      }
+    }
+  });
+}
+
+// Register TypeScript support
+require('ts-node').register({
+  transpileOnly: true,
+  compilerOptions: {
+    module: 'commonjs',
+    esModuleInterop: true,
+    skipLibCheck: true,
+  },
+});
+
+// Import Prisma client and HMAC secret functions
+const { prisma } = require('../libs/database/src/index.ts');
+const {
+  createHmacSecret,
+  generateHmacSecret,
+} = require('../apps/web/src/lib/server/hmac-secrets.ts');
 
 async function main() {
   const repoName = process.argv[2] || 'test-repo';
 
   try {
-    // Generate HMAC secret
-    const hmacSecret = crypto.randomBytes(32).toString('hex');
-
-    // Create repository
+    // Create repository first
     const repo = await prisma.repo.create({
       data: {
         name: repoName,
-        fullName: `test/${repoName}`,
-        provider: 'github',
-        providerId: `test-${Date.now()}`,
-        hmacSecrets: {
-          create: {
-            secret: hmacSecret,
-            description: 'Test secret for local development',
-            lastUsedAt: null,
-          },
-        },
+        owner: 'test',
+        defaultBranch: 'main',
+        visibility: 'public',
       },
-      include: {
-        hmacSecrets: true,
-      },
+    });
+
+    // Generate and create HMAC secret using the proper function
+    const secret = generateHmacSecret();
+    const secretResult = await createHmacSecret({
+      repoId: repo.id,
+      name: 'Test Secret',
+      secret,
     });
 
     console.log('✅ Test repository created!');
     console.log('');
     console.log('Repository ID:', repo.id);
-    console.log('HMAC Secret:', hmacSecret);
+    console.log('HMAC Secret:', secretResult.secret);
     console.log('');
     console.log('Add these to your test payload:');
     console.log(`  "repo_id": "${repo.id}"`);
     console.log('');
     console.log('Use this secret for HMAC signature:');
-    console.log(`  ${hmacSecret}`);
+    console.log(`  ${secretResult.secret}`);
     console.log('');
     console.log('⚠️  Keep the secret secure!');
   } catch (error) {
@@ -66,4 +93,3 @@ async function main() {
 }
 
 main();
-

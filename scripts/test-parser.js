@@ -18,9 +18,18 @@
 const fs = require('fs');
 const path = require('path');
 
-// Import parser (adjust path based on your project structure)
-// This assumes the script is run from project root
-const { parseTestReport } = require('../apps/web/src/lib/server/test-report-parsers');
+// Register TypeScript support
+require('ts-node').register({
+  transpileOnly: true,
+  compilerOptions: {
+    module: 'commonjs',
+    esModuleInterop: true,
+    skipLibCheck: true,
+  },
+});
+
+// Import parser
+const { parseTestReport } = require('../apps/web/src/lib/server/test-report-parsers/index.ts');
 
 async function main() {
   const args = process.argv.slice(2);
@@ -105,4 +114,3 @@ main().catch((error) => {
   console.error('Fatal error:', error);
   process.exit(1);
 });
-
