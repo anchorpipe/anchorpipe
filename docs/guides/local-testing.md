@@ -22,6 +22,7 @@ docker ps
 ```
 
 You should see:
+
 - `anchorpipe_db` (PostgreSQL on port 15432)
 - `anchorpipe_redis` (Redis on port 6379)
 - `anchorpipe_mq` (RabbitMQ on ports 5672, 15672)
@@ -88,6 +89,17 @@ npm run dev
 ```
 
 The application will be available at `http://localhost:3000`.
+
+If you encounter "address already in use" on port 3000:
+
+```bash
+# macOS/Linux
+lsof -i :3000 | awk 'NR>1 {print $2}' | xargs -r kill -9
+
+# Windows PowerShell
+netstat -ano | Select-String -Pattern ":3000"
+Stop-Process -Id <PID_FROM_ABOVE> -Force
+```
 
 ## Testing Test Report Parsers
 
@@ -250,6 +262,7 @@ node scripts/create-test-repo.js
 ```
 
 This will output:
+
 - Repository ID (UUID)
 - HMAC Secret
 
@@ -398,89 +411,66 @@ This starts a server on `http://localhost:3001` that logs all received events.
 
 ### 2. Configure SIEM
 
-Update `.env.local`:
+Update `.env.local` (ensure a single copy of each line; remove duplicates):
 
 ```bash
-SIEM_ENABLED="true"
-SIEM_TYPE="http"
-SIEM_HTTP_URL="http://localhost:3001/siem"
-SIEM_HTTP_HEADERS='{"Content-Type": "application/json"}'
+SIEM_ENABLED=true
+SIEM_TYPE=http
+SIEM_HTTP_URL=http://localhost:3001/siem
+SIEM_HTTP_HEADERS={"Content-Type":"application/json"}
 ```
 
 ### 3. Trigger SIEM Forwarding
 
-```bash
-# Manually trigger forwarding
-curl -X POST http://localhost:3000/api/admin/siem/forward \
-  -H "Authorization: Bearer YOUR_ADMIN_TOKEN"
-```
+If the admin endpoint requires admin privileges, use an admin token/session. Otherwise, skip locally and validate that the mock SIEM receives events in flows permitted in dev.
 
 Check the mock server terminal for received logs.
 
 ## Testing Authentication
 
-### 1. Register a Test User
+In local dev, the login endpoint issues a session cookie (not a bearer token). Use the helper scripts to avoid shell quoting issues.
+
+### 1. Register a Test User (helper script)
 
 ```bash
-curl -X POST http://localhost:3000/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "test@example.com",
-    "password": "TestPassword123!",
-    "name": "Test User"
-  }'
+node tempo-local/http/register.js "test+siem@example.com" "TestPassword123!" "SIEM Tester"
 ```
 
-### 2. Login
+### 2. Login and capture session cookie
 
 ```bash
-curl -X POST http://localhost:3000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "test@example.com",
-    "password": "TestPassword123!"
-  }'
+node tempo-local/http/login.js "test+siem@example.com" "TestPassword123!"
 ```
 
-Save the returned JWT token for authenticated requests.
+The output includes a `cookie` field (Set-Cookie). Use it for authenticated requests.
 
 ### 3. Test Password Reset
 
 ```bash
-# Request reset
-curl -X POST http://localhost:3000/api/auth/password-reset/request \
-  -H "Content-Type: application/json" \
-  -d '{"email": "test@example.com"}'
+node tempo-local/http/password-reset-request.js "test+siem@example.com"
 
-# Check terminal for reset token (console email provider)
-# Then confirm reset
-curl -X POST http://localhost:3000/api/auth/password-reset/confirm \
-  -H "Content-Type: application/json" \
-  -d '{
-    "token": "RESET_TOKEN_FROM_EMAIL",
-    "newPassword": "NewPassword123!"
-  }'
+Check the server terminal for email output.
 ```
 
 ## Testing DSR (Data Subject Requests)
 
-### 1. Request Data Export
+### 1. Request Data Export (with cookie)
 
 ```bash
-curl -X POST http://localhost:3000/api/dsr/export \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"format": "json"}'
+# Paste the cookie from the login output
+COOKIE='ap_session=...'
+node tempo-local/http/dsr-export-cookie.js "$COOKIE"
 ```
 
-### 2. Download Export
+### 2. Download Export (with cookie)
 
 ```bash
-# Get the request ID from the response above
-curl -X GET "http://localhost:3000/api/dsr/export/REQUEST_ID?format=json" \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  -o export.json
+# Use the requestId from the export step
+node tempo-local/http/dsr-download-cookie.js "$COOKIE" "REQUEST_ID"
+cat tempo-local/http/export.json | head -n 40
 ```
+
+Note: If a "verify email" route is missing or returns 404 in dev, prefer the session cookie flows above to exercise authenticated endpoints.
 
 ## Integration Testing Scripts
 
@@ -548,4 +538,3 @@ After testing locally:
 - [Docker Compose Documentation](https://docs.docker.com/compose/)
 - [ngrok Documentation](https://ngrok.com/docs)
 - [Postman Collection](./postman-collection.json) (if available)
-
