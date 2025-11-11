@@ -5,4 +5,11 @@
 **/.turbo/**
 tempo-local/**
 scripts/**
+gap-analysis/**
+test-data/**
+services/ingestion/**
+apps/web/src/lib/server/__tests__/**
+all-epics.json
+open-epics.json
+open-gb.json
 
