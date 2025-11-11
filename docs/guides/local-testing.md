@@ -514,6 +514,22 @@ open http://localhost:15672
 # Check queues
 ```
 
+### Ingestion Worker (dev-only)
+
+The queue consumer under `services/ingestion` is a development helper to validate async processing and DLQ behavior. It is disabled by default.
+
+- Enable by setting:
+
+```bash
+INGESTION_WORKER_ENABLED=true
+RABBIT_URL="amqp://guest:guest@localhost:5672"
+```
+
+- Notes:
+  - This worker is dev-only per ADR‑0001/0007; production cutover will be a Rust/Go service.
+  - `failure_details` are redacted before persistence per ADR‑0012.
+  - Transient errors are retried briefly before messages are routed to the DLQ.
+
 ### Port Already in Use
 
 ```bash
