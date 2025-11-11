@@ -44,7 +44,10 @@ function redactFailureDetails(input?: string): string | null {
   if (!input) return null;
   let value = input;
   // Mask obvious tokens/secrets-like strings (very rough pass)
-  value = value.replace(/(token|secret|password|apikey|api_key)\s*[:=]\s*([^\s]+)/gi, '$1=[REDACTED]');
+  value = value.replace(
+    /(token|secret|password|apikey|api_key)\s*[:=]\s*([^\s]+)/gi,
+    '$1=[REDACTED]'
+  );
   // Mask email-like patterns
   value = value.replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, '[REDACTED_EMAIL]');
   // Mask long base64-ish strings
@@ -100,6 +103,12 @@ async function handleMessage(message: IngestionMessage) {
 }
 
 async function main() {
+  if (process.env.INGESTION_WORKER_ENABLED !== 'true') {
+    // eslint-disable-next-line no-console
+    console.log('Ingestion worker disabled (INGESTION_WORKER_ENABLED != "true"). Exiting.');
+    process.exit(0);
+  }
+
   // Basic in-process retry with backoff prior to DLQ handoff
   const attemptWithRetry = async (fn: () => Promise<void>) => {
     const backoffs = [500, 1000, 2000]; // ms
