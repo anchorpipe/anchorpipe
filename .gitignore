@@ -5,7 +5,7 @@
 # If you need to bring content back into the repo, curate it into proper directories outside tempo-local.
 # ------------------------------------------------------------------------------
 /tempo-local/
-/anchorpipe_guide_docs/
+/test-data/
 
 # Node / package managers
 node_modules/
@@ -50,4 +50,5 @@ temp/
 .tmp/
 
 # Gap analysis (local analysis directory)
-gap-analysis/\ntempo-local/scripts/
+gap-analysis/
+tempo-local/scripts/
