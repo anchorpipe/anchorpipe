@@ -5,7 +5,15 @@ import js from '@eslint/js';
 export default [
   // Ignore build artifacts and vendor directories
   {
-    ignores: ['**/node_modules/**', '**/dist/**', '**/.next/**', '**/coverage/**', '**/.turbo/**'],
+    ignores: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/.next/**',
+      '**/coverage/**',
+      '**/.turbo/**',
+      'scripts/**',
+      'tempo-local/**',
+    ],
   },
   // Base JS rules
   js.configs.recommended,
