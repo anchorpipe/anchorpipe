@@ -35,10 +35,27 @@ type IngestionMessage = {
       status: 'pass' | 'fail' | 'skip';
       durationMs?: number;
       startedAt?: string;
-      failureDetails?: string;
+      failureDetails?: string; // redact per ADR-0012
     }>;
   };
 };
+
+function redactFailureDetails(input?: string): string | null {
+  if (!input) return null;
+  let value = input;
+  // Mask obvious tokens/secrets-like strings (very rough pass)
+  value = value.replace(/(token|secret|password|apikey|api_key)\s*[:=]\s*([^\s]+)/gi, '$1=[REDACTED]');
+  // Mask email-like patterns
+  value = value.replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, '[REDACTED_EMAIL]');
+  // Mask long base64-ish strings
+  value = value.replace(/[A-Za-z0-9+/_-]{40,}/g, '[REDACTED_BLOB]');
+  // Truncate excessively long logs
+  const MAX = 1000;
+  if (value.length > MAX) {
+    value = value.slice(0, MAX) + '…[TRUNCATED]';
+  }
+  return value;
+}
 
 async function upsertTestCase(repoId: string, path: string, name: string, framework: string) {
   const existing = await prisma.testCase.findUnique({
@@ -67,7 +84,7 @@ async function persistTestRun(
       status: test.status,
       durationMs: test.durationMs ?? null,
       startedAt: test.startedAt ? new Date(test.startedAt) : new Date(),
-      failureDetails: test.failureDetails ?? null,
+      failureDetails: redactFailureDetails(test.failureDetails),
       environmentHash: null,
     },
   });
@@ -83,6 +100,25 @@ async function handleMessage(message: IngestionMessage) {
 }
 
 async function main() {
+  // Basic in-process retry with backoff prior to DLQ handoff
+  const attemptWithRetry = async (fn: () => Promise<void>) => {
+    const backoffs = [500, 1000, 2000]; // ms
+    let lastError: unknown;
+    for (let i = 0; i < backoffs.length; i++) {
+      try {
+        await fn();
+        return;
+      } catch (err) {
+        lastError = err;
+        await new Promise((r) => setTimeout(r, backoffs[i]));
+      }
+    }
+    // Final attempt (no delay) before giving up to DLQ
+    await fn().catch((err) => {
+      throw err ?? lastError;
+    });
+  };
+
   const rabbitUrl = process.env.RABBIT_URL;
   if (!rabbitUrl) {
     // eslint-disable-next-line no-console
@@ -102,7 +138,7 @@ async function main() {
 
   await consumeJson(channel, QUEUE_NAME, async (msg: IngestionMessage) => {
     try {
-      await handleMessage(msg);
+      await attemptWithRetry(() => handleMessage(msg));
       ingestedCounter.inc();
     } catch (err) {
       failedCounter.inc();
@@ -117,5 +153,3 @@ main().catch((err) => {
   console.error('Ingestion worker fatal error:', err);
   process.exit(1);
 });
-
-
