@@ -12,7 +12,7 @@
  *   node scripts/setup-local-testing.js [repo-name]
  */
 
-const { execSync } = require('child_process');
+const { execSync, execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
@@ -76,8 +76,9 @@ console.log('');
 console.log('Creating test repository...');
 const repoName = process.argv[2] || 'test-repo-local';
 try {
-  const result = execSync(
-    `node scripts/create-test-repo.js ${repoName}`,
+  const result = execFileSync(
+    process.execPath,
+    ['scripts/create-test-repo.js', repoName],
     { encoding: 'utf-8', env: process.env, cwd: path.join(__dirname, '..') }
   );
   console.log(result);

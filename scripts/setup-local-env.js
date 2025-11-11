@@ -14,6 +14,7 @@ const fs = require('fs');
 const path = require('path');
 
 const envPath = path.join(__dirname, '..', '.env.local');
+const tempPath = envPath + '.tmp';
 
 // Generate encryption key
 const encryptionKey = crypto.randomBytes(32).toString('base64');
@@ -52,13 +53,14 @@ EMAIL_FROM="noreply@localhost"
 SIEM_ENABLED="false"
 `;
 
-// Write .env.local file
+// Atomically write .env.local with backup to reduce TOCTOU risk
 if (fs.existsSync(envPath)) {
-  console.log('⚠️  .env.local already exists. Backing up to .env.local.backup');
-  fs.copyFileSync(envPath, envPath + '.backup');
+  const backupPath = envPath + `.backup.${Date.now()}`;
+  console.log(`⚠️  .env.local already exists. Backing up to ${path.basename(backupPath)}`);
+  fs.renameSync(envPath, backupPath);
 }
-
-fs.writeFileSync(envPath, envContent);
+fs.writeFileSync(tempPath, envContent, { mode: 0o600 });
+fs.renameSync(tempPath, envPath);
 
 console.log('✅ Local environment file created: .env.local');
 console.log('');

@@ -135,7 +135,7 @@ async function main() {
     process.exit(1);
   }
 
-  const { connection, channel } = await connectRabbit(rabbitUrl);
+  const { channel } = await connectRabbit(rabbitUrl);
   await assertQueue(channel, QUEUE_NAME, {
     durable: true,
     deadLetterExchange: 'dlx',
