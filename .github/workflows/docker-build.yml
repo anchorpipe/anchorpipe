@@ -73,7 +73,23 @@ jobs:
           FIRST_TAG=$(echo "$TAGS" | head -n 1)
           echo "tag=$FIRST_TAG" >> $GITHUB_OUTPUT
 
-      - name: Run Trivy vulnerability scanner
+      - name: Run Trivy vulnerability scanner (PR, non-blocking)
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: aquasecurity/trivy-action@0.33.1
+        continue-on-error: true
+        with:
+          image-ref: ${{ steps.trivy-tag.outputs.tag }}
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '0'
+          ignore-unfixed: true
+          scanners: 'vuln'
+          vuln-type: 'os,library'
+          trivy-version: 'v0.67.2'
+
+      - name: Run Trivy vulnerability scanner (main, strict)
+        if: ${{ github.event_name != 'pull_request' }}
         uses: aquasecurity/trivy-action@0.33.1
         continue-on-error: true
         with:
@@ -83,6 +99,9 @@ jobs:
           severity: 'CRITICAL,HIGH'
           exit-code: '1'
           ignore-unfixed: false
+          scanners: 'vuln,secret'
+          vuln-type: 'os,library'
+          trivy-version: 'v0.67.2'
 
       - name: Upload Trivy results to GitHub Security
         uses: github/codeql-action/upload-sarif@v4
