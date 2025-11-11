@@ -1,0 +1,26 @@
+{
+  "name": "ingestion",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "services/ingestion/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/node:build",
+      "options": {
+        "outputPath": "dist/services/ingestion",
+        "main": "services/ingestion/src/index.ts",
+        "tsConfig": "services/ingestion/tsconfig.app.json",
+        "assets": []
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "options": {
+        "buildTarget": "ingestion:build",
+        "watch": true
+      }
+    }
+  },
+  "tags": ["type:service", "area:platform", "gate:GB"]
+}
+
