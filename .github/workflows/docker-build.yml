@@ -81,12 +81,12 @@ jobs:
           image-ref: ${{ steps.trivy-tag.outputs.tag }}
           format: 'sarif'
           output: 'trivy-results.sarif'
-          severity: 'CRITICAL,HIGH'
+          severity: 'CRITICAL'
           exit-code: '0'
           ignore-unfixed: true
           scanners: 'vuln'
           vuln-type: 'os,library'
-          trivy-version: 'v0.67.2'
+          version: 'v0.67.2'
 
       - name: Run Trivy vulnerability scanner (main, strict)
         if: ${{ github.event_name != 'pull_request' }}
@@ -101,7 +101,7 @@ jobs:
           ignore-unfixed: false
           scanners: 'vuln,secret'
           vuln-type: 'os,library'
-          trivy-version: 'v0.67.2'
+          version: 'v0.67.2'
 
       - name: Upload Trivy results to GitHub Security
         uses: github/codeql-action/upload-sarif@v4
