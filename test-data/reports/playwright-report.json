@@ -1,0 +1,56 @@
+{
+  "suites": [
+    {
+      "title": "Test Suite",
+      "file": "tests/example.spec.ts",
+      "specs": [
+        {
+          "title": "Test Spec",
+          "file": "tests/example.spec.ts",
+          "tests": [
+            {
+              "title": "should pass",
+              "results": [
+                {
+                  "status": "passed",
+                  "duration": 1000,
+                  "startTime": "2025-01-01T00:00:00.000Z"
+                }
+              ]
+            },
+            {
+              "title": "should fail",
+              "results": [
+                {
+                  "status": "failed",
+                  "duration": 500,
+                  "startTime": "2025-01-01T00:00:00.000Z",
+                  "error": {
+                    "message": "Test failed",
+                    "stack": "Error: Test failed\n    at ..."
+                  }
+                }
+              ]
+            },
+            {
+              "title": "should be skipped",
+              "results": [
+                {
+                  "status": "skipped",
+                  "duration": 0,
+                  "startTime": "2025-01-01T00:00:00.000Z"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+
+
+
+
+

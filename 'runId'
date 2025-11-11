@@ -1,0 +1,1 @@
+SELECT id, event_type, event_timestamp, event_data- AS run_id FROM telemetry_events ORDER BY event_timestamp DESC LIMIT 5;  
