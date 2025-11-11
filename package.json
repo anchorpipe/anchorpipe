@@ -9,6 +9,7 @@
   "scripts": {
     "nx": "nx",
     "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "lint": "eslint .",
     "test": "nx run-many -t test --all",
     "build": "nx run-many -t build --all",
