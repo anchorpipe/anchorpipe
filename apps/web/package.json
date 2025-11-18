@@ -29,7 +29,7 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
-    "@types/bcryptjs": "^2.4.6",
+    "@types/bcryptjs": "^3.0.0",
     "@types/node": "^24.10.0",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
