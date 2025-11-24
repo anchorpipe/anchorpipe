@@ -56,4 +56,3 @@ describe('/api/health/storage GET', () => {
     expect(await res.json()).toEqual({ ok: false });
   });
 });
-

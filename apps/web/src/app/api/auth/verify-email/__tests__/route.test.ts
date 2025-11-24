@@ -125,4 +125,3 @@ describe('/api/auth/verify-email POST', () => {
     );
   });
 });
-

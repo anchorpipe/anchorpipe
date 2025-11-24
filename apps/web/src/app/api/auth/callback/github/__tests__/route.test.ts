@@ -135,4 +135,3 @@ describe('/api/auth/callback/github GET', () => {
     expect(res.headers.get('location')).toContain('network');
   });
 });
-

@@ -23,4 +23,3 @@ describe('/api/metrics GET', () => {
     expect(mockMetricsText).toHaveBeenCalled();
   });
 });
-

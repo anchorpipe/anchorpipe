@@ -16,4 +16,3 @@ describe('/api/auth/logout POST', () => {
     expect(await res.json()).toEqual({ ok: true });
   });
 });
-

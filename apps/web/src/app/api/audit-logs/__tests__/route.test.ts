@@ -96,4 +96,3 @@ describe('/api/audit-logs GET', () => {
     expect(res.status).toBe(500);
   });
 });
-
