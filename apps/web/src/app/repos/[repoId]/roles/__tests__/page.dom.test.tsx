@@ -23,7 +23,12 @@ describe('<RepoRolesPage />', () => {
               userId: 'user-1',
               repoId: 'repo-123',
               role: 'admin',
-              user: { email: 'admin@example.com', name: 'Admin', githubLogin: 'admin', id: 'user-1' },
+              user: {
+                email: 'admin@example.com',
+                name: 'Admin',
+                githubLogin: 'admin',
+                id: 'user-1',
+              },
             },
           ],
         }),
@@ -60,7 +65,8 @@ describe('<RepoRolesPage />', () => {
   });
 
   it('shows error message when fetch fails', async () => {
-    const fetchMock = vi.fn()
+    const fetchMock = vi
+      .fn()
       .mockRejectedValueOnce(new Error('boom'))
       .mockResolvedValueOnce({
         ok: true,
@@ -85,4 +91,3 @@ describe('<RepoRolesPage />', () => {
     expect(button).not.toBeDisabled();
   });
 });
-
