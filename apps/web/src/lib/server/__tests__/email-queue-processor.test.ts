@@ -76,16 +76,25 @@ describe('email-queue-processor', () => {
   });
 
   describe('processEmailQueue', () => {
+    const createMockEvent = (overrides: {
+      id?: string;
+      userId?: string;
+      eventData?: Record<string, unknown>;
+    }) => ({
+      id: 'event-1',
+      userId: 'user-1',
+      eventData: {},
+      ...overrides,
+    });
+
     it('processes email events successfully', async () => {
       mockPrisma.telemetryEvent.findMany.mockResolvedValueOnce([
-        {
-          id: 'event-1',
-          userId: 'user-1',
+        createMockEvent({
           eventData: {
             emailType: 'email.verification',
             verificationUrl: 'https://example.com/verify',
           },
-        },
+        }),
       ]);
       mockPrisma.user.findUnique.mockResolvedValueOnce({
         email: 'user@example.com',
@@ -103,13 +112,7 @@ describe('email-queue-processor', () => {
     });
 
     it('handles missing emailType', async () => {
-      mockPrisma.telemetryEvent.findMany.mockResolvedValueOnce([
-        {
-          id: 'event-1',
-          userId: 'user-1',
-          eventData: {},
-        },
-      ]);
+      mockPrisma.telemetryEvent.findMany.mockResolvedValueOnce([createMockEvent({})]);
 
       const result = await processEmailQueue(10);
 
@@ -123,11 +126,7 @@ describe('email-queue-processor', () => {
 
     it('handles missing user email', async () => {
       mockPrisma.telemetryEvent.findMany.mockResolvedValueOnce([
-        {
-          id: 'event-1',
-          userId: 'user-1',
-          eventData: { emailType: 'email.verification' },
-        },
+        createMockEvent({ eventData: { emailType: 'email.verification' } }),
       ]);
       mockPrisma.user.findUnique.mockResolvedValueOnce(null);
 

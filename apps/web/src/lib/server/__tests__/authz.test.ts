@@ -115,8 +115,11 @@ describe('authz', () => {
       const request = buildNextRequest('http://localhost?repoId=repo-1');
       const response = await middleware(request, 'repo-1');
 
-      expect(response?.status).toBe(401);
-      expect(await response?.json()).toEqual({ error: 'Unauthorized: authentication required' });
+      expect(response).toBeInstanceOf(Response);
+      if (response instanceof Response) {
+        expect(response.status).toBe(401);
+        expect(await response.json()).toEqual({ error: 'Unauthorized: authentication required' });
+      }
     });
 
     it('returns 403 for unauthorized requests', async () => {
@@ -127,8 +130,11 @@ describe('authz', () => {
       const request = buildNextRequest('http://localhost?repoId=repo-1');
       const response = await middleware(request, 'repo-1');
 
-      expect(response?.status).toBe(403);
-      expect(await response?.json()).toEqual({ error: 'Forbidden: cannot write role' });
+      expect(response).toBeInstanceOf(Response);
+      if (response instanceof Response) {
+        expect(response.status).toBe(403);
+        expect(await response.json()).toEqual({ error: 'Forbidden: cannot write role' });
+      }
     });
 
     it('returns context when authorized', async () => {

@@ -107,4 +107,3 @@ describe('syslog-adapter', () => {
     });
   });
 });
-
