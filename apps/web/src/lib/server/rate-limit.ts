@@ -27,11 +27,22 @@ function getRateLimitConfig(
   return { maxRequests: defaultMaxRequests, windowMs: defaultWindowMs };
 }
 
-const RATE_LIMITS: Record<string, { maxRequests: number; windowMs: number }> = {
-  'auth:register': getRateLimitConfig('auth:register', 5, 15 * 60 * 1000), // 5 requests per 15 minutes
-  'auth:login': getRateLimitConfig('auth:login', 10, 15 * 60 * 1000), // 10 requests per 15 minutes
-  'ingestion:submit': getRateLimitConfig('ingestion:submit', 500, 60 * 60 * 1000), // 500 requests per hour
-};
+function buildRateLimitConfig(): Record<string, { maxRequests: number; windowMs: number }> {
+  return {
+    'auth:register': getRateLimitConfig('auth:register', 5, 15 * 60 * 1000), // 5 requests per 15 minutes
+    'auth:login': getRateLimitConfig('auth:login', 10, 15 * 60 * 1000), // 10 requests per 15 minutes
+    'ingestion:submit': getRateLimitConfig('ingestion:submit', 500, 60 * 60 * 1000), // 500 requests per hour
+  };
+}
+
+let RATE_LIMITS = buildRateLimitConfig();
+
+/**
+ * Testing utility: recompute rate-limit config after mutating environment variables.
+ */
+export function refreshRateLimitConfigForTesting() {
+  RATE_LIMITS = buildRateLimitConfig();
+}
 
 /**
  * Get client identifier from request

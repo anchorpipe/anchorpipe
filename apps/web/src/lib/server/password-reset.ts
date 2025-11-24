@@ -95,7 +95,11 @@ export async function validatePasswordResetToken(
   });
 
   // Try to match the token
+  const now = new Date();
   for (const resetToken of tokens) {
+    if (resetToken.expiresAt <= now) {
+      continue;
+    }
     const isValid = await verifyResetToken(token, resetToken.token);
     if (isValid) {
       // Mark token as used

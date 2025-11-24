@@ -1,10 +1,13 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { rateLimit } from '../rate-limit';
+import { rateLimit, refreshRateLimitConfigForTesting } from '../rate-limit';
 
 describe('rateLimit', () => {
   beforeEach(() => {
     // Clear rate limit store between tests
     vi.clearAllMocks();
+  delete process.env.RATE_LIMIT_AUTH_LOGIN;
+  delete process.env.TRUSTED_IPS;
+  refreshRateLimitConfigForTesting();
   });
 
   it('should allow requests within limit', async () => {
@@ -128,6 +131,7 @@ describe('rateLimit', () => {
 
   it('should use environment variable configuration', async () => {
     process.env.RATE_LIMIT_AUTH_LOGIN = '20:1800000'; // 20 requests per 30 minutes
+    refreshRateLimitConfigForTesting();
 
     const request = new Request('http://localhost/api/test', {
       method: 'POST',
@@ -146,6 +150,7 @@ describe('rateLimit', () => {
     expect(result.allowed).toBe(false);
 
     delete process.env.RATE_LIMIT_AUTH_LOGIN;
+    refreshRateLimitConfigForTesting();
   });
 
   it('should handle different rate limits for different endpoints', async () => {

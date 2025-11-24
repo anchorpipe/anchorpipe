@@ -131,7 +131,7 @@ export function convertAuditLogToSiemEntry(auditLog: {
     actorId: auditLog.actorId || undefined,
     actorEmail: auditLog.actor?.email || undefined,
     description: auditLog.description || undefined,
-    metadata: auditLog.metadata as Record<string, unknown> | undefined,
+    metadata: (auditLog.metadata ?? undefined) as Record<string, unknown> | undefined,
     ipAddress: auditLog.ipAddress || undefined,
     userAgent: auditLog.userAgent || undefined,
     severity,

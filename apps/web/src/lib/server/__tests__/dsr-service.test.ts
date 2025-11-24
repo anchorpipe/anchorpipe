@@ -45,7 +45,7 @@ vi.mock('@anchorpipe/database', () => {
   };
 });
 
-vi.mock('./audit-service', () => ({
+vi.mock('../audit-service', () => ({
   AUDIT_ACTIONS: {
     dsrExportRequest: 'dsr_export_request',
     dsrDeletionRequest: 'dsr_deletion_request',
