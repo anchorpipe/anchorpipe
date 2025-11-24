@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { processEmailQueue, queueEmail } from '../email-queue-processor';
 
 const mockPrisma = vi.hoisted(() => ({
