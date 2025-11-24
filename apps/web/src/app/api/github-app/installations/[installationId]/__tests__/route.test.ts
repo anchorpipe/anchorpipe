@@ -179,6 +179,19 @@ describe('/api/github-app/installations/[installationId]', () => {
 
       expect(res.status).toBe(503);
     });
+
+    it('handles unexpected errors', async () => {
+      mockCheckHealth.mockRejectedValueOnce(new Error('service down'));
+
+      const res = await getHealth({} as NextRequest, { params });
+
+      expect(res.status).toBe(500);
+      expect(await res.json()).toEqual({ error: 'Internal server error' });
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        'Error checking GitHub App installation health',
+        expect.objectContaining({ error: 'service down' })
+      );
+    });
   });
 
   describe('permissions route', () => {
@@ -226,6 +239,24 @@ describe('/api/github-app/installations/[installationId]', () => {
         installationId: '123',
         validation: { valid: true },
       });
+    });
+
+    it('handles unexpected errors during permission refresh', async () => {
+      mockGetInstallation.mockRejectedValueOnce(new Error('db error'));
+
+      const res = await refreshPermissions(
+        buildNextRequest('http://localhost/api/github-app/installations/123/permissions', {
+          method: 'POST',
+        }),
+        { params }
+      );
+
+      expect(res.status).toBe(500);
+      expect(await res.json()).toEqual({ error: 'Internal server error' });
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        'Error refreshing installation permissions',
+        expect.objectContaining({ error: 'db error' })
+      );
     });
   });
 
@@ -286,6 +317,39 @@ describe('/api/github-app/installations/[installationId]', () => {
       const res = await updateRepositories(buildRepoRequest({ repositoryIds: [1] }), { params });
 
       expect(res.status).toBe(500);
+    });
+
+    it('handles JSON parsing errors', async () => {
+      const invalidRequest = buildNextRequest(
+        'http://localhost/api/github-app/installations/123/repositories',
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: 'invalid json',
+        }
+      );
+
+      const res = await updateRepositories(invalidRequest, { params });
+
+      expect(res.status).toBe(500);
+      expect(await res.json()).toEqual({ error: 'Internal server error' });
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        'Error updating repository selection',
+        expect.any(Object)
+      );
+    });
+
+    it('handles unexpected errors during repository update', async () => {
+      mockGetInstallation.mockRejectedValueOnce(new Error('network error'));
+
+      const res = await updateRepositories(buildRepoRequest({ repositoryIds: [1] }), { params });
+
+      expect(res.status).toBe(500);
+      expect(await res.json()).toEqual({ error: 'Internal server error' });
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        'Error updating repository selection',
+        expect.objectContaining({ error: 'network error' })
+      );
     });
   });
 });
