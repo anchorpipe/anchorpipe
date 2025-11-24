@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mockLogger = vi.hoisted(() => ({
   info: vi.fn(),
@@ -17,13 +17,18 @@ async function loadEmailServiceModule() {
 describe('email-service', () => {
   beforeEach(() => {
     vi.resetModules();
+    vi.unstubAllEnvs();
     mockLogger.info.mockReset();
     mockLogger.warn.mockReset();
     mockLogger.error.mockReset();
-    process.env.EMAIL_PROVIDER = 'console';
-    process.env.EMAIL_FROM = 'noreply@test.dev';
-    process.env.EMAIL_REPLY_TO = 'support@test.dev';
-    process.env.NODE_ENV = 'test';
+    vi.stubEnv('EMAIL_PROVIDER', 'console');
+    vi.stubEnv('EMAIL_FROM', 'noreply@test.dev');
+    vi.stubEnv('EMAIL_REPLY_TO', 'support@test.dev');
+    vi.stubEnv('NODE_ENV', 'test');
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
   });
 
   it('sends email via console provider and applies default headers', async () => {

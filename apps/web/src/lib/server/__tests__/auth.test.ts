@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const cookieStore = vi.hoisted(() => ({
   set: vi.fn(),
@@ -21,11 +21,16 @@ import {
 describe('auth service', () => {
   beforeEach(() => {
     vi.useRealTimers();
+    vi.unstubAllEnvs();
     cookieStore.set.mockReset();
     cookieStore.delete.mockReset();
     cookieStore.get.mockReset();
-    process.env.AUTH_SECRET = 'test-secret-key-123456';
-    process.env.NODE_ENV = 'test';
+    vi.stubEnv('AUTH_SECRET', 'test-secret-key-123456');
+    vi.stubEnv('NODE_ENV', 'test');
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
   });
 
   it('creates and verifies JWT payloads', async () => {

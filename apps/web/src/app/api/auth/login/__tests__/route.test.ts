@@ -153,4 +153,3 @@ describe('/api/auth/login POST', () => {
     expect(response.headers.get('Retry-After')).toBe('60');
   });
 });
-

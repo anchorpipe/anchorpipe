@@ -28,7 +28,7 @@ vi.mock('../logger', () => ({
 }));
 
 const samplePattern: DetectedPattern = {
-  type: 'multiple_failed_logins',
+  type: 'multiple_failed_logins' as DetectedPattern['type'],
   severity: 'high',
   description: 'More than 10 failed logins within 5 minutes',
   count: 12,

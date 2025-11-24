@@ -68,4 +68,3 @@ describe('test-report parser utils', () => {
     });
   });
 });
-
