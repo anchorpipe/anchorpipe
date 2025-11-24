@@ -3,6 +3,7 @@ import { defineConfig } from 'vitest/config';
 
 const COVERAGE_TARGET = 80; // Decision 1: apps should trend toward ≥80% line coverage (libs to 90%) once suites mature.
 const STRICT_COVERAGE = process.env.COVERAGE_STRICT === 'true';
+const repoRoot = path.resolve(__dirname, '..', '..');
 
 export default defineConfig({
   test: {
@@ -49,6 +50,9 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      '@anchorpipe/database': path.resolve(repoRoot, 'libs/database/src'),
+      '@anchorpipe/mq': path.resolve(repoRoot, 'libs/mq/src'),
+      '@anchorpipe/storage': path.resolve(repoRoot, 'libs/storage/src'),
     },
   },
 });
