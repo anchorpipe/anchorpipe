@@ -322,27 +322,6 @@ describe('/api/webhooks/github-app POST', () => {
   });
 
   it('triggers ingestion for completed workflow runs', async () => {
-    const payload = {
-      action: 'completed',
-      workflow_run: {
-        id: 555,
-        name: 'ci',
-        head_branch: 'main',
-        head_sha: 'abc',
-        run_number: 10,
-        status: 'completed',
-        conclusion: 'success',
-        workflow_id: 1,
-        repository: {
-          id: 1,
-          name: 'repo',
-          full_name: 'acme/repo',
-          owner: { login: 'acme', id: 1 },
-        },
-      },
-      installation: { id: 77 },
-    };
-
     const res = await dispatchWebhook(buildWorkflowRunPayload(), 'workflow_run');
 
     expect(res.status).toBe(200);
@@ -358,7 +337,7 @@ describe('/api/webhooks/github-app POST', () => {
     const res = await dispatchWebhook(
       buildWorkflowRunPayload({
         action: 'requested',
-        workflow_run: { id: 1, run_number: 1, status: 'in_progress', conclusion: null },
+        workflow_run: { id: 1, run_number: 1, status: 'in_progress', conclusion: undefined },
       }),
       'workflow_run'
     );
