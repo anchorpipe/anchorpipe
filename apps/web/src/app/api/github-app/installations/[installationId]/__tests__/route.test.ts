@@ -353,4 +353,3 @@ describe('/api/github-app/installations/[installationId]', () => {
     });
   });
 });
-
