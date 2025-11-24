@@ -104,7 +104,6 @@ async function handleMessage(message: IngestionMessage) {
 
 async function main() {
   if (process.env.INGESTION_WORKER_ENABLED !== 'true') {
-    // eslint-disable-next-line no-console
     console.log('Ingestion worker disabled (INGESTION_WORKER_ENABLED != "true"). Exiting.');
     process.exit(0);
   }
@@ -130,7 +129,6 @@ async function main() {
 
   const rabbitUrl = process.env.RABBIT_URL;
   if (!rabbitUrl) {
-    // eslint-disable-next-line no-console
     console.error('RABBIT_URL not set; exiting.');
     process.exit(1);
   }
@@ -142,7 +140,6 @@ async function main() {
     deadLetterRoutingKey: 'test.ingestion.failed',
   });
 
-  // eslint-disable-next-line no-console
   console.log(`Ingestion worker consuming from ${QUEUE_NAME}`);
 
   await consumeJson(channel, QUEUE_NAME, async (msg: IngestionMessage) => {
@@ -158,7 +155,6 @@ async function main() {
 
 // Start
 main().catch((err) => {
-  // eslint-disable-next-line no-console
   console.error('Ingestion worker fatal error:', err);
   process.exit(1);
 });
