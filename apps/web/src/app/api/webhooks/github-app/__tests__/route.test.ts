@@ -60,6 +60,90 @@ const buildRequest = (body: string, headers: Record<string, string> = {}) =>
     headers,
   });
 
+const baseWorkflowRun = {
+  id: 555,
+  name: 'ci',
+  head_branch: 'main',
+  head_sha: 'abc',
+  run_number: 10,
+  status: 'completed',
+  conclusion: 'success',
+  workflow_id: 1,
+  repository: {
+    id: 1,
+    name: 'repo',
+    full_name: 'acme/repo',
+    owner: { login: 'acme', id: 1 },
+  },
+};
+
+const baseCheckRun = {
+  id: 44,
+  name: 'lint',
+  head_sha: 'abc',
+  status: 'completed',
+  conclusion: 'success',
+  check_suite: { id: 1, head_sha: 'abc', head_branch: 'main' },
+  repository: {
+    id: 2,
+    name: 'repo',
+    full_name: 'acme/repo',
+    owner: { login: 'acme', id: 1 },
+  },
+};
+
+const dispatchWebhook = (payload: unknown, event: string) =>
+  POST(
+    buildRequest(JSON.stringify(payload), {
+      'x-hub-signature-256': 'sha',
+      'x-github-event': event,
+    })
+  );
+
+function buildWorkflowRunPayload(
+  overrides: {
+    action?: string;
+    workflow_run?: Partial<typeof baseWorkflowRun>;
+  } = {}
+) {
+  const workflowRun = {
+    ...baseWorkflowRun,
+    ...overrides.workflow_run,
+    repository: {
+      ...baseWorkflowRun.repository,
+      ...(overrides.workflow_run?.repository ?? {}),
+    },
+  };
+
+  return {
+    action: overrides.action ?? 'completed',
+    workflow_run: workflowRun,
+    installation: { id: 77 },
+  };
+}
+
+function buildCheckRunPayload(
+  overrides: {
+    action?: string;
+    check_run?: Partial<typeof baseCheckRun>;
+  } = {}
+) {
+  const checkRun = {
+    ...baseCheckRun,
+    ...overrides.check_run,
+    repository: {
+      ...baseCheckRun.repository,
+      ...(overrides.check_run?.repository ?? {}),
+    },
+  };
+
+  return {
+    action: overrides.action ?? 'completed',
+    check_run: checkRun,
+    installation: { id: 77 },
+  };
+}
+
 describe('/api/webhooks/github-app POST', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -259,12 +343,7 @@ describe('/api/webhooks/github-app POST', () => {
       installation: { id: 77 },
     };
 
-    const res = await POST(
-      buildRequest(JSON.stringify(payload), {
-        'x-hub-signature-256': 'sha',
-        'x-github-event': 'workflow_run',
-      })
-    );
+    const res = await dispatchWebhook(buildWorkflowRunPayload(), 'workflow_run');
 
     expect(res.status).toBe(200);
     expect(mockTriggerWorkflow).toHaveBeenCalledWith(
@@ -276,32 +355,12 @@ describe('/api/webhooks/github-app POST', () => {
   });
 
   it('skips non-completed workflow runs', async () => {
-    const payload = {
-      action: 'requested',
-      workflow_run: {
-        id: 1,
-        name: 'ci',
-        head_branch: 'main',
-        head_sha: 'abc',
-        run_number: 1,
-        status: 'in_progress',
-        conclusion: null,
-        workflow_id: 1,
-        repository: {
-          id: 1,
-          name: 'repo',
-          full_name: 'acme/repo',
-          owner: { login: 'acme', id: 1 },
-        },
-      },
-      installation: { id: 77 },
-    };
-
-    const res = await POST(
-      buildRequest(JSON.stringify(payload), {
-        'x-hub-signature-256': 'sha',
-        'x-github-event': 'workflow_run',
-      })
+    const res = await dispatchWebhook(
+      buildWorkflowRunPayload({
+        action: 'requested',
+        workflow_run: { id: 1, run_number: 1, status: 'in_progress', conclusion: null },
+      }),
+      'workflow_run'
     );
 
     expect(res.status).toBe(200);
@@ -313,31 +372,7 @@ describe('/api/webhooks/github-app POST', () => {
   });
 
   it('triggers ingestion for completed check runs', async () => {
-    const payload = {
-      action: 'completed',
-      check_run: {
-        id: 44,
-        name: 'lint',
-        head_sha: 'abc',
-        status: 'completed',
-        conclusion: 'success',
-        check_suite: { id: 1, head_sha: 'abc', head_branch: 'main' },
-        repository: {
-          id: 2,
-          name: 'repo',
-          full_name: 'acme/repo',
-          owner: { login: 'acme', id: 1 },
-        },
-      },
-      installation: { id: 77 },
-    };
-
-    const res = await POST(
-      buildRequest(JSON.stringify(payload), {
-        'x-hub-signature-256': 'sha',
-        'x-github-event': 'check_run',
-      })
-    );
+    const res = await dispatchWebhook(buildCheckRunPayload(), 'check_run');
 
     expect(res.status).toBe(200);
     expect(mockTriggerCheckRun).toHaveBeenCalledWith(
