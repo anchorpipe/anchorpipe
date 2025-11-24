@@ -24,7 +24,7 @@ jobs:
       PROJECT_V2_TOKEN: ${{ secrets.PROJECT_V2_TOKEN }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Validate Project V2 configuration
         if: env.PROJECT_V2_URL == '' || env.PROJECT_V2_TOKEN == ''
