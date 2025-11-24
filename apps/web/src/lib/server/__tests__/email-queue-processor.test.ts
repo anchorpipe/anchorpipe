@@ -22,11 +22,11 @@ vi.mock('@anchorpipe/database', () => ({
   prisma: mockPrisma,
 }));
 
-vi.mock('./email-service', () => ({
+vi.mock('../email-service', () => ({
   sendEmail: mockSendEmail,
 }));
 
-vi.mock('./email-templates', () => ({
+vi.mock('../email-templates', () => ({
   renderDsrConfirmationEmail: vi.fn(() => ({
     subject: 'DSR Confirmation',
     html: '<html>DSR</html>',
@@ -44,7 +44,7 @@ vi.mock('./email-templates', () => ({
   })),
 }));
 
-vi.mock('./logger', () => ({
+vi.mock('../logger', () => ({
   logger: mockLogger,
 }));
 
@@ -52,6 +52,12 @@ describe('email-queue-processor', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockSendEmail.mockResolvedValue({ success: true });
+    vi.stubEnv('APP_NAME', 'TestApp');
+    vi.stubEnv('NEXT_PUBLIC_APP_URL', 'https://test.example.com');
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
   });
 
   describe('queueEmail', () => {
@@ -66,10 +72,11 @@ describe('email-queue-processor', () => {
         data: {
           userId: 'user-1',
           eventType: 'dsr.email_queued',
-          eventData: {
+          eventData: expect.objectContaining({
             emailType: 'email.verification',
             verificationUrl: 'https://example.com/verify',
-          },
+            queuedAt: expect.any(String),
+          }),
         },
       });
     });

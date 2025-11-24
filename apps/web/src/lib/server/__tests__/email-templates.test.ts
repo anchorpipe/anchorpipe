@@ -51,7 +51,7 @@ describe('email-templates', () => {
         verificationUrl: 'https://example.com/verify?token=xyz',
       });
 
-      expect(result.subject).toBe('Verify your Anchorpipe email address');
+      expect(result.subject).toBe('Verify your email address for Anchorpipe');
       expect(result.html).toContain('Verify Your Email');
       expect(result.html).toContain('https://example.com/verify?token=xyz');
       expect(result.text).toContain('Verify Your Email');

@@ -17,6 +17,7 @@ const mockPrisma = vi.hoisted(() => ({
   user: {
     update: vi.fn(),
     findUnique: vi.fn(),
+    findFirst: vi.fn(),
   },
 }));
 
@@ -25,7 +26,7 @@ vi.mock('@anchorpipe/database', () => ({
 }));
 
 vi.mock('crypto', () => ({
-  randomBytes: vi.fn((size: number) => Buffer.from('a'.repeat(size * 2))),
+  randomBytes: vi.fn((size: number) => Buffer.from('a'.repeat(size))),
 }));
 
 describe('email-verification', () => {
@@ -117,14 +118,14 @@ describe('email-verification', () => {
         identifier: 'test@example.com',
         expires: futureDate,
       });
-      mockPrisma.user.findUnique.mockResolvedValueOnce({
+      mockPrisma.user.findFirst.mockResolvedValueOnce({
         id: 'user-1',
         email: 'test@example.com',
-        emailVerified: false,
+        preferences: {},
       });
       mockPrisma.user.update.mockResolvedValueOnce({
         id: 'user-1',
-        emailVerified: true,
+        preferences: { emailVerified: true },
       });
       mockPrisma.verificationToken.delete.mockResolvedValueOnce({});
 
@@ -133,8 +134,12 @@ describe('email-verification', () => {
       expect(result.success).toBe(true);
       expect(result.userId).toBe('user-1');
       expect(mockPrisma.user.update).toHaveBeenCalledWith({
-        where: { email: 'test@example.com' },
-        data: { emailVerified: true },
+        where: { id: 'user-1' },
+        data: expect.objectContaining({
+          preferences: expect.objectContaining({
+            emailVerified: true,
+          }),
+        }),
       });
     });
 
@@ -151,7 +156,7 @@ describe('email-verification', () => {
   describe('isEmailVerified', () => {
     it('returns true when email is verified', async () => {
       mockPrisma.user.findUnique.mockResolvedValueOnce({
-        emailVerified: true,
+        preferences: { emailVerified: true },
       });
 
       const result = await isEmailVerified('user-1');
@@ -161,7 +166,7 @@ describe('email-verification', () => {
 
     it('returns false when email is not verified', async () => {
       mockPrisma.user.findUnique.mockResolvedValueOnce({
-        emailVerified: false,
+        preferences: { emailVerified: false },
       });
 
       const result = await isEmailVerified('user-1');
@@ -171,6 +176,16 @@ describe('email-verification', () => {
 
     it('returns false when user not found', async () => {
       mockPrisma.user.findUnique.mockResolvedValueOnce(null);
+
+      const result = await isEmailVerified('user-1');
+
+      expect(result).toBe(false);
+    });
+
+    it('returns false when preferences is null', async () => {
+      mockPrisma.user.findUnique.mockResolvedValueOnce({
+        preferences: null,
+      });
 
       const result = await isEmailVerified('user-1');
 
