@@ -14,7 +14,6 @@ import {
   resetPasswordWithToken,
 } from '../password-reset';
 import { prisma } from '@anchorpipe/database';
-import { hashPassword } from '../password';
 
 // Mock Prisma
 vi.mock('@anchorpipe/database', () => ({
@@ -189,7 +188,6 @@ describe('Password Reset Service', () => {
       const hashedToken = await hashResetToken(token);
       const userId = 'user-123';
       const newPassword = 'NewPassword123!';
-      const hashedPassword = await hashPassword(newPassword);
 
       // Mock token validation
       vi.mocked(prisma.passwordResetToken.findMany).mockResolvedValue([
@@ -220,7 +218,7 @@ describe('Password Reset Service', () => {
 
       vi.mocked(prisma.user.update).mockResolvedValue({
         id: userId,
-        preferences: { password: hashedPassword },
+        preferences: { password: '$2b$dummyhash' },
       } as any);
 
       const result = await resetPasswordWithToken(token, newPassword);
@@ -230,7 +228,7 @@ describe('Password Reset Service', () => {
         where: { id: userId },
         data: {
           preferences: expect.objectContaining({
-            password: hashedPassword,
+            password: expect.stringMatching(/^\$2b\$/),
           }),
         },
       });

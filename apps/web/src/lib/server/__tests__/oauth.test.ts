@@ -8,15 +8,6 @@ import {
   fetchGitHubUser,
 } from '../oauth';
 
-// Mock crypto module
-vi.mock('crypto', () => {
-  const actual = vi.importActual('crypto');
-  return {
-    ...actual,
-    randomBytes: (size: number) => Buffer.alloc(size, 0x42), // Predictable for testing
-  };
-});
-
 // Mock fetch
 global.fetch = vi.fn();
 

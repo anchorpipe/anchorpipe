@@ -29,7 +29,7 @@ vi.mock('@anchorpipe/database', () => {
   };
 });
 
-vi.mock('./audit-service', () => ({
+vi.mock('../audit-service', () => ({
   AUDIT_ACTIONS: {
     roleAssigned: 'role_assigned',
     roleRemoved: 'role_removed',
