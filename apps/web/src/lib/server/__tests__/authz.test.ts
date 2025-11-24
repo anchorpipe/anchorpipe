@@ -5,11 +5,21 @@ import { buildNextRequest } from '@/test-utils/build-next-request';
 const mockReadSession = vi.hoisted(() => vi.fn());
 const mockGetUserAbility = vi.hoisted(() => vi.fn());
 
-vi.mock('./auth', () => ({
+const cookieStore = vi.hoisted(() => ({
+  get: vi.fn(),
+  set: vi.fn(),
+  delete: vi.fn(),
+}));
+
+vi.mock('next/headers', () => ({
+  cookies: async () => cookieStore,
+}));
+
+vi.mock('../auth', () => ({
   readSession: mockReadSession,
 }));
 
-vi.mock('./rbac-service', () => ({
+vi.mock('../rbac-service', () => ({
   getUserAbility: mockGetUserAbility,
 }));
 
