@@ -1,32 +1,44 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { recordTelemetry, isTelemetryEnabled } from '../telemetry';
 
 describe('telemetry', () => {
   const originalConsole = console.log;
   const mockConsoleLog = vi.fn();
+  let recordTelemetry: (event: {
+    eventType: string;
+    properties?: Record<string, unknown>;
+    requestId?: string;
+    timestampMs?: number;
+  }) => Promise<void>;
+  let isTelemetryEnabled: () => boolean;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks();
     console.log = mockConsoleLog;
+    // Reload module to pick up new env vars
+    vi.resetModules();
+    vi.stubEnv('TELEMETRY_ENABLED', 'true');
+    const telemetry = await import('../telemetry');
+    recordTelemetry = telemetry.recordTelemetry;
+    isTelemetryEnabled = telemetry.isTelemetryEnabled;
   });
 
   afterEach(() => {
     console.log = originalConsole;
     vi.unstubAllEnvs();
+    vi.resetModules();
   });
 
   describe('recordTelemetry', () => {
     it('does nothing when telemetry is disabled', async () => {
       vi.stubEnv('TELEMETRY_ENABLED', 'false');
-
-      await recordTelemetry({ eventType: 'test' });
+      vi.resetModules();
+      const telemetry = await import('../telemetry');
+      await telemetry.recordTelemetry({ eventType: 'test' });
 
       expect(mockConsoleLog).not.toHaveBeenCalled();
     });
 
     it('logs telemetry event when enabled', async () => {
-      vi.stubEnv('TELEMETRY_ENABLED', 'true');
-
       await recordTelemetry({
         eventType: 'user.action',
         properties: { action: 'click' },
@@ -42,12 +54,12 @@ describe('telemetry', () => {
     });
 
     it('uses current timestamp when not provided', async () => {
-      vi.stubEnv('TELEMETRY_ENABLED', 'true');
       const before = Date.now();
 
       await recordTelemetry({ eventType: 'test' });
 
       const after = Date.now();
+      expect(mockConsoleLog).toHaveBeenCalled();
       const logCall = mockConsoleLog.mock.calls[0][0];
       const parsed = JSON.parse(logCall.replace('[telemetry] ', ''));
       expect(parsed.timestampMs).toBeGreaterThanOrEqual(before);
@@ -56,23 +68,25 @@ describe('telemetry', () => {
   });
 
   describe('isTelemetryEnabled', () => {
-    it('returns false when TELEMETRY_ENABLED is not set', () => {
+    it('returns false when TELEMETRY_ENABLED is not set', async () => {
       vi.unstubAllEnvs();
       delete process.env.TELEMETRY_ENABLED;
+      vi.resetModules();
+      const telemetry = await import('../telemetry');
 
-      expect(isTelemetryEnabled()).toBe(false);
+      expect(telemetry.isTelemetryEnabled()).toBe(false);
     });
 
     it('returns true when TELEMETRY_ENABLED is "true"', () => {
-      vi.stubEnv('TELEMETRY_ENABLED', 'true');
-
       expect(isTelemetryEnabled()).toBe(true);
     });
 
-    it('returns false when TELEMETRY_ENABLED is "false"', () => {
+    it('returns false when TELEMETRY_ENABLED is "false"', async () => {
       vi.stubEnv('TELEMETRY_ENABLED', 'false');
+      vi.resetModules();
+      const telemetry = await import('../telemetry');
 
-      expect(isTelemetryEnabled()).toBe(false);
+      expect(telemetry.isTelemetryEnabled()).toBe(false);
     });
   });
 });

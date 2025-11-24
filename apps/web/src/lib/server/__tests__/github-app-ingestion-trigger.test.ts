@@ -139,12 +139,12 @@ describe('github-app-ingestion-trigger', () => {
         .mockResolvedValueOnce({
           ok: true,
           json: async () => ({
-            artifacts: [{ id: 1, name: 'test-results.json', size_in_bytes: 100 }],
+            artifacts: [{ id: 1, name: 'jest-test-results.json', size_in_bytes: 100 }],
           }),
         } as Response)
         .mockResolvedValueOnce({
           ok: true,
-          arrayBuffer: async () => Buffer.from(testReport),
+          text: async () => testReport,
         } as unknown as Response)
         .mockResolvedValueOnce({
           ok: true,
@@ -152,8 +152,8 @@ describe('github-app-ingestion-trigger', () => {
         } as Response);
 
       mockParseTestReport.mockResolvedValueOnce({
-        framework: 'jest',
-        tests: [
+        success: true,
+        testCases: [
           {
             path: 'test.ts',
             name: 'test',
@@ -171,7 +171,12 @@ describe('github-app-ingestion-trigger', () => {
       });
 
       expect(result.success).toBe(true);
-      expect(mockParseTestReport).toHaveBeenCalled();
+      // parseTestReport is called in parseAndConvertTestReport, which is called from submitAllTestResults
+      // Only check if testResults were found (artifact was processed)
+      expect(mockParseTestReport).toHaveBeenCalledWith(
+        'jest',
+        expect.any(String)
+      );
       expect(mockWriteAuditLog).toHaveBeenCalled();
     });
 
