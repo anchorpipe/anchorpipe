@@ -28,9 +28,9 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
-    "@nx/js": "^22.0.3",
-    "@nx/next": "^22.0.3",
-    "@nx/node": "^22.0.3",
+    "@nx/js": "^22.1.1",
+    "@nx/next": "^22.1.1",
+    "@nx/node": "^22.1.1",
     "@prisma/client": "^6.19.0",
     "eslint": "^9.39.1",
     "nx": "^22.0.2",
