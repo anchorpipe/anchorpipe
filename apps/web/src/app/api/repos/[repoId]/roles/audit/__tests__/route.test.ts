@@ -1,6 +1,6 @@
 import { describe, beforeEach, it, expect, vi } from 'vitest';
-import type { NextRequest } from 'next/server';
 import { GET } from '../route';
+import { buildNextRequest } from '@/test-utils/build-next-request';
 
 const mockRequireAuthz = vi.hoisted(() => vi.fn());
 const mockGetRoleAuditLogs = vi.hoisted(() => vi.fn());
@@ -13,13 +13,11 @@ vi.mock('@/lib/server/rbac-service', () => ({
   getRoleAuditLogs: mockGetRoleAuditLogs,
 }));
 
-const buildRequest = (limit?: string) => {
-  const req = new Request(
-    `http://localhost/api/repos/repo-1/roles/audit${limit ? `?limit=${limit}` : ''}`
+const buildRequest = (limit?: string) =>
+  buildNextRequest(
+    `http://localhost/api/repos/repo-1/roles/audit${limit ? `?limit=${limit}` : ''}`,
+    { method: 'GET' }
   );
-  (req as unknown as NextRequest).nextUrl = new URL(req.url);
-  return req as unknown as NextRequest;
-};
 
 const params = Promise.resolve({ repoId: 'repo-1' });
 
