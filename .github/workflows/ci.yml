@@ -178,42 +178,60 @@ jobs:
         if: ${{ hashFiles('apps/web/public/openapi.yaml') != '' }}
         run: npm run openapi:validate
 
-  # TODO: Add test jobs when tests are implemented
-  # test-unit:
-  #   name: Unit Tests
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v5
-  #     - uses: actions/setup-node@v6
-  #       with:
-  #         node-version-file: '.nvmrc'
-  #         cache: 'npm'
-  #     - run: npm ci
-  #     - run: npm run test:unit -- --coverage
+  tests:
+    name: tests
+    needs: [lint, typecheck, build, db-health, openapi-validate]
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: anchorpipe_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/anchorpipe_test
+      REDIS_URL: redis://localhost:6379
+      NODE_ENV: test
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
 
-  # test-integration:
-  #   name: Integration Tests
-  #   runs-on: ubuntu-latest
-  #   services:
-  #     postgres:
-  #       image: postgres:16
-  #       env:
-  #         POSTGRES_PASSWORD: postgres
-  #       options: >-
-  #         --health-cmd pg_isready
-  #         --health-interval 10s
-  #         --health-timeout 5s
-  #         --health-retries 5
-  #   steps:
-  #     - uses: actions/checkout@v5
-  #     - uses: actions/setup-node@v6
-  #       with:
-  #         node-version-file: '.nvmrc'
-  #         cache: 'npm'
-  #     - run: npm ci
-  #     - run: npm run db:migrate
-  #       env:
-  #         DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test
-  #     - run: npm run test:integration
-  #       env:
-  #         DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Run database migrations
+        run: npx prisma migrate deploy
+        working-directory: libs/database
+
+      - name: Run tests with coverage
+        run: |
+          # Decision 3: run the entire suite on every PR for now; optimize duration later if needed.
+          npx nx test web --configuration=coverage
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}

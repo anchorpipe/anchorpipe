@@ -5,6 +5,7 @@
 [![CI](https://github.com/anchorpipe/anchorpipe/actions/workflows/ci.yml/badge.svg)](https://github.com/anchorpipe/anchorpipe/actions/workflows/ci.yml)
 [![Security Scanning](https://github.com/anchorpipe/anchorpipe/actions/workflows/security-scan.yml/badge.svg)](https://github.com/anchorpipe/anchorpipe/actions/workflows/security-scan.yml)
 [![CodeQL](https://github.com/anchorpipe/anchorpipe/actions/workflows/codeql.yml/badge.svg)](https://github.com/anchorpipe/anchorpipe/actions/workflows/codeql.yml)
+[![codecov](https://codecov.io/gh/anchorpipe/anchorpipe/branch/main/graph/badge.svg)](https://codecov.io/gh/anchorpipe/anchorpipe)
 
 **anchorpipe** is an open-source platform for flaky test management that is CI-native, transparent, and actionable—restoring developer velocity and release confidence across teams of all sizes.
 
