@@ -39,8 +39,8 @@
     "@types/react-dom": "^19.2.3",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
-    "@vitest/coverage-v8": "^2.1.9",
-    "@vitest/ui": "^2.1.9",
+    "@vitest/coverage-v8": "^4.0.13",
+    "@vitest/ui": "^4.0.13",
     "autoprefixer": "^10.4.22",
     "eslint": "^9.39.1",
     "eslint-config-next": "^16.0.3",
@@ -48,6 +48,6 @@
     "postcss": "^8.4.49",
     "tailwindcss": "^4.1.17",
     "typescript": "^5.7.2",
-    "vitest": "^2.1.9"
+    "vitest": "^4.0.13"
   }
 }
