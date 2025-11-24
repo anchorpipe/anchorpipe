@@ -145,7 +145,7 @@ describe('github-app-ingestion-trigger', () => {
         .mockResolvedValueOnce({
           ok: true,
           arrayBuffer: async () => Buffer.from(testReport),
-        } as Response)
+        } as unknown as Response)
         .mockResolvedValueOnce({
           ok: true,
           json: async () => ({ runId: 'ingestion-run-1' }),

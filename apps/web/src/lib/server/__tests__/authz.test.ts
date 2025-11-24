@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { getAuthzContext, requireAuthz, createAuthzMiddleware } from '../authz';
 import { buildNextRequest } from '@/test-utils/build-next-request';
-import type { NextRequest } from 'next/server';
 
 const mockReadSession = vi.hoisted(() => vi.fn());
 const mockGetUserAbility = vi.hoisted(() => vi.fn());

@@ -20,7 +20,7 @@ describe('secrets', () => {
     });
 
     it('encrypts and serializes string value', () => {
-      const mockEncrypted = { iv: 'iv', data: 'data' };
+      const mockEncrypted = { iv: 'iv', content: 'content', tag: 'tag' };
       const mockSerialized = 'serialized';
       vi.mocked(encryptString).mockReturnValueOnce(mockEncrypted);
       vi.mocked(serializeEncrypted).mockReturnValueOnce(mockSerialized);
@@ -43,7 +43,7 @@ describe('secrets', () => {
     });
 
     it('parses and decrypts serialized value', () => {
-      const mockParsed = { iv: 'iv', data: 'data' };
+      const mockParsed = { iv: 'iv', content: 'content', tag: 'tag' };
       const mockDecrypted = 'decrypted-value';
       vi.mocked(parseEncrypted).mockReturnValueOnce(mockParsed);
       vi.mocked(decryptString).mockReturnValueOnce(mockDecrypted);

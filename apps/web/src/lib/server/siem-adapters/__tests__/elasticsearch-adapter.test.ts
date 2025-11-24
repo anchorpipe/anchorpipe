@@ -8,29 +8,25 @@ describe('elasticsearch-adapter', () => {
     global.fetch = vi.fn();
   });
 
+  const siemConfig = { type: 'elasticsearch' as const, enabled: true, timeout: 5000 };
+
   describe('createElasticsearchAdapter', () => {
     it('throws error for invalid URL', () => {
       expect(() =>
-        createElasticsearchAdapter(
-          { url: 'invalid-url', index: 'logs' },
-          { timeout: 5000 }
-        )
+        createElasticsearchAdapter({ url: 'invalid-url', index: 'logs' }, siemConfig)
       ).toThrow('Invalid Elasticsearch URL');
     });
 
     it('throws error for non-http URL', () => {
       expect(() =>
-        createElasticsearchAdapter(
-          { url: 'ftp://example.com', index: 'logs' },
-          { timeout: 5000 }
-        )
+        createElasticsearchAdapter({ url: 'ftp://example.com', index: 'logs' }, siemConfig)
       ).toThrow('Invalid Elasticsearch URL');
     });
 
     it('creates adapter with valid URL', () => {
       const adapter = createElasticsearchAdapter(
         { url: 'https://elasticsearch.example.com', index: 'logs' },
-        { timeout: 5000 }
+        siemConfig
       );
 
       expect(adapter).toBeDefined();
@@ -58,7 +54,7 @@ describe('elasticsearch-adapter', () => {
 
       const adapter = createElasticsearchAdapter(
         { url: 'https://elasticsearch.example.com', index: 'logs', apiKey: 'key-123' },
-        { timeout: 5000 }
+        siemConfig
       );
 
       const result = await adapter.forwardLog(log);
@@ -90,7 +86,7 @@ describe('elasticsearch-adapter', () => {
           username: 'user',
           password: 'pass',
         },
-        { timeout: 5000 }
+        siemConfig
       );
 
       const result = await adapter.forwardLog(log);
@@ -115,7 +111,7 @@ describe('elasticsearch-adapter', () => {
 
       const adapter = createElasticsearchAdapter(
         { url: 'https://elasticsearch.example.com', index: 'logs' },
-        { timeout: 5000 }
+        siemConfig
       );
 
       const result = await adapter.forwardLog(log);
@@ -129,7 +125,7 @@ describe('elasticsearch-adapter', () => {
 
       const adapter = createElasticsearchAdapter(
         { url: 'https://elasticsearch.example.com', index: 'logs' },
-        { timeout: 5000 }
+        siemConfig
       );
 
       const result = await adapter.forwardLog(log);
@@ -167,7 +163,7 @@ describe('elasticsearch-adapter', () => {
 
       const adapter = createElasticsearchAdapter(
         { url: 'https://elasticsearch.example.com', index: 'logs' },
-        { timeout: 5000 }
+        siemConfig
       );
 
       const result = await adapter.forwardBatch(logs);
@@ -189,16 +185,13 @@ describe('elasticsearch-adapter', () => {
       vi.mocked(global.fetch).mockResolvedValueOnce({
         ok: true,
         json: async () => ({
-          items: [
-            { index: { status: 201 } },
-            { index: { error: { reason: 'Error message' } } },
-          ],
+          items: [{ index: { status: 201 } }, { index: { error: { reason: 'Error message' } } }],
         }),
       } as Response);
 
       const adapter = createElasticsearchAdapter(
         { url: 'https://elasticsearch.example.com', index: 'logs' },
-        { timeout: 5000 }
+        siemConfig
       );
 
       const result = await adapter.forwardBatch(logs);
@@ -218,7 +211,7 @@ describe('elasticsearch-adapter', () => {
 
       const adapter = createElasticsearchAdapter(
         { url: 'https://elasticsearch.example.com', index: 'logs' },
-        { timeout: 5000 }
+        siemConfig
       );
 
       const result = await adapter.testConnection();
@@ -239,7 +232,7 @@ describe('elasticsearch-adapter', () => {
 
       const adapter = createElasticsearchAdapter(
         { url: 'https://elasticsearch.example.com', index: 'logs' },
-        { timeout: 5000 }
+        siemConfig
       );
 
       const result = await adapter.testConnection();
@@ -249,4 +242,3 @@ describe('elasticsearch-adapter', () => {
     });
   });
 });
-

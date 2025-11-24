@@ -10,9 +10,9 @@ describe('http-adapter', () => {
 
   describe('createHttpAdapter', () => {
     it('throws error for invalid URL', () => {
-      expect(() =>
-        createHttpAdapter({ url: 'invalid-url' }, { timeout: 5000 })
-      ).toThrow('Invalid SIEM HTTP URL');
+      expect(() => createHttpAdapter({ url: 'invalid-url' }, { timeout: 5000 })).toThrow(
+        'Invalid SIEM HTTP URL'
+      );
     });
 
     it('creates adapter with valid URL', () => {
@@ -207,4 +207,3 @@ describe('http-adapter', () => {
     });
   });
 });
-

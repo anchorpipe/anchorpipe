@@ -11,19 +11,13 @@ describe('splunk-adapter', () => {
   describe('createSplunkAdapter', () => {
     it('throws error for localhost hostname', () => {
       expect(() =>
-        createSplunkAdapter(
-          { host: 'localhost', port: 8088, token: 'token' },
-          { timeout: 5000 }
-        )
+        createSplunkAdapter({ host: 'localhost', port: 8088, token: 'token' }, { timeout: 5000 })
       ).toThrow('Invalid Splunk host');
     });
 
     it('throws error for private IP hostname', () => {
       expect(() =>
-        createSplunkAdapter(
-          { host: '192.168.1.1', port: 8088, token: 'token' },
-          { timeout: 5000 }
-        )
+        createSplunkAdapter({ host: '192.168.1.1', port: 8088, token: 'token' }, { timeout: 5000 })
       ).toThrow('Invalid Splunk host');
     });
 
@@ -193,4 +187,3 @@ describe('splunk-adapter', () => {
     });
   });
 });
-

@@ -1,5 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { assignDefaultRole, assignDefaultRoleOnUserCreate, assignDefaultRoleOnRepoCreate } from '../rbac-defaults';
+import {
+  assignDefaultRole,
+  assignDefaultRoleOnUserCreate,
+  assignDefaultRoleOnRepoCreate,
+} from '../rbac-defaults';
 import { RepoRole } from '../rbac';
 
 const mockPrisma = vi.hoisted(() => ({
@@ -131,4 +135,3 @@ describe('rbac-defaults', () => {
     });
   });
 });
-

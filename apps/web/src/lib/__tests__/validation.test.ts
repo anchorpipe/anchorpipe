@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import {
   sanitizeString,
   sanitizeObject,
@@ -159,11 +159,15 @@ describe('validation', () => {
     });
 
     it('returns error for missing uppercase', () => {
-      expect(validatePassword('lowercase1!')).toBe('Password must contain at least one uppercase letter');
+      expect(validatePassword('lowercase1!')).toBe(
+        'Password must contain at least one uppercase letter'
+      );
     });
 
     it('returns error for missing lowercase', () => {
-      expect(validatePassword('UPPERCASE1!')).toBe('Password must contain at least one lowercase letter');
+      expect(validatePassword('UPPERCASE1!')).toBe(
+        'Password must contain at least one lowercase letter'
+      );
     });
 
     it('returns error for missing number', () => {
@@ -171,7 +175,9 @@ describe('validation', () => {
     });
 
     it('returns error for missing special character', () => {
-      expect(validatePassword('NoSpecial1')).toBe('Password must contain at least one special character');
+      expect(validatePassword('NoSpecial1')).toBe(
+        'Password must contain at least one special character'
+      );
     });
 
     it('returns error for password too long', () => {
@@ -180,4 +186,3 @@ describe('validation', () => {
     });
   });
 });
-
