@@ -53,9 +53,12 @@ describe('/api/auth/verify-email POST', () => {
   });
 
   it('enforces rate limit', async () => {
-    mockRateLimit.mockResolvedValueOnce({
-      allowed: false,
-      headers: new Headers({ 'Retry-After': '30' }),
+    mockRateLimit.mockImplementationOnce(async (_key, _req, onViolation) => {
+      onViolation('10.0.0.1', 'auth:verify-email');
+      return {
+        allowed: false,
+        headers: new Headers({ 'Retry-After': '30' }),
+      };
     });
 
     const res = await POST(
@@ -68,6 +71,14 @@ describe('/api/auth/verify-email POST', () => {
 
     expect(res.status).toBe(429);
     expect(mockValidateRequest).not.toHaveBeenCalled();
+    expect(mockWriteAuditLog).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: 'loginFailure',
+        subject: 'security',
+        description: expect.stringContaining('auth:verify-email'),
+        ipAddress: '10.0.0.1',
+      })
+    );
   });
 
   it('validates request body', async () => {
@@ -122,6 +133,25 @@ describe('/api/auth/verify-email POST', () => {
     });
     expect(mockWriteAuditLog).toHaveBeenCalledWith(
       expect.objectContaining({ action: 'configUpdated', subjectId: 'user-1' })
+    );
+  });
+
+  it('logs and returns 500 on unexpected errors', async () => {
+    mockVerifyUserEmail.mockRejectedValueOnce(new Error('db down'));
+
+    const res = await POST(
+      buildNextRequest('http://localhost/api/auth/verify-email', {
+        method: 'POST',
+        body: JSON.stringify({ token: 'boom' }),
+        headers: { 'Content-Type': 'application/json' },
+      })
+    );
+
+    expect(res.status).toBe(500);
+    expect(await res.json()).toEqual({ error: 'Internal server error' });
+    expect(mockLogger.error).toHaveBeenCalledWith(
+      'Error processing email verification',
+      expect.objectContaining({ error: 'db down' })
     );
   });
 });
