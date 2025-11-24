@@ -61,21 +61,21 @@ describe('<DsrClient />', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Generate export' }));
 
     await waitFor(() =>
-      expect(screen.getByText('Data export generated. Download from the table below.')).toBeInTheDocument()
+      expect(
+        screen.getByText('Data export generated. Download from the table below.')
+      ).toBeInTheDocument()
     );
     expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(screen.getByText('Download JSON')).toBeInTheDocument();
   });
 
   it('shows error when export fails', async () => {
-    const fetchMock = vi
-      .fn()
-      .mockResolvedValueOnce(
-        buildResponse({
-          ok: false,
-          json: async () => ({ error: 'Export failed' }),
-        })
-      );
+    const fetchMock = vi.fn().mockResolvedValueOnce(
+      buildResponse({
+        ok: false,
+        json: async () => ({ error: 'Export failed' }),
+      })
+    );
     global.fetch = fetchMock;
 
     render(<DsrClient initialRequests={[]} />);
@@ -121,14 +121,12 @@ describe('<DsrClient />', () => {
   });
 
   it('shows error when deletion fails', async () => {
-    const fetchMock = vi
-      .fn()
-      .mockResolvedValueOnce(
-        buildResponse({
-          ok: false,
-          json: async () => ({ error: 'Deletion request failed' }),
-        })
-      );
+    const fetchMock = vi.fn().mockResolvedValueOnce(
+      buildResponse({
+        ok: false,
+        json: async () => ({ error: 'Deletion request failed' }),
+      })
+    );
     global.fetch = fetchMock;
 
     render(<DsrClient initialRequests={[]} />);
@@ -138,4 +136,3 @@ describe('<DsrClient />', () => {
     await waitFor(() => expect(screen.getByText('Deletion request failed')).toBeInTheDocument());
   });
 });
-

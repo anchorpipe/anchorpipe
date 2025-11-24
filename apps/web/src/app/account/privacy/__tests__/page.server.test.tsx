@@ -1,7 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import PrivacyPage from '../page';
 
-const mockRedirect = vi.hoisted(() => vi.fn(() => { throw new Error('redirect'); }));
+const mockRedirect = vi.hoisted(() =>
+  vi.fn(() => {
+    throw new Error('redirect');
+  })
+);
 const mockReadSession = vi.hoisted(() => vi.fn());
 const mockListRequests = vi.hoisted(() => vi.fn());
 
@@ -85,4 +89,3 @@ describe('/account/privacy page (server)', () => {
     ]);
   });
 });
-

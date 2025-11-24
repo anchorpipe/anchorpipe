@@ -13,7 +13,7 @@ const mockUpsert = vi.hoisted(() => vi.fn());
 const mockDeleteInstallation = vi.hoisted(() => vi.fn());
 const mockSyncRepos = vi.hoisted(() => vi.fn());
 const mockValidatePermissions = vi.hoisted(() =>
-  vi.fn(async () => ({ valid: true, missing: [], warnings: [] }))
+  vi.fn(async () => ({ valid: true, missing: [] as string[], warnings: [] as string[] }))
 );
 const mockClearTokenCache = vi.hoisted(() => vi.fn());
 const mockTriggerWorkflow = vi.hoisted(() => vi.fn(() => Promise.resolve()));
@@ -249,7 +249,12 @@ describe('/api/webhooks/github-app POST', () => {
         status: 'completed',
         conclusion: 'success',
         workflow_id: 1,
-        repository: { id: 1, name: 'repo', full_name: 'acme/repo', owner: { login: 'acme', id: 1 } },
+        repository: {
+          id: 1,
+          name: 'repo',
+          full_name: 'acme/repo',
+          owner: { login: 'acme', id: 1 },
+        },
       },
       installation: { id: 77 },
     };
@@ -282,7 +287,12 @@ describe('/api/webhooks/github-app POST', () => {
         status: 'in_progress',
         conclusion: null,
         workflow_id: 1,
-        repository: { id: 1, name: 'repo', full_name: 'acme/repo', owner: { login: 'acme', id: 1 } },
+        repository: {
+          id: 1,
+          name: 'repo',
+          full_name: 'acme/repo',
+          owner: { login: 'acme', id: 1 },
+        },
       },
       installation: { id: 77 },
     };
@@ -312,7 +322,12 @@ describe('/api/webhooks/github-app POST', () => {
         status: 'completed',
         conclusion: 'success',
         check_suite: { id: 1, head_sha: 'abc', head_branch: 'main' },
-        repository: { id: 2, name: 'repo', full_name: 'acme/repo', owner: { login: 'acme', id: 1 } },
+        repository: {
+          id: 2,
+          name: 'repo',
+          full_name: 'acme/repo',
+          owner: { login: 'acme', id: 1 },
+        },
       },
       installation: { id: 77 },
     };

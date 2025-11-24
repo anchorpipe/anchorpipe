@@ -13,4 +13,3 @@ describe('Home page', () => {
     expect(screen.getByText(/Status: Foundation \(Gate G0\)/i)).toBeInTheDocument();
   });
 });
-

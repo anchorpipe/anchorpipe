@@ -50,4 +50,3 @@ describe('/dashboard page', () => {
     expect(markup).toContain('Sign out');
   });
 });
-

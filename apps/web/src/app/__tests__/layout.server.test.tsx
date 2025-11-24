@@ -20,4 +20,3 @@ describe('RootLayout', () => {
     expect(markup).toContain('hello');
   });
 });
-
