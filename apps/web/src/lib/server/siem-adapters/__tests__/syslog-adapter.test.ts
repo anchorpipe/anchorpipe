@@ -16,11 +16,13 @@ describe('syslog-adapter', () => {
     vi.clearAllMocks();
   });
 
+  const siemConfig = { type: 'syslog' as const, enabled: true, timeout: 5000 };
+
   describe('createSyslogAdapter', () => {
     it('creates adapter successfully', () => {
       const adapter = createSyslogAdapter(
         { host: 'syslog.example.com', port: 514, protocol: 'udp' },
-        { timeout: 5000 }
+        siemConfig
       );
 
       expect(adapter).toBeDefined();
@@ -43,7 +45,7 @@ describe('syslog-adapter', () => {
     it('forwards log (placeholder implementation)', async () => {
       const adapter = createSyslogAdapter(
         { host: 'syslog.example.com', port: 514, protocol: 'udp' },
-        { timeout: 5000 }
+        siemConfig
       );
 
       const result = await adapter.forwardLog(log);
@@ -83,7 +85,7 @@ describe('syslog-adapter', () => {
     it('forwards batch sequentially', async () => {
       const adapter = createSyslogAdapter(
         { host: 'syslog.example.com', port: 514, protocol: 'tcp' },
-        { timeout: 5000 }
+        siemConfig
       );
 
       const result = await adapter.forwardBatch(logs);
@@ -98,7 +100,7 @@ describe('syslog-adapter', () => {
     it('tests connection (placeholder)', async () => {
       const adapter = createSyslogAdapter(
         { host: 'syslog.example.com', port: 514, protocol: 'tls' },
-        { timeout: 5000 }
+        siemConfig
       );
 
       const result = await adapter.testConnection();

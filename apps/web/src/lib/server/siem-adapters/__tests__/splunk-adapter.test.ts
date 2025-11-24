@@ -8,23 +8,25 @@ describe('splunk-adapter', () => {
     global.fetch = vi.fn();
   });
 
+  const siemConfig = { type: 'splunk' as const, enabled: true, timeout: 5000 };
+
   describe('createSplunkAdapter', () => {
     it('throws error for localhost hostname', () => {
       expect(() =>
-        createSplunkAdapter({ host: 'localhost', port: 8088, token: 'token' }, { timeout: 5000 })
+        createSplunkAdapter({ host: 'localhost', port: 8088, token: 'token' }, siemConfig)
       ).toThrow('Invalid Splunk host');
     });
 
     it('throws error for private IP hostname', () => {
       expect(() =>
-        createSplunkAdapter({ host: '192.168.1.1', port: 8088, token: 'token' }, { timeout: 5000 })
+        createSplunkAdapter({ host: '192.168.1.1', port: 8088, token: 'token' }, siemConfig)
       ).toThrow('Invalid Splunk host');
     });
 
     it('creates adapter with valid hostname', () => {
       const adapter = createSplunkAdapter(
         { host: 'splunk.example.com', port: 8088, token: 'token' },
-        { timeout: 5000 }
+        siemConfig
       );
 
       expect(adapter).toBeDefined();
@@ -49,7 +51,7 @@ describe('splunk-adapter', () => {
 
       const adapter = createSplunkAdapter(
         { host: 'splunk.example.com', port: 8088, token: 'token-123' },
-        { timeout: 5000 }
+        siemConfig
       );
 
       const result = await adapter.forwardLog(log);
@@ -82,7 +84,7 @@ describe('splunk-adapter', () => {
           source: 'custom-source',
           sourcetype: 'custom:sourcetype',
         },
-        { timeout: 5000 }
+        siemConfig
       );
 
       await adapter.forwardLog(log);
@@ -102,7 +104,7 @@ describe('splunk-adapter', () => {
 
       const adapter = createSplunkAdapter(
         { host: 'splunk.example.com', port: 8088, token: 'invalid' },
-        { timeout: 5000 }
+        siemConfig
       );
 
       const result = await adapter.forwardLog(log);
@@ -140,7 +142,7 @@ describe('splunk-adapter', () => {
 
       const adapter = createSplunkAdapter(
         { host: 'splunk.example.com', port: 8088, token: 'token' },
-        { timeout: 5000 }
+        siemConfig
       );
 
       const result = await adapter.forwardBatch(logs);
@@ -158,7 +160,7 @@ describe('splunk-adapter', () => {
 
       const adapter = createSplunkAdapter(
         { host: 'splunk.example.com', port: 8088, token: 'token' },
-        { timeout: 5000 }
+        siemConfig
       );
 
       const result = await adapter.forwardBatch(logs);
@@ -178,7 +180,7 @@ describe('splunk-adapter', () => {
 
       const adapter = createSplunkAdapter(
         { host: 'splunk.example.com', port: 8088, token: 'token' },
-        { timeout: 5000 }
+        siemConfig
       );
 
       const result = await adapter.testConnection();

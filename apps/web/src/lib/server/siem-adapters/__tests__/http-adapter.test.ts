@@ -8,18 +8,17 @@ describe('http-adapter', () => {
     global.fetch = vi.fn();
   });
 
+  const siemConfig = { type: 'http' as const, enabled: true, timeout: 5000 };
+
   describe('createHttpAdapter', () => {
     it('throws error for invalid URL', () => {
-      expect(() => createHttpAdapter({ url: 'invalid-url' }, { timeout: 5000 })).toThrow(
+      expect(() => createHttpAdapter({ url: 'invalid-url' }, siemConfig)).toThrow(
         'Invalid SIEM HTTP URL'
       );
     });
 
     it('creates adapter with valid URL', () => {
-      const adapter = createHttpAdapter(
-        { url: 'https://siem.example.com/api/logs' },
-        { timeout: 5000 }
-      );
+      const adapter = createHttpAdapter({ url: 'https://siem.example.com/api/logs' }, siemConfig);
 
       expect(adapter).toBeDefined();
     });
@@ -43,7 +42,7 @@ describe('http-adapter', () => {
 
       const adapter = createHttpAdapter(
         { url: 'https://siem.example.com/api/logs' },
-        { timeout: 5000, format: 'json' }
+        { ...siemConfig, format: 'json' }
       );
 
       const result = await adapter.forwardLog(log);
@@ -72,7 +71,7 @@ describe('http-adapter', () => {
           url: 'https://siem.example.com/api/logs',
           auth: { type: 'bearer', token: 'token-123' },
         },
-        { timeout: 5000 }
+        siemConfig
       );
 
       const result = await adapter.forwardLog(log);
@@ -99,7 +98,7 @@ describe('http-adapter', () => {
           url: 'https://siem.example.com/api/logs',
           auth: { type: 'basic', username: 'user', password: 'pass' },
         },
-        { timeout: 5000 }
+        siemConfig
       );
 
       const result = await adapter.forwardLog(log);
@@ -122,10 +121,7 @@ describe('http-adapter', () => {
         text: async () => 'Internal Server Error',
       } as Response);
 
-      const adapter = createHttpAdapter(
-        { url: 'https://siem.example.com/api/logs' },
-        { timeout: 5000 }
-      );
+      const adapter = createHttpAdapter({ url: 'https://siem.example.com/api/logs' }, siemConfig);
 
       const result = await adapter.forwardLog(log);
 
@@ -159,10 +155,7 @@ describe('http-adapter', () => {
         .mockResolvedValueOnce({ ok: true, text: async () => 'OK' } as Response)
         .mockResolvedValueOnce({ ok: true, text: async () => 'OK' } as Response);
 
-      const adapter = createHttpAdapter(
-        { url: 'https://siem.example.com/api/logs' },
-        { timeout: 5000 }
-      );
+      const adapter = createHttpAdapter({ url: 'https://siem.example.com/api/logs' }, siemConfig);
 
       const result = await adapter.forwardBatch(logs);
 
@@ -176,10 +169,7 @@ describe('http-adapter', () => {
         .mockResolvedValueOnce({ ok: true, text: async () => 'OK' } as Response)
         .mockResolvedValueOnce({ ok: false, status: 500, text: async () => 'Error' } as Response);
 
-      const adapter = createHttpAdapter(
-        { url: 'https://siem.example.com/api/logs' },
-        { timeout: 5000 }
-      );
+      const adapter = createHttpAdapter({ url: 'https://siem.example.com/api/logs' }, siemConfig);
 
       const result = await adapter.forwardBatch(logs);
 
@@ -196,10 +186,7 @@ describe('http-adapter', () => {
         text: async () => 'OK',
       } as Response);
 
-      const adapter = createHttpAdapter(
-        { url: 'https://siem.example.com/api/logs' },
-        { timeout: 5000 }
-      );
+      const adapter = createHttpAdapter({ url: 'https://siem.example.com/api/logs' }, siemConfig);
 
       const result = await adapter.testConnection();
 
