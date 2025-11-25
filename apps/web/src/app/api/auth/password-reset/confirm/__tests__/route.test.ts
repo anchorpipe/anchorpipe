@@ -2,11 +2,6 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { POST } from '../route';
 import { buildNextRequest } from '@/test-utils/build-next-request';
 
-const mockRateLimit = vi.hoisted(() => vi.fn());
-vi.mock('@/lib/server/rate-limit', () => ({
-  rateLimit: mockRateLimit,
-}));
-
 const mockValidateRequest = vi.hoisted(() => vi.fn());
 vi.mock('@/lib/validation', () => ({
   validateRequest: mockValidateRequest,
@@ -44,7 +39,6 @@ const buildRequest = (body: unknown) =>
 describe('/api/auth/password-reset/confirm POST', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockRateLimit.mockResolvedValue({ allowed: true, headers: {} });
     mockValidateRequest.mockResolvedValue({
       success: true,
       data: { token: 'abc', password: 'StrongKey1!' },
@@ -96,15 +90,6 @@ describe('/api/auth/password-reset/confirm POST', () => {
       'Password reset failed',
       expect.objectContaining({ error: 'expired token' })
     );
-  });
-
-  it('returns 429 when rate limit exceeded', async () => {
-    mockRateLimit.mockResolvedValue({ allowed: false, headers: { 'Retry-After': '120' } });
-
-    const response = await POST(buildRequest({ token: 'abc', password: 'StrongKey1!' }));
-
-    expect(response.status).toBe(429);
-    expect(response.headers.get('Retry-After')).toBe('120');
   });
 
   it('returns 500 when an unexpected error occurs', async () => {

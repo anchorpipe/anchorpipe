@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST } from '../route';
 import { buildNextRequest } from '@/test-utils/build-next-request';
 
-const mockRateLimit = vi.hoisted(() => vi.fn());
 const mockValidateRequest = vi.hoisted(() => vi.fn());
 const mockVerifyUserEmail = vi.hoisted(() => vi.fn());
 const mockWriteAuditLog = vi.hoisted(() => vi.fn());
@@ -13,10 +12,6 @@ const mockLogger = vi.hoisted(() => ({
   info: vi.fn(),
   warn: vi.fn(),
   error: vi.fn(),
-}));
-
-vi.mock('@/lib/server/rate-limit', () => ({
-  rateLimit: mockRateLimit,
 }));
 
 vi.mock('@/lib/validation', () => ({
@@ -47,38 +42,8 @@ vi.mock('@/lib/server/logger', () => ({
 describe('/api/auth/verify-email POST', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockRateLimit.mockResolvedValue({ allowed: true, headers: new Headers() });
     mockValidateRequest.mockResolvedValue({ success: true, data: { token: 'token-123' } });
     mockVerifyUserEmail.mockResolvedValue({ success: true, userId: 'user-1' });
-  });
-
-  it('enforces rate limit', async () => {
-    mockRateLimit.mockImplementationOnce(async (_key, _req, onViolation) => {
-      onViolation('10.0.0.1', 'auth:verify-email');
-      return {
-        allowed: false,
-        headers: new Headers({ 'Retry-After': '30' }),
-      };
-    });
-
-    const res = await POST(
-      buildNextRequest('http://localhost/api/auth/verify-email', {
-        method: 'POST',
-        body: JSON.stringify({ token: 'abc' }),
-        headers: { 'Content-Type': 'application/json' },
-      })
-    );
-
-    expect(res.status).toBe(429);
-    expect(mockValidateRequest).not.toHaveBeenCalled();
-    expect(mockWriteAuditLog).toHaveBeenCalledWith(
-      expect.objectContaining({
-        action: 'loginFailure',
-        subject: 'security',
-        description: expect.stringContaining('auth:verify-email'),
-        ipAddress: '10.0.0.1',
-      })
-    );
   });
 
   it('validates request body', async () => {

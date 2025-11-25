@@ -1,152 +1,110 @@
-/**
- * Simple in-memory rate limiter (for G0)
- * In production, use Redis or a dedicated service
- */
-const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
+import { getRedisClient } from '@anchorpipe/redis';
 
-/**
- * Rate limit configuration
- * Can be overridden via environment variables:
- * - RATE_LIMIT_AUTH_REGISTER (format: "maxRequests:windowMs")
- * - RATE_LIMIT_AUTH_LOGIN
- * - RATE_LIMIT_INGESTION_SUBMIT
- */
-function getRateLimitConfig(
-  key: string,
-  defaultMaxRequests: number,
-  defaultWindowMs: number
-): { maxRequests: number; windowMs: number } {
-  const envKey = `RATE_LIMIT_${key.toUpperCase().replace(':', '_')}`;
-  const envValue = process.env[envKey];
-  if (envValue) {
-    const [maxRequests, windowMs] = envValue.split(':').map(Number);
-    if (!isNaN(maxRequests) && !isNaN(windowMs)) {
-      return { maxRequests, windowMs };
-    }
+export class RateLimitError extends Error {
+  constructor(
+    message: string,
+    public readonly retryAfter: number
+  ) {
+    super(message);
+    this.name = 'RateLimitError';
   }
-  return { maxRequests: defaultMaxRequests, windowMs: defaultWindowMs };
 }
 
-function buildRateLimitConfig(): Record<string, { maxRequests: number; windowMs: number }> {
-  return {
-    'auth:register': getRateLimitConfig('auth:register', 5, 15 * 60 * 1000), // 5 requests per 15 minutes
-    'auth:login': getRateLimitConfig('auth:login', 10, 15 * 60 * 1000), // 10 requests per 15 minutes
-    'ingestion:submit': getRateLimitConfig('ingestion:submit', 500, 60 * 60 * 1000), // 500 requests per hour
-  };
+export interface RateLimitConfig {
+  windowMs: number;
+  maxRequests: number;
+  keyPrefix?: string;
 }
 
-let RATE_LIMITS = buildRateLimitConfig();
-
-/**
- * Testing utility: recompute rate-limit config after mutating environment variables.
- */
-export function refreshRateLimitConfigForTesting() {
-  RATE_LIMITS = buildRateLimitConfig();
+export interface RateLimitInfo {
+  limit: number;
+  remaining: number;
+  reset: number;
 }
 
 /**
- * Get client identifier from request
+ * Check rate limit using Redis sorted sets (sliding window algorithm)
  */
-function getClientId(request: Request): string {
-  const forwarded = request.headers.get('x-forwarded-for');
-  const ip = forwarded
-    ? forwarded.split(',')[0].trim()
-    : request.headers.get('x-real-ip') || 'unknown';
-  return ip;
-}
-
-/**
- * Check if IP is from a trusted source (for bypass rules)
- * Trusted sources can be configured via TRUSTED_IPS env var (comma-separated)
- */
-function isTrustedSource(ip: string): boolean {
-  const trustedIps = process.env.TRUSTED_IPS?.split(',').map((ip) => ip.trim()) || [];
-  return trustedIps.includes(ip);
-}
-
-/**
- * Rate limit check
- * @param key - Rate limit key (e.g., 'auth:login')
- * @param request - Request object
- * @param logViolation - Optional callback to log violations (for audit logging)
- * @returns Rate limit result with headers including Retry-After on violations
- */
-export async function rateLimit(
-  key: string,
-  request: Request,
-  logViolation?: (ip: string, key: string) => void
-): Promise<{ allowed: boolean; headers: Record<string, string> }> {
-  const limit = RATE_LIMITS[key];
-  if (!limit) {
-    return { allowed: true, headers: {} };
-  }
-
-  const clientId = getClientId(request);
-
-  // Trusted sources bypass rate limiting (optional feature)
-  if (isTrustedSource(clientId)) {
-    return {
-      allowed: true,
-      headers: {
-        'X-RateLimit-Limit': String(limit.maxRequests),
-        'X-RateLimit-Remaining': String(limit.maxRequests),
-        'X-RateLimit-Reset': String(Math.floor((Date.now() + limit.windowMs) / 1000)),
-      },
-    };
-  }
-
-  const storeKey = `${key}:${clientId}`;
+export async function checkRateLimit(key: string, config: RateLimitConfig): Promise<void> {
+  const redis = getRedisClient();
   const now = Date.now();
+  const windowStart = now - config.windowMs;
+  const redisKey = `${config.keyPrefix || 'ratelimit'}:${key}`;
 
-  // Clean up expired entries (simple cleanup, not perfect)
-  if (rateLimitStore.size > 10000) {
-    for (const [k, v] of rateLimitStore.entries()) {
-      if (v.resetAt < now) {
-        rateLimitStore.delete(k);
-      }
+  try {
+    const pipeline = redis.pipeline();
+    pipeline.zremrangebyscore(redisKey, 0, windowStart);
+    pipeline.zadd(redisKey, now, `${now}:${Math.random()}`);
+    pipeline.zcard(redisKey);
+    pipeline.expire(redisKey, Math.ceil(config.windowMs / 1000));
+
+    const results = await pipeline.exec();
+    if (!results) {
+      throw new Error('Redis pipeline returned null');
     }
+
+    const countResult = results[2];
+    const count = Array.isArray(countResult) ? (countResult[1] as number) : 0;
+    if (count > config.maxRequests) {
+      const oldestEntries = await redis.zrange(redisKey, 0, 0, 'WITHSCORES');
+      const oldestTimestamp = oldestEntries[1] ? parseInt(oldestEntries[1], 10) : now;
+      const resetTime = oldestTimestamp + config.windowMs;
+      const retryAfter = Math.ceil((resetTime - now) / 1000);
+
+      throw new RateLimitError(
+        `Rate limit exceeded. Try again in ${retryAfter} seconds.`,
+        retryAfter
+      );
+    }
+  } catch (error) {
+    if (error instanceof RateLimitError) {
+      throw error;
+    }
+    console.error('[Rate Limit] Redis error, allowing request:', error);
   }
+}
 
-  const entry = rateLimitStore.get(storeKey);
+/**
+ * Get rate limit info for response headers
+ */
+export async function getRateLimitInfo(
+  key: string,
+  config: RateLimitConfig
+): Promise<RateLimitInfo> {
+  const redis = getRedisClient();
+  const now = Date.now();
+  const windowStart = now - config.windowMs;
+  const redisKey = `${config.keyPrefix || 'ratelimit'}:${key}`;
 
-  if (!entry || entry.resetAt < now) {
-    // New window
-    rateLimitStore.set(storeKey, { count: 1, resetAt: now + limit.windowMs });
+  try {
+    await redis.zremrangebyscore(redisKey, 0, windowStart);
+    const count = await redis.zcard(redisKey);
+    const remaining = Math.max(0, config.maxRequests - count);
+    const oldestEntries = await redis.zrange(redisKey, 0, 0, 'WITHSCORES');
+    const reset = oldestEntries[1]
+      ? parseInt(oldestEntries[1], 10) + config.windowMs
+      : now + config.windowMs;
+
+    return { limit: config.maxRequests, remaining, reset };
+  } catch (error) {
+    console.error('[Rate Limit] Error getting rate limit info:', error);
     return {
-      allowed: true,
-      headers: {
-        'X-RateLimit-Limit': String(limit.maxRequests),
-        'X-RateLimit-Remaining': String(limit.maxRequests - 1),
-        'X-RateLimit-Reset': String(Math.floor((now + limit.windowMs) / 1000)),
-      },
+      limit: config.maxRequests,
+      remaining: config.maxRequests,
+      reset: now + config.windowMs,
     };
   }
+}
 
-  if (entry.count >= limit.maxRequests) {
-    // Rate limit exceeded - calculate Retry-After header
-    const retryAfter = Math.ceil((entry.resetAt - now) / 1000);
-    if (logViolation) {
-      logViolation(clientId, key);
-    }
-    return {
-      allowed: false,
-      headers: {
-        'X-RateLimit-Limit': String(limit.maxRequests),
-        'X-RateLimit-Remaining': '0',
-        'X-RateLimit-Reset': String(Math.floor(entry.resetAt / 1000)),
-        'Retry-After': String(retryAfter),
-      },
-    };
+/**
+ * Reset rate limit (for testing/admin)
+ */
+export async function resetRateLimit(key: string, config: RateLimitConfig): Promise<void> {
+  const redis = getRedisClient();
+  const redisKey = `${config.keyPrefix || 'ratelimit'}:${key}`;
+  try {
+    await redis.del(redisKey);
+  } catch (error) {
+    console.error('[Rate Limit] Error resetting:', error);
   }
-
-  // Increment and allow
-  entry.count++;
-  return {
-    allowed: true,
-    headers: {
-      'X-RateLimit-Limit': String(limit.maxRequests),
-      'X-RateLimit-Remaining': String(limit.maxRequests - entry.count),
-      'X-RateLimit-Reset': String(Math.floor(entry.resetAt / 1000)),
-    },
-  };
 }

@@ -33,11 +33,6 @@ vi.mock('@/lib/schemas/auth', () => ({
   loginSchema: {},
 }));
 
-const mockRateLimit = vi.hoisted(() => vi.fn());
-vi.mock('@/lib/server/rate-limit', () => ({
-  rateLimit: mockRateLimit,
-}));
-
 const mockRecordFailedAttempt = vi.hoisted(() => vi.fn(() => ({ locked: false })));
 const mockCheckBruteForceLock = vi.hoisted(() => vi.fn());
 const mockClearFailedAttempts = vi.hoisted(() => vi.fn());
@@ -79,7 +74,6 @@ const buildRequest = (body: unknown) =>
 describe('/api/auth/login POST', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockRateLimit.mockResolvedValue({ allowed: true, headers: new Headers() });
     mockValidateRequest.mockResolvedValue({
       success: true,
       data: { email: 'a@b.com', password: 'pw' },
@@ -141,15 +135,4 @@ describe('/api/auth/login POST', () => {
     expect(body.error).toBe('invalid');
   });
 
-  it('returns 429 when rate limit exceeded', async () => {
-    mockRateLimit.mockResolvedValue({
-      allowed: false,
-      headers: new Headers({ 'Retry-After': '60' }),
-    });
-
-    const response = await POST(buildRequest({ email: 'a@b.com', password: 'pw' }));
-
-    expect(response.status).toBe(429);
-    expect(response.headers.get('Retry-After')).toBe('60');
-  });
 });

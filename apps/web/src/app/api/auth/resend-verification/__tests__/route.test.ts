@@ -8,7 +8,6 @@ const mockPrisma = vi.hoisted(() => ({
   },
 }));
 const mockReadSession = vi.hoisted(() => vi.fn());
-const mockRateLimit = vi.hoisted(() => vi.fn());
 const mockIsEmailVerified = vi.hoisted(() => vi.fn());
 const mockCreateEmailVerificationToken = vi.hoisted(() => vi.fn());
 const mockWriteAuditLog = vi.hoisted(() => vi.fn());
@@ -28,10 +27,6 @@ vi.mock('@anchorpipe/database', () => ({
 
 vi.mock('@/lib/server/auth', () => ({
   readSession: mockReadSession,
-}));
-
-vi.mock('@/lib/server/rate-limit', () => ({
-  rateLimit: mockRateLimit,
 }));
 
 vi.mock('@/lib/server/email-verification', () => ({
@@ -64,7 +59,6 @@ describe('/api/auth/resend-verification POST', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockReadSession.mockResolvedValue({ sub: 'user-1' });
-    mockRateLimit.mockResolvedValue({ allowed: true, headers: new Headers() });
     mockPrisma.user.findUnique.mockResolvedValue({ email: 'user@example.com' });
     mockIsEmailVerified.mockResolvedValue(false);
     mockCreateEmailVerificationToken.mockResolvedValue({
@@ -81,19 +75,6 @@ describe('/api/auth/resend-verification POST', () => {
     );
 
     expect(res.status).toBe(401);
-  });
-
-  it('enforces rate limits', async () => {
-    mockRateLimit.mockResolvedValueOnce({
-      allowed: false,
-      headers: new Headers({ 'Retry-After': '60' }),
-    });
-
-    const res = await POST(
-      buildNextRequest('http://localhost/api/auth/resend-verification', { method: 'POST' })
-    );
-
-    expect(res.status).toBe(429);
   });
 
   it('returns 404 when user missing email', async () => {

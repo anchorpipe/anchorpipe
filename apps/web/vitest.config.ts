@@ -23,8 +23,12 @@ export default defineConfig({
      * Ensure DOM-focused specs (e.g. *.dom.test.tsx) rely on jsdom while server-side tests stay on node.
      */
     environmentMatchGlobs: [
-      ['**/*.dom.test.(ts|tsx)', 'jsdom'],
-      ['**/*.component.test.(ts|tsx)', 'jsdom'],
+      ['**/*.dom.test.ts', 'jsdom'],
+      ['**/*.dom.test.tsx', 'jsdom'],
+      ['**/*.dom.spec.ts', 'jsdom'],
+      ['**/*.dom.spec.tsx', 'jsdom'],
+      ['**/*.component.test.ts', 'jsdom'],
+      ['**/*.component.test.tsx', 'jsdom'],
     ],
     coverage: {
       provider: 'v8',

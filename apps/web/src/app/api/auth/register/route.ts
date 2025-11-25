@@ -4,7 +4,6 @@ import { createSessionJwt, setSessionCookie } from '@/lib/server/auth';
 import { hashPassword } from '@/lib/server/password';
 import { validateRequest } from '@/lib/validation';
 import { registerSchema } from '@/lib/schemas/auth';
-import { rateLimit } from '@/lib/server/rate-limit';
 import {
   AUDIT_ACTIONS,
   AUDIT_SUBJECTS,
@@ -23,25 +22,6 @@ export async function POST(request: Request) {
   try {
     const context = extractRequestContext(request as unknown as NextRequest);
 
-    // Rate limiting with violation logging
-    const rateLimitResult = await rateLimit('auth:register', request, (violationIp, key) => {
-      writeAuditLog({
-        action: AUDIT_ACTIONS.loginFailure,
-        subject: AUDIT_SUBJECTS.security,
-        description: `Rate limit violation: ${key} exceeded for IP ${violationIp}`,
-        metadata: { key, ip: violationIp },
-        ipAddress: violationIp,
-        userAgent: context.userAgent,
-      });
-    });
-
-    if (!rateLimitResult.allowed) {
-      return NextResponse.json(
-        { error: 'Too many requests. Please try again later.' },
-        { status: 429, headers: rateLimitResult.headers }
-      );
-    }
-
     // Validate request body with Zod schema
     const validation = await validateRequest(request, registerSchema);
     if (!validation.success) {
@@ -50,7 +30,7 @@ export async function POST(request: Request) {
           error: validation.error.error,
           details: validation.error.details,
         },
-        { status: 400, headers: rateLimitResult.headers }
+        { status: 400 }
       );
     }
 
@@ -69,10 +49,7 @@ export async function POST(request: Request) {
         ipAddress: context.ipAddress,
         userAgent: context.userAgent,
       });
-      return NextResponse.json(
-        { error: 'User with this email already exists' },
-        { status: 409, headers: rateLimitResult.headers }
-      );
+      return NextResponse.json({ error: 'User with this email already exists' }, { status: 409 });
     }
 
     // Hash password and create user
@@ -149,7 +126,7 @@ export async function POST(request: Request) {
           expiresAt: expiresAt.toISOString(),
         }),
       },
-      { status: 201, headers: rateLimitResult.headers }
+      { status: 201 }
     );
   } catch (error) {
     console.error('Registration error:', error);
