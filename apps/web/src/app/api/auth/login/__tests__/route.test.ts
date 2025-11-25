@@ -134,5 +134,4 @@ describe('/api/auth/login POST', () => {
     const body = await response.json();
     expect(body.error).toBe('invalid');
   });
-
 });
