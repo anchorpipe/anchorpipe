@@ -73,7 +73,7 @@ describe('Redis rate limiting', () => {
   });
 
   it('logs and allows requests when redis pipeline fails', async () => {
-    const client = getRedisClient() as unknown as RedisMock;
+    const client = getRedisClient() as unknown as InstanceType<typeof RedisMock>;
     const pipelineError = new Error('boom');
     const pipelineSpy = vi.spyOn(client, 'pipeline').mockImplementation(() => {
       throw pipelineError;
@@ -91,7 +91,7 @@ describe('Redis rate limiting', () => {
   });
 
   it('returns default info when redis lookups fail', async () => {
-    const client = getRedisClient() as unknown as RedisMock;
+    const client = getRedisClient() as unknown as InstanceType<typeof RedisMock>;
     const error = new Error('zrange failed');
     const spy = vi.spyOn(client, 'zremrangebyscore').mockRejectedValue(error);
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
