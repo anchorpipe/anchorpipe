@@ -3,6 +3,7 @@
 **/.next/**
 **/coverage/**
 **/.turbo/**
+**/next-env.d.ts
 tempo-local/**
 scripts/**
 services/ingestion/**

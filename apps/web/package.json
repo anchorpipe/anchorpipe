@@ -15,6 +15,7 @@
   "dependencies": {
     "@anchorpipe/database": "*",
     "@anchorpipe/mq": "*",
+    "@anchorpipe/redis": "*",
     "@anchorpipe/storage": "*",
     "@casl/ability": "^6.7.3",
     "@casl/prisma": "^1.5.2",
