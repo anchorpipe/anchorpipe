@@ -10,7 +10,6 @@ const mockPrisma = vi.hoisted(() => ({
     create: vi.fn(),
   },
 }));
-const mockRateLimit = vi.hoisted(() => vi.fn());
 const mockValidateRequest = vi.hoisted(() => vi.fn());
 const mockHashPassword = vi.hoisted(() => vi.fn());
 const mockCreateEmailVerificationToken = vi.hoisted(() => vi.fn());
@@ -27,10 +26,6 @@ const mockLogger = vi.hoisted(() => ({
 
 vi.mock('@anchorpipe/database', () => ({
   PrismaClient: vi.fn(() => mockPrisma),
-}));
-
-vi.mock('@/lib/server/rate-limit', () => ({
-  rateLimit: mockRateLimit,
 }));
 
 vi.mock('@/lib/validation', () => ({
@@ -84,7 +79,6 @@ describe('/api/auth/register POST', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockRateLimit.mockResolvedValue({ allowed: true, headers: new Headers() });
     mockValidateRequest.mockResolvedValue({ success: true, data: requestBody });
     mockHashPassword.mockResolvedValue('hashed');
     mockCreateEmailVerificationToken.mockResolvedValue({
@@ -102,18 +96,6 @@ describe('/api/auth/register POST', () => {
 
   afterEach(() => {
     vi.unstubAllEnvs();
-  });
-
-  it('enforces rate limiting', async () => {
-    mockRateLimit.mockResolvedValue({
-      allowed: false,
-      headers: new Headers({ 'Retry-After': '60' }),
-    });
-
-    const res = await POST(buildRegisterRequest());
-
-    expect(res.status).toBe(429);
-    expect(mockValidateRequest).not.toHaveBeenCalled();
   });
 
   it('validates payloads', async () => {

@@ -10,7 +10,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { verifyUserEmail } from '@/lib/server/email-verification';
 import { validateRequest } from '@/lib/validation';
 import { z } from 'zod';
-import { rateLimit } from '@/lib/server/rate-limit';
 import {
   AUDIT_ACTIONS,
   AUDIT_SUBJECTS,
@@ -30,28 +29,6 @@ const emailVerificationSchema = z.object({
 });
 
 type RequestContext = ReturnType<typeof extractRequestContext>;
-
-async function enforceRateLimit(request: NextRequest, context: RequestContext) {
-  const result = await rateLimit('auth:verify-email', request, (violationIp, key) => {
-    writeAuditLog({
-      action: AUDIT_ACTIONS.loginFailure,
-      subject: AUDIT_SUBJECTS.security,
-      description: `Rate limit violation: ${key} exceeded for IP ${violationIp}`,
-      metadata: { key, ip: violationIp },
-      ipAddress: violationIp,
-      userAgent: context.userAgent,
-    });
-  });
-
-  if (!result.allowed) {
-    return NextResponse.json(
-      { error: 'Too many requests. Please try again later.' },
-      { status: 429, headers: result.headers }
-    );
-  }
-
-  return undefined;
-}
 
 async function parsePayload(request: NextRequest) {
   const validation = await validateRequest(request, emailVerificationSchema);
@@ -123,11 +100,6 @@ async function handleVerificationSuccess(userId: string, context: RequestContext
 export async function POST(request: NextRequest) {
   try {
     const context = extractRequestContext(request);
-
-    const rateLimitResponse = await enforceRateLimit(request, context);
-    if (rateLimitResponse) {
-      return rateLimitResponse;
-    }
 
     const { response, token } = await parsePayload(request);
     if (response) {

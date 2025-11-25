@@ -12,11 +12,6 @@ vi.mock('@anchorpipe/database', () => ({
   prisma: mockPrisma,
 }));
 
-const mockRateLimit = vi.hoisted(() => vi.fn());
-vi.mock('@/lib/server/rate-limit', () => ({
-  rateLimit: mockRateLimit,
-}));
-
 const mockValidateRequest = vi.hoisted(() => vi.fn());
 vi.mock('@/lib/validation', () => ({
   validateRequest: mockValidateRequest,
@@ -60,7 +55,6 @@ const buildRequest = (body: unknown) =>
 describe('/api/auth/password-reset/request POST', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockRateLimit.mockResolvedValue({ allowed: true, headers: {} });
     mockValidateRequest.mockResolvedValue({
       success: true,
       data: { email: 'user@example.com' },
@@ -127,15 +121,6 @@ describe('/api/auth/password-reset/request POST', () => {
 
     expect(response.status).toBe(400);
     expect(body.error).toBe('invalid');
-  });
-
-  it('returns 429 when rate limit blocked', async () => {
-    mockRateLimit.mockResolvedValue({ allowed: false, headers: { 'Retry-After': '60' } });
-
-    const response = await POST(buildRequest({ email: 'user@example.com' }));
-
-    expect(response.status).toBe(429);
-    expect(response.headers.get('Retry-After')).toBe('60');
   });
 
   it('returns 500 when unexpected error thrown', async () => {

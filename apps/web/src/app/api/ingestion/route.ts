@@ -1,39 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateHmacRequest } from '@/lib/server/hmac-auth';
-import { rateLimit } from '@/lib/server/rate-limit';
-import {
-  AUDIT_ACTIONS,
-  AUDIT_SUBJECTS,
-  extractRequestContext,
-  writeAuditLog,
-} from '@/lib/server/audit-service';
+import { extractRequestContext } from '@/lib/server/audit-service';
 import { IngestionPayloadSchema } from '@/lib/server/ingestion-schema';
 import { processIngestion } from '@/lib/server/ingestion-service';
 import { logger } from '@/lib/server/logger';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30; // 30 seconds max for ingestion
-
-/**
- * Check rate limit and return result
- */
-async function checkRateLimit(
-  request: NextRequest,
-  context: { userAgent: string | null }
-): Promise<{ allowed: boolean; headers?: Record<string, string> }> {
-  const rateLimitResult = await rateLimit('ingestion:submit', request, (violationIp, key) => {
-    writeAuditLog({
-      action: AUDIT_ACTIONS.loginFailure, // Using loginFailure as generic security event
-      subject: AUDIT_SUBJECTS.security,
-      description: `Rate limit violation: ${key} exceeded for IP ${violationIp}`,
-      metadata: { key, ip: violationIp, endpoint: '/api/ingestion' },
-      ipAddress: violationIp,
-      userAgent: context.userAgent,
-    });
-  });
-
-  return rateLimitResult;
-}
 
 /**
  * Validate request body size
@@ -115,39 +88,20 @@ function parseAndValidatePayload(
 }
 
 /**
- * Handle rate limit error response
- */
-function createRateLimitResponse(
-  headers?: Record<string, string>
-): NextResponse<{ error: string }> {
-  return NextResponse.json(
-    { error: 'Too many requests. Please try again later.' },
-    {
-      status: 429,
-      headers,
-    }
-  );
-}
-
-/**
  * Handle body validation error response
  */
 function createBodyValidationErrorResponse(
-  error: string | undefined,
-  headers?: Record<string, string>
+  error: string | undefined
 ): NextResponse<{ error: string }> {
   const status = error?.includes('too large') ? 413 : 400;
-  return NextResponse.json({ error: error || 'Invalid request body' }, { status, headers });
+  return NextResponse.json({ error: error || 'Invalid request body' }, { status });
 }
 
 /**
  * Handle authentication error response
  */
-function createAuthErrorResponse(
-  error: string | undefined,
-  headers?: Record<string, string>
-): NextResponse<{ error: string }> {
-  return NextResponse.json({ error: error || 'Authentication failed' }, { status: 401, headers });
+function createAuthErrorResponse(error: string | undefined): NextResponse<{ error: string }> {
+  return NextResponse.json({ error: error || 'Authentication failed' }, { status: 401 });
 }
 
 /**
@@ -155,8 +109,7 @@ function createAuthErrorResponse(
  */
 function createPayloadValidationErrorResponse(
   error: string | undefined,
-  details: unknown,
-  headers?: Record<string, string>
+  details: unknown
 ): NextResponse<{ error: string; details?: unknown }> {
   const responseBody: { error: string; details?: unknown } = {
     error: error || 'Invalid payload',
@@ -165,17 +118,14 @@ function createPayloadValidationErrorResponse(
     responseBody.details = details;
   }
   const status = error?.includes('mismatch') ? 403 : 400;
-  return NextResponse.json(responseBody, { status, headers });
+  return NextResponse.json(responseBody, { status });
 }
 
 /**
  * Handle ingestion processing error response
  */
-function createIngestionErrorResponse(
-  error: string | undefined,
-  headers?: Record<string, string>
-): NextResponse<{ error: string }> {
-  return NextResponse.json({ error: error || 'Ingestion failed' }, { status: 500, headers });
+function createIngestionErrorResponse(error: string | undefined): NextResponse<{ error: string }> {
+  return NextResponse.json({ error: error || 'Ingestion failed' }, { status: 500 });
 }
 
 /**
@@ -184,8 +134,7 @@ function createIngestionErrorResponse(
 function createSuccessResponse(
   runId: string,
   message: string,
-  summary: { tests_parsed: number; flaky_candidates: number } | undefined,
-  headers?: Record<string, string>
+  summary: { tests_parsed: number; flaky_candidates: number } | undefined
 ): NextResponse<{
   runId: string;
   message: string;
@@ -199,7 +148,6 @@ function createSuccessResponse(
     },
     {
       status: 200,
-      headers,
     }
   );
 }
@@ -207,16 +155,13 @@ function createSuccessResponse(
 /**
  * Handle unexpected errors
  */
-function createUnexpectedErrorResponse(
-  error: unknown,
-  headers?: Record<string, string>
-): NextResponse<{ error: string }> {
+function createUnexpectedErrorResponse(error: unknown): NextResponse<{ error: string }> {
   logger.error('Ingestion error', {
     error: error instanceof Error ? error.message : 'Unknown error',
     stack: error instanceof Error ? error.stack : undefined,
   });
   const errorMessage = error instanceof Error ? error.message : 'Ingestion failed';
-  return NextResponse.json({ error: errorMessage }, { status: 500, headers });
+  return NextResponse.json({ error: errorMessage }, { status: 500 });
 }
 
 /**
@@ -227,34 +172,24 @@ function createUnexpectedErrorResponse(
 export async function POST(request: NextRequest) {
   const context = extractRequestContext(request);
 
-  // Check rate limit
-  const rateLimitResult = await checkRateLimit(request, context);
-  if (!rateLimitResult.allowed) {
-    return createRateLimitResponse(rateLimitResult.headers);
-  }
-
   try {
     // Read and validate request body
     const body = await request.text();
     const bodyValidation = validateBodySize(body);
     if (!bodyValidation.valid) {
-      return createBodyValidationErrorResponse(bodyValidation.error, rateLimitResult.headers);
+      return createBodyValidationErrorResponse(bodyValidation.error);
     }
 
     // Authenticate request
     const authResult = await authenticateRequest(request, body);
     if (!authResult.success || !authResult.repoId) {
-      return createAuthErrorResponse(authResult.error, rateLimitResult.headers);
+      return createAuthErrorResponse(authResult.error);
     }
 
     // Parse and validate payload
     const payloadResult = parseAndValidatePayload(body, authResult.repoId);
     if (!payloadResult.success || !payloadResult.payload) {
-      return createPayloadValidationErrorResponse(
-        payloadResult.error,
-        payloadResult.details,
-        rateLimitResult.headers
-      );
+      return createPayloadValidationErrorResponse(payloadResult.error, payloadResult.details);
     }
 
     // Process ingestion
@@ -265,16 +200,11 @@ export async function POST(request: NextRequest) {
     );
 
     if (!result.success) {
-      return createIngestionErrorResponse(result.error, rateLimitResult.headers);
+      return createIngestionErrorResponse(result.error);
     }
 
-    return createSuccessResponse(
-      result.runId,
-      result.message,
-      result.summary,
-      rateLimitResult.headers
-    );
+    return createSuccessResponse(result.runId, result.message, result.summary);
   } catch (error) {
-    return createUnexpectedErrorResponse(error, rateLimitResult.headers);
+    return createUnexpectedErrorResponse(error);
   }
 }

@@ -11,6 +11,7 @@ COPY package.json package-lock.json ./
 COPY apps/web/package.json ./apps/web/
 COPY libs/database/package.json ./libs/database/
 COPY libs/mq/package.json ./libs/mq/
+COPY libs/redis/package.json ./libs/redis/
 COPY libs/storage/package.json ./libs/storage/
 
 # Install all dependencies at repo root (single install)
@@ -27,6 +28,7 @@ COPY package.json package-lock.json ./
 COPY apps/web/package.json ./apps/web/
 COPY libs/database/package.json ./libs/database/
 COPY libs/mq/package.json ./libs/mq/
+COPY libs/redis/package.json ./libs/redis/
 COPY libs/storage/package.json ./libs/storage/
 COPY tsconfig.base.json ./
 
@@ -47,9 +49,12 @@ COPY libs/database/tsconfig.json ./libs/database/tsconfig.json
 
 # Copy mq library contents
 COPY libs/mq/src ./libs/mq/src
-# (removed stray backslash)
+# Copy redis library contents
+COPY libs/redis/src ./libs/redis/src
+COPY libs/redis/tsconfig.json ./libs/redis/tsconfig.json
 # Copy storage library contents
 COPY libs/storage/src ./libs/storage/src
+COPY libs/storage/tsconfig.json ./libs/storage/tsconfig.json
 
 # Set working directory to database library for Prisma generation
 WORKDIR /app/libs/database

@@ -16,7 +16,8 @@
     "baseUrl": ".",
     "paths": {
       "@anchorpipe/*": ["libs/*/src"],
-      "@apps/*": ["apps/*"]
+      "@apps/*": ["apps/*"],
+      "redis": ["libs/redis/src/index.ts"]
     }
   },
   "exclude": ["apps/**", "node_modules", "dist", ".next"]

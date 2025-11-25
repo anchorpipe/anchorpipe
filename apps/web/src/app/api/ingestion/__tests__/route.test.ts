@@ -2,11 +2,6 @@ import { describe, expect, it, beforeEach, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 import { POST } from '../route';
 
-const mockRateLimit = vi.hoisted(() => vi.fn());
-vi.mock('@/lib/server/rate-limit', () => ({
-  rateLimit: mockRateLimit,
-}));
-
 const mockAuthenticateRequest = vi.hoisted(() => vi.fn());
 vi.mock('@/lib/server/hmac-auth', () => ({
   authenticateHmacRequest: mockAuthenticateRequest,
@@ -60,10 +55,6 @@ const samplePayload = {
 describe('/api/ingestion POST', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockRateLimit.mockResolvedValue({
-      allowed: true,
-      headers: { 'X-RateLimit-Remaining': '5' },
-    });
     mockAuthenticateRequest.mockResolvedValue({ success: true, repoId: 'repo-123' });
     mockSafeParse.mockReturnValue({ success: true, data: samplePayload });
     mockProcessIngestion.mockResolvedValue({
@@ -72,16 +63,6 @@ describe('/api/ingestion POST', () => {
       message: 'accepted',
       summary: samplePayload.summary,
     });
-  });
-
-  it('returns 429 when rate limit is exceeded', async () => {
-    mockRateLimit.mockResolvedValue({ allowed: false, headers: { 'Retry-After': '10' } });
-
-    const response = await POST(buildRequest(JSON.stringify(samplePayload)));
-
-    expect(response.status).toBe(429);
-    expect(response.headers.get('Retry-After')).toBe('10');
-    expect(mockAuthenticateRequest).not.toHaveBeenCalled();
   });
 
   it('returns 200 when ingestion succeeds', async () => {

@@ -10,7 +10,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@anchorpipe/database';
 import { readSession } from '@/lib/server/auth';
 import { createEmailVerificationToken, isEmailVerified } from '@/lib/server/email-verification';
-import { rateLimit } from '@/lib/server/rate-limit';
 import {
   AUDIT_ACTIONS,
   AUDIT_SUBJECTS,
@@ -37,29 +36,6 @@ export async function POST(request: NextRequest) {
     }
 
     const userId = session.sub;
-
-    // Rate limiting
-    const rateLimitResult = await rateLimit(
-      'auth:resend-verification',
-      request,
-      (violationIp, key) => {
-        writeAuditLog({
-          action: AUDIT_ACTIONS.loginFailure,
-          subject: AUDIT_SUBJECTS.security,
-          description: `Rate limit violation: ${key} exceeded for IP ${violationIp}`,
-          metadata: { key, ip: violationIp },
-          ipAddress: violationIp,
-          userAgent: context.userAgent,
-        });
-      }
-    );
-
-    if (!rateLimitResult.allowed) {
-      return NextResponse.json(
-        { error: 'Too many requests. Please try again later.' },
-        { status: 429, headers: rateLimitResult.headers }
-      );
-    }
 
     // Get user
     const user = await prisma.user.findUnique({

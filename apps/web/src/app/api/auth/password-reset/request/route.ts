@@ -13,7 +13,6 @@ import { z } from 'zod';
 import { createPasswordResetToken } from '@/lib/server/password-reset';
 import { validateRequest } from '@/lib/validation';
 import { emailSchema } from '@/lib/schemas/auth';
-import { rateLimit } from '@/lib/server/rate-limit';
 import {
   AUDIT_ACTIONS,
   AUDIT_SUBJECTS,
@@ -24,25 +23,6 @@ import { logger } from '@/lib/server/logger';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
-
-/**
- * Check rate limiting for password reset request
- */
-async function checkRateLimit(
-  request: NextRequest,
-  context: { userAgent: string | null }
-): Promise<{ allowed: boolean; headers?: Record<string, string> }> {
-  return await rateLimit('auth:password-reset', request, (violationIp, key) => {
-    writeAuditLog({
-      action: AUDIT_ACTIONS.loginFailure,
-      subject: AUDIT_SUBJECTS.security,
-      description: `Rate limit violation: ${key} exceeded for IP ${violationIp}`,
-      metadata: { key, ip: violationIp },
-      ipAddress: violationIp,
-      userAgent: context.userAgent,
-    });
-  });
-}
 
 /**
  * Validate email and find user
@@ -130,15 +110,6 @@ async function generatePasswordResetResponse(
 export async function POST(request: NextRequest) {
   try {
     const context = extractRequestContext(request);
-
-    // Rate limiting
-    const rateLimitResult = await checkRateLimit(request, context);
-    if (!rateLimitResult.allowed) {
-      return NextResponse.json(
-        { error: 'Too many requests. Please try again later.' },
-        { status: 429, headers: rateLimitResult.headers }
-      );
-    }
 
     // Validate request body
     const validation = await validateRequest(request, z.object({ email: emailSchema }));
