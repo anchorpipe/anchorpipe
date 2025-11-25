@@ -95,4 +95,39 @@ describe('middleware rate limiting', () => {
     expect(mockedGetRateLimitInfo).not.toHaveBeenCalled();
     expect(response.headers.get('x-request-id')).toBe('test-request-id');
   });
+
+  it('redirects dashboard visitors without a session', async () => {
+    const request = new NextRequest('http://localhost/dashboard');
+
+    const response = await middleware(request);
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get('location')).toContain('/');
+    expect(response.headers.get('x-request-id')).toBe('test-request-id');
+  });
+
+  it('bypasses health endpoints without hitting rate limit', async () => {
+    const request = new NextRequest('http://localhost/api/health');
+
+    const response = await middleware(request);
+
+    expect(mockedCheckRateLimit).not.toHaveBeenCalled();
+    expect(response.headers.get('content-security-policy')).toBeTruthy();
+    expect(response.headers.get('x-request-id')).toBe('test-request-id');
+  });
+
+  it('fails open when rate limit helper throws unexpected error', async () => {
+    const error = new Error('redis down');
+    mockedCheckRateLimit.mockRejectedValue(error);
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    const request = new NextRequest('http://localhost/api/test');
+    const response = await middleware(request);
+
+    expect(consoleSpy).toHaveBeenCalledWith('[Middleware] Unexpected rate limit error:', error);
+    expect(response.status).toBe(200);
+    expect(response.headers.get('X-RateLimit-Limit')).toBeNull();
+
+    consoleSpy.mockRestore();
+  });
 });

@@ -134,4 +134,21 @@ describe('/api/auth/login POST', () => {
     const body = await response.json();
     expect(body.error).toBe('invalid');
   });
+
+  it('returns 429 when brute force lock is active', async () => {
+    mockCheckBruteForceLock.mockReturnValue({ locked: true, retryAfter: 120 });
+
+    const response = await POST(buildRequest({ email: 'a@b.com', password: 'pw' }));
+
+    expect(response.status).toBe(429);
+    expect(response.headers.get('Retry-After')).toBe('120');
+    const body = await response.json();
+    expect(body.error).toMatch(/temporarily locked/i);
+    expect(mockWriteAuditLog).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: 'login_failure',
+        metadata: expect.objectContaining({ retryAfter: 120 }),
+      })
+    );
+  });
 });

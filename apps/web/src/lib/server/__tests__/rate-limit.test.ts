@@ -1,6 +1,13 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import RedisMock from 'ioredis-mock';
-import { checkRateLimit, resetRateLimit, RateLimitError, type RateLimitConfig } from '../rate-limit';
+import {
+  checkRateLimit,
+  resetRateLimit,
+  getRateLimitInfo,
+  RateLimitError,
+  type RateLimitConfig,
+} from '../rate-limit';
+import { getRedisClient } from '@anchorpipe/redis';
 
 vi.mock('@anchorpipe/redis', () => {
   let client: InstanceType<typeof RedisMock> | null = null;
@@ -63,5 +70,42 @@ describe('Redis rate limiting', () => {
     vi.setSystemTime(new Date('2025-01-01T00:00:02.000Z'));
 
     await expect(checkRateLimit(key, config)).resolves.toBeUndefined();
+  });
+
+  it('logs and allows requests when redis pipeline fails', async () => {
+    const client = getRedisClient() as unknown as RedisMock;
+    const pipelineError = new Error('boom');
+    const pipelineSpy = vi.spyOn(client, 'pipeline').mockImplementation(() => {
+      throw pipelineError;
+    });
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    await expect(checkRateLimit(key, config)).resolves.toBeUndefined();
+    expect(consoleSpy).toHaveBeenCalledWith(
+      '[Rate Limit] Redis error, allowing request:',
+      pipelineError
+    );
+
+    pipelineSpy.mockRestore();
+    consoleSpy.mockRestore();
+  });
+
+  it('returns default info when redis lookups fail', async () => {
+    const client = getRedisClient() as unknown as RedisMock;
+    const error = new Error('zrange failed');
+    const spy = vi.spyOn(client, 'zremrangebyscore').mockRejectedValue(error);
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    const info = await getRateLimitInfo(key, config);
+
+    expect(info).toEqual({
+      limit: config.maxRequests,
+      remaining: config.maxRequests,
+      reset: expect.any(Number),
+    });
+    expect(consoleSpy).toHaveBeenCalledWith('[Rate Limit] Error getting rate limit info:', error);
+
+    spy.mockRestore();
+    consoleSpy.mockRestore();
   });
 });
