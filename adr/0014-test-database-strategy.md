@@ -1,4 +1,4 @@
-# ADR-0016: Test Database Strategy
+# ADR-0014: Test Database Strategy
 
 - Status: Accepted
 - Date: 2025-11-24

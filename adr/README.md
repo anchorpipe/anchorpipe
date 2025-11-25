@@ -34,6 +34,8 @@ This directory contains the official architecture decision records (ADRs) for an
 | [0011](0011-object-storage.md)                             | Object Storage — S3-Compatible (MinIO Dev, Cloud S3 Prod)               | Proposed | 2025-10-21 |
 | [0012](0012-failure-details-privacy.md)                    | Privacy for `failure_details` (Redaction & PII Scrub)                   | Proposed | 2025-10-21 |
 | [0013](0013-code-organization-server-client-separation.md) | Code Organization — Server/Client Separation in Next.js App             | Proposed | 2025-11-08 |
+| [0014](0014-test-database-strategy.md)                     | Test Database Strategy                                                  | Accepted | 2025-11-24 |
+| [0015](0015-redis-rate-limiting.md)                        | Redis-Based Rate Limiting                                               | Accepted | 2025-11-25 |
 
 ## Related Documentation
 

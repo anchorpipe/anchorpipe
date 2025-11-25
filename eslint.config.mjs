@@ -12,6 +12,8 @@ export default [
       '**/coverage/**',
       '**/.turbo/**',
       'tempo-local/**',
+      '**/vite.config.*.timestamp*',
+      '**/vitest.config.*.timestamp*',
     ],
   },
   // Base JS rules

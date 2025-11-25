@@ -3,6 +3,7 @@ import { defineConfig } from 'vitest/config';
 
 const COVERAGE_TARGET = 80; // Decision 1: apps should trend toward ≥80% line coverage (libs to 90%) once suites mature.
 const STRICT_COVERAGE = process.env.COVERAGE_STRICT === 'true';
+const repoRoot = path.resolve(__dirname, '..', '..');
 
 export default defineConfig({
   test: {
@@ -22,8 +23,12 @@ export default defineConfig({
      * Ensure DOM-focused specs (e.g. *.dom.test.tsx) rely on jsdom while server-side tests stay on node.
      */
     environmentMatchGlobs: [
-      ['**/*.dom.test.(ts|tsx)', 'jsdom'],
-      ['**/*.component.test.(ts|tsx)', 'jsdom'],
+      ['**/*.dom.test.ts', 'jsdom'],
+      ['**/*.dom.test.tsx', 'jsdom'],
+      ['**/*.dom.spec.ts', 'jsdom'],
+      ['**/*.dom.spec.tsx', 'jsdom'],
+      ['**/*.component.test.ts', 'jsdom'],
+      ['**/*.component.test.tsx', 'jsdom'],
     ],
     coverage: {
       provider: 'v8',
@@ -49,6 +54,9 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      '@anchorpipe/database': path.resolve(repoRoot, 'libs/database/src'),
+      '@anchorpipe/mq': path.resolve(repoRoot, 'libs/mq/src'),
+      '@anchorpipe/storage': path.resolve(repoRoot, 'libs/storage/src'),
     },
   },
 });

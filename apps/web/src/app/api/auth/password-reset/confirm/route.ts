@@ -10,7 +10,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { resetPasswordWithToken } from '@/lib/server/password-reset';
 import { validateRequest } from '@/lib/validation';
 import { z } from 'zod';
-import { rateLimit } from '@/lib/server/rate-limit';
 import {
   AUDIT_ACTIONS,
   AUDIT_SUBJECTS,
@@ -38,25 +37,6 @@ const passwordResetConfirmSchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     const context = extractRequestContext(request);
-
-    // Rate limiting
-    const rateLimitResult = await rateLimit('auth:password-reset', request, (violationIp, key) => {
-      writeAuditLog({
-        action: AUDIT_ACTIONS.loginFailure,
-        subject: AUDIT_SUBJECTS.security,
-        description: `Rate limit violation: ${key} exceeded for IP ${violationIp}`,
-        metadata: { key, ip: violationIp },
-        ipAddress: violationIp,
-        userAgent: context.userAgent,
-      });
-    });
-
-    if (!rateLimitResult.allowed) {
-      return NextResponse.json(
-        { error: 'Too many requests. Please try again later.' },
-        { status: 429, headers: rateLimitResult.headers }
-      );
-    }
 
     // Validate request body
     const validation = await validateRequest(request, passwordResetConfirmSchema);

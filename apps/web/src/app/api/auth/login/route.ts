@@ -4,7 +4,6 @@ import { createSessionJwt, setSessionCookie } from '@/lib/server/auth';
 import { verifyPassword } from '@/lib/server/password';
 import { validateRequest } from '@/lib/validation';
 import { loginSchema } from '@/lib/schemas/auth';
-import { rateLimit } from '@/lib/server/rate-limit';
 import {
   checkBruteForceLock,
   recordFailedAttempt,
@@ -27,25 +26,6 @@ export async function POST(request: Request) {
     const context = extractRequestContext(request as unknown as NextRequest);
     const ip = context.ipAddress || 'unknown';
 
-    // Rate limiting with violation logging
-    const rateLimitResult = await rateLimit('auth:login', request, (violationIp, key) => {
-      writeAuditLog({
-        action: AUDIT_ACTIONS.loginFailure,
-        subject: AUDIT_SUBJECTS.security,
-        description: `Rate limit violation: ${key} exceeded for IP ${violationIp}`,
-        metadata: { key, ip: violationIp },
-        ipAddress: violationIp,
-        userAgent: context.userAgent,
-      });
-    });
-
-    if (!rateLimitResult.allowed) {
-      return NextResponse.json(
-        { error: 'Too many requests. Please try again later.' },
-        { status: 429, headers: rateLimitResult.headers }
-      );
-    }
-
     // Validate request body with Zod schema
     const validation = await validateRequest(request, loginSchema);
     if (!validation.success) {
@@ -54,7 +34,7 @@ export async function POST(request: Request) {
           error: validation.error.error,
           details: validation.error.details,
         },
-        { status: 400, headers: rateLimitResult.headers }
+        { status: 400 }
       );
     }
 
@@ -79,7 +59,6 @@ export async function POST(request: Request) {
         {
           status: 429,
           headers: {
-            ...rateLimitResult.headers,
             'Retry-After': String(bruteForceCheck.retryAfter || 900),
           },
         }
@@ -102,11 +81,11 @@ export async function POST(request: Request) {
       // Don't reveal if user exists (security best practice)
       const headers = bruteForceResult.locked
         ? {
-            ...rateLimitResult.headers,
             'Retry-After': String(bruteForceResult.retryAfter || 900),
           }
-        : rateLimitResult.headers;
-      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401, headers });
+        : undefined;
+      const responseInit = headers ? { status: 401, headers } : { status: 401 };
+      return NextResponse.json({ error: 'Invalid credentials' }, responseInit);
     }
 
     // Verify password
@@ -123,10 +102,7 @@ export async function POST(request: Request) {
         userAgent: context.userAgent,
       });
       // User exists but no password set (e.g., OAuth-only user)
-      return NextResponse.json(
-        { error: 'Invalid credentials' },
-        { status: 401, headers: rateLimitResult.headers }
-      );
+      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
     const isValid = await verifyPassword(password, passwordHash);
@@ -145,11 +121,11 @@ export async function POST(request: Request) {
       });
       const headers = bruteForceResult.locked
         ? {
-            ...rateLimitResult.headers,
             'Retry-After': String(bruteForceResult.retryAfter || 900),
           }
-        : rateLimitResult.headers;
-      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401, headers });
+        : undefined;
+      const responseInit = headers ? { status: 401, headers } : { status: 401 };
+      return NextResponse.json({ error: 'Invalid credentials' }, responseInit);
     }
 
     // Successful login - clear brute force tracking
@@ -176,7 +152,7 @@ export async function POST(request: Request) {
       userAgent: context.userAgent,
     });
 
-    return NextResponse.json({ ok: true }, { headers: rateLimitResult.headers });
+    return NextResponse.json({ ok: true });
   } catch (error) {
     console.error('Login error:', error);
     return NextResponse.json({ error: 'Unexpected error' }, { status: 500 });

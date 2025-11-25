@@ -24,7 +24,12 @@ export async function GET(request: NextRequest) {
     const actorId = searchParams.get('actorId') ?? undefined;
     const cursor = searchParams.get('cursor') ?? undefined;
     const limitParam = searchParams.get('limit');
-    const limit = limitParam ? Math.min(Math.max(parseInt(limitParam, 10) || 50, 1), 200) : 50;
+    let limit = 50;
+    if (limitParam) {
+      const parsedLimit = Number.parseInt(limitParam, 10);
+      const normalizedLimit = Number.isNaN(parsedLimit) ? 50 : parsedLimit;
+      limit = Math.min(Math.max(normalizedLimit, 1), 200);
+    }
 
     const logs = await listAuditLogs({
       limit,
