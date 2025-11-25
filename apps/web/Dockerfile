@@ -49,7 +49,6 @@ COPY libs/database/tsconfig.json ./libs/database/tsconfig.json
 
 # Copy mq library contents
 COPY libs/mq/src ./libs/mq/src
-COPY libs/mq/tsconfig.json ./libs/mq/tsconfig.json
 # Copy redis library contents
 COPY libs/redis/src ./libs/redis/src
 COPY libs/redis/tsconfig.json ./libs/redis/tsconfig.json
