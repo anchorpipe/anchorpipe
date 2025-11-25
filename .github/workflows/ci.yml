@@ -72,6 +72,7 @@ jobs:
           # Install workspace dependencies
           cd apps/web && npm install --legacy-peer-deps
           cd ../../libs/database && npm install --legacy-peer-deps
+          cd ../redis && npm install --legacy-peer-deps
 
       - name: Generate Prisma Client
         run: npm run db:generate
