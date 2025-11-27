@@ -15,18 +15,23 @@ RUN apk add --no-cache libc6-compat \
   && apk upgrade --no-cache busybox busybox-binsh ssl_client
 
 # Patch npm toolchain CVEs (glob/tar/brace-expansion) in this layer
-RUN set -eux; \
-  npm install -g npm@${NPM_VERSION} glob@${GLOB_VERSION} brace-expansion@${BRACE_EXPANSION_VERSION}; \
-  NPM_ROOT="$(npm root -g)"; \
-  PATCH_DIR="${NPM_ROOT}/npm/node_modules"; \
-  rm -rf "${PATCH_DIR}/glob" "${PATCH_DIR}/brace-expansion"; \
-  ln -s "${NPM_ROOT}/glob" "${PATCH_DIR}/glob"; \
-  ln -s "${NPM_ROOT}/brace-expansion" "${PATCH_DIR}/brace-expansion"; \
-  export PATCH_DIR GLOB_VERSION BRACE_EXPANSION_VERSION; \
-  INSTALLED_GLOB="$(node -e 'console.log(require(process.env.PATCH_DIR + "/glob/package.json").version)')"; \
-  [ "${INSTALLED_GLOB}" = "${GLOB_VERSION}" ]; \
-  INSTALLED_BRACE="$(node -e 'console.log(require(process.env.PATCH_DIR + "/brace-expansion/package.json").version)')"; \
-  [ "${INSTALLED_BRACE}" = "${BRACE_EXPANSION_VERSION}" ]
+RUN <<EOF
+set -eux
+npm install -g "npm@${NPM_VERSION}"
+NPM_PREFIX="$(npm root -g)/npm"
+rm -f "${NPM_PREFIX}/package-lock.json"
+(cd "${NPM_PREFIX}" && npm install "glob@${GLOB_VERSION}" "brace-expansion@${BRACE_EXPANSION_VERSION}")
+INSTALLED_GLOB_VERSION=$(node -p "require('${NPM_PREFIX}/node_modules/glob/package.json').version")
+if [ "$INSTALLED_GLOB_VERSION" != "$GLOB_VERSION" ]; then
+  echo "glob version mismatch: expected ${GLOB_VERSION}, got ${INSTALLED_GLOB_VERSION}"
+  exit 1
+fi
+INSTALLED_BRACE_VERSION=$(node -p "require('${NPM_PREFIX}/node_modules/brace-expansion/package.json').version")
+if [ "$INSTALLED_BRACE_VERSION" != "$BRACE_EXPANSION_VERSION" ]; then
+  echo "brace-expansion version mismatch: expected ${BRACE_EXPANSION_VERSION}, got ${INSTALLED_BRACE_VERSION}"
+  exit 1
+fi
+EOF
 
 # Copy package files
 COPY package.json package-lock.json ./
@@ -50,18 +55,23 @@ WORKDIR /app
 RUN apk upgrade --no-cache busybox busybox-binsh ssl_client
 
 # Keep npm toolchain patched in builder layer
-RUN set -eux; \
-  npm install -g npm@${NPM_VERSION} glob@${GLOB_VERSION} brace-expansion@${BRACE_EXPANSION_VERSION}; \
-  NPM_ROOT="$(npm root -g)"; \
-  PATCH_DIR="${NPM_ROOT}/npm/node_modules"; \
-  rm -rf "${PATCH_DIR}/glob" "${PATCH_DIR}/brace-expansion"; \
-  ln -s "${NPM_ROOT}/glob" "${PATCH_DIR}/glob"; \
-  ln -s "${NPM_ROOT}/brace-expansion" "${PATCH_DIR}/brace-expansion"; \
-  export PATCH_DIR GLOB_VERSION BRACE_EXPANSION_VERSION; \
-  INSTALLED_GLOB="$(node -e 'console.log(require(process.env.PATCH_DIR + "/glob/package.json").version)')"; \
-  [ "${INSTALLED_GLOB}" = "${GLOB_VERSION}" ]; \
-  INSTALLED_BRACE="$(node -e 'console.log(require(process.env.PATCH_DIR + "/brace-expansion/package.json").version)')"; \
-  [ "${INSTALLED_BRACE}" = "${BRACE_EXPANSION_VERSION}" ]
+RUN <<EOF
+set -eux
+npm install -g "npm@${NPM_VERSION}"
+NPM_PREFIX="$(npm root -g)/npm"
+rm -f "${NPM_PREFIX}/package-lock.json"
+(cd "${NPM_PREFIX}" && npm install "glob@${GLOB_VERSION}" "brace-expansion@${BRACE_EXPANSION_VERSION}")
+INSTALLED_GLOB_VERSION=$(node -p "require('${NPM_PREFIX}/node_modules/glob/package.json').version")
+if [ "$INSTALLED_GLOB_VERSION" != "$GLOB_VERSION" ]; then
+  echo "glob version mismatch: expected ${GLOB_VERSION}, got ${INSTALLED_GLOB_VERSION}"
+  exit 1
+fi
+INSTALLED_BRACE_VERSION=$(node -p "require('${NPM_PREFIX}/node_modules/brace-expansion/package.json').version")
+if [ "$INSTALLED_BRACE_VERSION" != "$BRACE_EXPANSION_VERSION" ]; then
+  echo "brace-expansion version mismatch: expected ${BRACE_EXPANSION_VERSION}, got ${INSTALLED_BRACE_VERSION}"
+  exit 1
+fi
+EOF
 
 # Provide a dummy DATABASE_URL so Prisma adapter initialization does not throw during build
 ENV DATABASE_URL=postgresql://postgres:postgres@localhost:5432/build
@@ -128,18 +138,23 @@ WORKDIR /app
 RUN apk upgrade --no-cache busybox busybox-binsh ssl_client
 
 # Ensure final image ships patched npm dependencies
-RUN set -eux; \
-  npm install -g npm@${NPM_VERSION} glob@${GLOB_VERSION} brace-expansion@${BRACE_EXPANSION_VERSION}; \
-  NPM_ROOT="$(npm root -g)"; \
-  PATCH_DIR="${NPM_ROOT}/npm/node_modules"; \
-  rm -rf "${PATCH_DIR}/glob" "${PATCH_DIR}/brace-expansion"; \
-  ln -s "${NPM_ROOT}/glob" "${PATCH_DIR}/glob"; \
-  ln -s "${NPM_ROOT}/brace-expansion" "${PATCH_DIR}/brace-expansion"; \
-  export PATCH_DIR GLOB_VERSION BRACE_EXPANSION_VERSION; \
-  INSTALLED_GLOB="$(node -e 'console.log(require(process.env.PATCH_DIR + "/glob/package.json").version)')"; \
-  [ "${INSTALLED_GLOB}" = "${GLOB_VERSION}" ]; \
-  INSTALLED_BRACE="$(node -e 'console.log(require(process.env.PATCH_DIR + "/brace-expansion/package.json").version)')"; \
-  [ "${INSTALLED_BRACE}" = "${BRACE_EXPANSION_VERSION}" ]
+RUN <<EOF
+set -eux
+npm install -g "npm@${NPM_VERSION}"
+NPM_PREFIX="$(npm root -g)/npm"
+rm -f "${NPM_PREFIX}/package-lock.json"
+(cd "${NPM_PREFIX}" && npm install "glob@${GLOB_VERSION}" "brace-expansion@${BRACE_EXPANSION_VERSION}")
+INSTALLED_GLOB_VERSION=$(node -p "require('${NPM_PREFIX}/node_modules/glob/package.json').version")
+if [ "$INSTALLED_GLOB_VERSION" != "$GLOB_VERSION" ]; then
+  echo "glob version mismatch: expected ${GLOB_VERSION}, got ${INSTALLED_GLOB_VERSION}"
+  exit 1
+fi
+INSTALLED_BRACE_VERSION=$(node -p "require('${NPM_PREFIX}/node_modules/brace-expansion/package.json').version")
+if [ "$INSTALLED_BRACE_VERSION" != "$BRACE_EXPANSION_VERSION" ]; then
+  echo "brace-expansion version mismatch: expected ${BRACE_EXPANSION_VERSION}, got ${INSTALLED_BRACE_VERSION}"
+  exit 1
+fi
+EOF
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -164,4 +179,3 @@ ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
 CMD ["node", "server.js"]
-
