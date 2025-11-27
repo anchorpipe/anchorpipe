@@ -15,8 +15,10 @@ RUN apk add --no-cache libc6-compat \
   && apk upgrade --no-cache busybox busybox-binsh ssl_client
 
 # Patch npm toolchain CVEs (glob/tar/brace-expansion) in this layer
-RUN npm install -g npm@${NPM_VERSION} \
-  && npm explore npm -- npm install glob@${GLOB_VERSION} brace-expansion@${BRACE_EXPANSION_VERSION}
+RUN set -eux; \
+  npm install -g npm@${NPM_VERSION}; \
+  cd "$(npm root -g)/npm"; \
+  npm install glob@${GLOB_VERSION} brace-expansion@${BRACE_EXPANSION_VERSION}
 
 # Copy package files
 COPY package.json package-lock.json ./
@@ -40,8 +42,10 @@ WORKDIR /app
 RUN apk upgrade --no-cache busybox busybox-binsh ssl_client
 
 # Keep npm toolchain patched in builder layer
-RUN npm install -g npm@${NPM_VERSION} \
-  && npm explore npm -- npm install glob@${GLOB_VERSION} brace-expansion@${BRACE_EXPANSION_VERSION}
+RUN set -eux; \
+  npm install -g npm@${NPM_VERSION}; \
+  cd "$(npm root -g)/npm"; \
+  npm install glob@${GLOB_VERSION} brace-expansion@${BRACE_EXPANSION_VERSION}
 
 # Provide a dummy DATABASE_URL so Prisma adapter initialization does not throw during build
 ENV DATABASE_URL=postgresql://postgres:postgres@localhost:5432/build
@@ -108,8 +112,10 @@ WORKDIR /app
 RUN apk upgrade --no-cache busybox busybox-binsh ssl_client
 
 # Ensure final image ships patched npm dependencies
-RUN npm install -g npm@${NPM_VERSION} \
-  && npm explore npm -- npm install glob@${GLOB_VERSION} brace-expansion@${BRACE_EXPANSION_VERSION}
+RUN set -eux; \
+  npm install -g npm@${NPM_VERSION}; \
+  cd "$(npm root -g)/npm"; \
+  npm install glob@${GLOB_VERSION} brace-expansion@${BRACE_EXPANSION_VERSION}
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
