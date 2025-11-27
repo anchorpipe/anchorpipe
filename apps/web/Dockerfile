@@ -16,7 +16,12 @@ RUN apk add --no-cache libc6-compat \
 
 # Patch npm toolchain CVEs (glob/tar/brace-expansion) in this layer
 RUN set -eux; \
-  npm install -g npm@${NPM_VERSION} glob@${GLOB_VERSION} brace-expansion@${BRACE_EXPANSION_VERSION}
+  npm install -g npm@${NPM_VERSION} glob@${GLOB_VERSION} brace-expansion@${BRACE_EXPANSION_VERSION}; \
+  NPM_ROOT="$(npm root -g)"; \
+  PATCH_DIR="${NPM_ROOT}/npm/node_modules"; \
+  rm -rf "${PATCH_DIR}/glob" "${PATCH_DIR}/brace-expansion"; \
+  ln -s "${NPM_ROOT}/glob" "${PATCH_DIR}/glob"; \
+  ln -s "${NPM_ROOT}/brace-expansion" "${PATCH_DIR}/brace-expansion"
 
 # Copy package files
 COPY package.json package-lock.json ./
@@ -41,7 +46,12 @@ RUN apk upgrade --no-cache busybox busybox-binsh ssl_client
 
 # Keep npm toolchain patched in builder layer
 RUN set -eux; \
-  npm install -g npm@${NPM_VERSION} glob@${GLOB_VERSION} brace-expansion@${BRACE_EXPANSION_VERSION}
+  npm install -g npm@${NPM_VERSION} glob@${GLOB_VERSION} brace-expansion@${BRACE_EXPANSION_VERSION}; \
+  NPM_ROOT="$(npm root -g)"; \
+  PATCH_DIR="${NPM_ROOT}/npm/node_modules"; \
+  rm -rf "${PATCH_DIR}/glob" "${PATCH_DIR}/brace-expansion"; \
+  ln -s "${NPM_ROOT}/glob" "${PATCH_DIR}/glob"; \
+  ln -s "${NPM_ROOT}/brace-expansion" "${PATCH_DIR}/brace-expansion"
 
 # Provide a dummy DATABASE_URL so Prisma adapter initialization does not throw during build
 ENV DATABASE_URL=postgresql://postgres:postgres@localhost:5432/build
@@ -109,7 +119,12 @@ RUN apk upgrade --no-cache busybox busybox-binsh ssl_client
 
 # Ensure final image ships patched npm dependencies
 RUN set -eux; \
-  npm install -g npm@${NPM_VERSION} glob@${GLOB_VERSION} brace-expansion@${BRACE_EXPANSION_VERSION}
+  npm install -g npm@${NPM_VERSION} glob@${GLOB_VERSION} brace-expansion@${BRACE_EXPANSION_VERSION}; \
+  NPM_ROOT="$(npm root -g)"; \
+  PATCH_DIR="${NPM_ROOT}/npm/node_modules"; \
+  rm -rf "${PATCH_DIR}/glob" "${PATCH_DIR}/brace-expansion"; \
+  ln -s "${NPM_ROOT}/glob" "${PATCH_DIR}/glob"; \
+  ln -s "${NPM_ROOT}/brace-expansion" "${PATCH_DIR}/brace-expansion"
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
