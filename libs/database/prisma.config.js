@@ -1,3 +1,5 @@
+/* eslint-env node */
+
 const { defineConfig } = require('prisma/config');
 
 module.exports = defineConfig({

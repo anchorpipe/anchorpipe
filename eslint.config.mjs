@@ -11,6 +11,7 @@ export default [
       '**/.next/**',
       '**/coverage/**',
       '**/.turbo/**',
+      'libs/database/src/generated/**',
       'tempo-local/**',
       '**/vite.config.*.timestamp*',
       '**/vitest.config.*.timestamp*',
@@ -18,6 +19,18 @@ export default [
   },
   // Base JS rules
   js.configs.recommended,
+  // Node-specific configs
+  {
+    files: ['libs/database/prisma.config.js'],
+    languageOptions: {
+      sourceType: 'commonjs',
+      globals: {
+        module: 'readonly',
+        require: 'readonly',
+        process: 'readonly',
+      },
+    },
+  },
   // TS/TSX rules (minimal to unblock CI)
   {
     files: ['**/*.{ts,tsx}'],

@@ -23,7 +23,10 @@ describe('/dashboard page', () => {
     const result = await getMe();
 
     expect(result).toEqual({ email: 'user@example.com' });
-    expect(fetchMock).toHaveBeenCalledWith('/api/auth/me', expect.anything());
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining('/api/auth/me'),
+      expect.objectContaining({ cache: 'no-store' })
+    );
   });
 
   it('getMe returns null when request fails', async () => {

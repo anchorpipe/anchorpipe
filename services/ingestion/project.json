@@ -5,7 +5,7 @@
   "projectType": "application",
   "targets": {
     "build": {
-      "executor": "@nx/node:build",
+      "executor": "@nx/js:tsc",
       "options": {
         "outputPath": "dist/services/ingestion",
         "main": "services/ingestion/src/index.ts",
