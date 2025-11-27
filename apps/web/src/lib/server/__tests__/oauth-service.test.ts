@@ -15,6 +15,7 @@ const mockPrisma = vi.hoisted(() => ({
 }));
 
 vi.mock('@anchorpipe/database', () => ({
+  prisma: mockPrisma,
   PrismaClient: vi.fn(() => mockPrisma),
 }));
 
