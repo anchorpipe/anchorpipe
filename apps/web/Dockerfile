@@ -21,6 +21,9 @@ RUN npm install --legacy-peer-deps
 FROM node:25-alpine AS builder
 WORKDIR /app
 
+# Provide a dummy DATABASE_URL so Prisma adapter initialization does not throw during build
+ENV DATABASE_URL=postgresql://postgres:postgres@localhost:5432/build
+
 # Copy dependency installation from previous stage
 COPY --from=deps /app/node_modules ./node_modules
 # Copy package files (for context)

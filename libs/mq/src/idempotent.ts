@@ -1,4 +1,4 @@
-import type { PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@anchorpipe/database';
 
 export async function alreadyProcessed(prisma: PrismaClient, messageId: string): Promise<boolean> {
   const row = await prisma.$queryRawUnsafe<{ exists: boolean }[]>(

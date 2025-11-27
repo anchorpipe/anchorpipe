@@ -1,4 +1,4 @@
-import { PrismaClient } from '@anchorpipe/database';
+import { prisma } from '@anchorpipe/database';
 import {
   exchangeCodeForToken,
   fetchGitHubUser,
@@ -12,8 +12,6 @@ import { createSessionJwt, setSessionCookie } from './auth';
 import { writeAuditLog, AUDIT_ACTIONS, AUDIT_SUBJECTS } from './audit-service';
 import { extractRequestContext } from './audit-service';
 import type { NextRequest } from 'next/server';
-
-const prisma = new PrismaClient();
 
 export interface OAuthCallbackResult {
   success: boolean;
