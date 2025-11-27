@@ -7,6 +7,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+env:
+  NPM_VERSION: '11.1.0'
+
 jobs:
   lint:
     name: lint
@@ -20,6 +23,9 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
+
+      - name: Upgrade npm to patched release
+        run: npm install -g npm@${{ env.NPM_VERSION }}
 
       - name: Install dependencies
         run: npm install --legacy-peer-deps
@@ -42,6 +48,9 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
+
+      - name: Upgrade npm to patched release
+        run: npm install -g npm@${{ env.NPM_VERSION }}
 
       - name: Install dependencies
         run: npm install --legacy-peer-deps
@@ -67,6 +76,9 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
+
+      - name: Upgrade npm to patched release
+        run: npm install -g npm@${{ env.NPM_VERSION }}
 
       - name: Install dependencies (root)
         run: npm install --legacy-peer-deps
@@ -133,6 +145,9 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
+      - name: Upgrade npm to patched release
+        run: npm install -g npm@${{ env.NPM_VERSION }}
+
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
@@ -175,6 +190,9 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
+
+      - name: Upgrade npm to patched release
+        run: npm install -g npm@${{ env.NPM_VERSION }}
 
       - name: Install dependencies
         run: npm install --legacy-peer-deps
@@ -223,6 +241,9 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
+
+      - name: Upgrade npm to patched release
+        run: npm install -g npm@${{ env.NPM_VERSION }}
 
       - name: Install dependencies
         run: npm install --legacy-peer-deps

@@ -61,7 +61,10 @@
       "react-dom": "^19.2.0"
     },
     "@typescript-eslint/eslint-plugin": "^6.21.0",
-    "@typescript-eslint/parser": "^6.21.0"
+    "@typescript-eslint/parser": "^6.21.0",
+    "hono": "^4.10.3",
+    "@hono/node-server": "^1.15.0",
+    "tmp": "^0.2.4"
   },
   "dependencies": {
     "ioredis": "^5.8.2",
