@@ -28,6 +28,17 @@ RUN set -eux; \
   INSTALLED_BRACE="$(node -e 'console.log(require(process.env.PATCH_DIR + "/brace-expansion/package.json").version)')"; \
   [ "${INSTALLED_BRACE}" = "${BRACE_EXPANSION_VERSION}" ]
 
+# -- Start Diagnostics --
+RUN echo "--- DIAGNOSTICS ---" && \
+    echo "[WHICH NPM]" && \
+    which npm && \
+    echo "[NPM ROOT -G]" && \
+    npm root -g && \
+    echo "[RECURSIVE NPM DIR LISTING]" && \
+    ls -R /usr/local/lib/node_modules/npm && \
+    echo "--- END DIAGNOSTICS ---"
+# -- End Diagnostics --
+
 # Copy package files
 COPY package.json package-lock.json ./
 COPY apps/web/package.json ./apps/web/
@@ -164,4 +175,3 @@ ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
 CMD ["node", "server.js"]
-
