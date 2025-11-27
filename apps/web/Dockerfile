@@ -21,7 +21,12 @@ RUN set -eux; \
   PATCH_DIR="${NPM_ROOT}/npm/node_modules"; \
   rm -rf "${PATCH_DIR}/glob" "${PATCH_DIR}/brace-expansion"; \
   ln -s "${NPM_ROOT}/glob" "${PATCH_DIR}/glob"; \
-  ln -s "${NPM_ROOT}/brace-expansion" "${PATCH_DIR}/brace-expansion"
+  ln -s "${NPM_ROOT}/brace-expansion" "${PATCH_DIR}/brace-expansion"; \
+  export PATCH_DIR GLOB_VERSION BRACE_EXPANSION_VERSION; \
+  INSTALLED_GLOB="$(node -e 'console.log(require(process.env.PATCH_DIR + "/glob/package.json").version)')"; \
+  [ "${INSTALLED_GLOB}" = "${GLOB_VERSION}" ]; \
+  INSTALLED_BRACE="$(node -e 'console.log(require(process.env.PATCH_DIR + "/brace-expansion/package.json").version)')"; \
+  [ "${INSTALLED_BRACE}" = "${BRACE_EXPANSION_VERSION}" ]
 
 # Copy package files
 COPY package.json package-lock.json ./
@@ -51,7 +56,12 @@ RUN set -eux; \
   PATCH_DIR="${NPM_ROOT}/npm/node_modules"; \
   rm -rf "${PATCH_DIR}/glob" "${PATCH_DIR}/brace-expansion"; \
   ln -s "${NPM_ROOT}/glob" "${PATCH_DIR}/glob"; \
-  ln -s "${NPM_ROOT}/brace-expansion" "${PATCH_DIR}/brace-expansion"
+  ln -s "${NPM_ROOT}/brace-expansion" "${PATCH_DIR}/brace-expansion"; \
+  export PATCH_DIR GLOB_VERSION BRACE_EXPANSION_VERSION; \
+  INSTALLED_GLOB="$(node -e 'console.log(require(process.env.PATCH_DIR + "/glob/package.json").version)')"; \
+  [ "${INSTALLED_GLOB}" = "${GLOB_VERSION}" ]; \
+  INSTALLED_BRACE="$(node -e 'console.log(require(process.env.PATCH_DIR + "/brace-expansion/package.json").version)')"; \
+  [ "${INSTALLED_BRACE}" = "${BRACE_EXPANSION_VERSION}" ]
 
 # Provide a dummy DATABASE_URL so Prisma adapter initialization does not throw during build
 ENV DATABASE_URL=postgresql://postgres:postgres@localhost:5432/build
@@ -124,7 +134,12 @@ RUN set -eux; \
   PATCH_DIR="${NPM_ROOT}/npm/node_modules"; \
   rm -rf "${PATCH_DIR}/glob" "${PATCH_DIR}/brace-expansion"; \
   ln -s "${NPM_ROOT}/glob" "${PATCH_DIR}/glob"; \
-  ln -s "${NPM_ROOT}/brace-expansion" "${PATCH_DIR}/brace-expansion"
+  ln -s "${NPM_ROOT}/brace-expansion" "${PATCH_DIR}/brace-expansion"; \
+  export PATCH_DIR GLOB_VERSION BRACE_EXPANSION_VERSION; \
+  INSTALLED_GLOB="$(node -e 'console.log(require(process.env.PATCH_DIR + "/glob/package.json").version)')"; \
+  [ "${INSTALLED_GLOB}" = "${GLOB_VERSION}" ]; \
+  INSTALLED_BRACE="$(node -e 'console.log(require(process.env.PATCH_DIR + "/brace-expansion/package.json").version)')"; \
+  [ "${INSTALLED_BRACE}" = "${BRACE_EXPANSION_VERSION}" ]
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
