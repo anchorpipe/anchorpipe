@@ -28,6 +28,9 @@ build/
 .out/
 .next/
 
+# Prisma generated client (Prisma 7.0+)
+libs/database/src/generated/
+
 # OS/IDE files
 .DS_Store
 Thumbs.db

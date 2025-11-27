@@ -1,11 +1,9 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@anchorpipe/database';
+import { prisma } from '@anchorpipe/database';
 import { readSession } from '@/lib/server/auth';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
-
-const prisma = new PrismaClient();
 
 export async function GET() {
   const session = await readSession();

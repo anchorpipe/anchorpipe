@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@anchorpipe/database';
+import { prisma } from '@anchorpipe/database';
 import { createSessionJwt, setSessionCookie } from '@/lib/server/auth';
 import { verifyPassword } from '@/lib/server/password';
 import { validateRequest } from '@/lib/validation';
@@ -18,8 +18,6 @@ import {
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
-
-const prisma = new PrismaClient();
 
 export async function POST(request: Request) {
   try {
