@@ -15,8 +15,9 @@ jobs:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
           if [ -z "$APP_URL" ] || [ -z "$CRON_SECRET" ]; then
-            echo "APP_URL and CRON_SECRET secrets must be set"
-            exit 1
+            echo "⚠️  APP_URL and CRON_SECRET secrets are not set. Skipping cleanup."
+            echo "To enable this workflow, add APP_URL and CRON_SECRET to repository secrets."
+            exit 0
           fi
           curl -sSf -X GET "$APP_URL/api/cron/cleanup-idempotency" \
             -H "Authorization: Bearer $CRON_SECRET"
