@@ -12,7 +12,7 @@
     "format:check": "prettier --check .",
     "lint": "eslint .",
     "test": "nx run-many -t test --all",
-    "test:coverage": "nx run-many -t test --all --configuration=coverage",
+    "test:coverage": "cd apps/web && vitest run --coverage --project node && vitest run --project dom",
     "test:web": "nx test web",
     "test:watch": "nx test web --configuration=watch",
     "build": "nx run-many -t build --all",
