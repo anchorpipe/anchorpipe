@@ -1,0 +1,23 @@
+name: Cleanup Idempotency Keys
+
+on:
+  schedule:
+    - cron: '0 * * * *' # Hourly
+  workflow_dispatch:
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call cleanup endpoint
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$APP_URL" ] || [ -z "$CRON_SECRET" ]; then
+            echo "APP_URL and CRON_SECRET secrets must be set"
+            exit 1
+          fi
+          curl -sSf -X GET "$APP_URL/api/cron/cleanup-idempotency" \
+            -H "Authorization: Bearer $CRON_SECRET"
+
