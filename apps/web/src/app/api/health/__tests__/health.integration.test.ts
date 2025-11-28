@@ -97,4 +97,28 @@ describe('GET /api/health - Integration', () => {
       storage: { ok: true },
     });
   });
+
+  it('treats service fetch failures as unhealthy', async () => {
+    mockFetch
+      .mockRejectedValueOnce(new Error('network error'))
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ status: 'healthy' }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ status: 'healthy' }),
+      });
+
+    const response = await GET();
+    const body = await response.json();
+
+    expect(response.status).toBe(503);
+    expect(body.ok).toBe(false);
+    expect(body.services).toMatchObject({
+      db: { ok: false },
+      mq: { ok: true },
+      storage: { ok: true },
+    });
+  });
 });
