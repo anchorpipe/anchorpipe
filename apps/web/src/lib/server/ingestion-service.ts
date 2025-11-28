@@ -26,6 +26,12 @@ const QUEUE_CONFIG = {
 import { logger } from './logger';
 import { IngestionPayload } from './ingestion-schema';
 import { writeAuditLog, AUDIT_ACTIONS, AUDIT_SUBJECTS } from './audit-service';
+import {
+  checkIdempotency,
+  recordIdempotency,
+  serializeToJsonValue,
+  type IdempotencyKeyData,
+} from './idempotency-service';
 
 /**
  * Ingestion result
@@ -39,6 +45,20 @@ export interface IngestionResult {
     flaky_candidates: number;
   };
   error?: string;
+  isDuplicate?: boolean;
+}
+
+function isIngestionResultPayload(value: unknown): value is IngestionResult {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return false;
+  }
+
+  const candidate = value as Partial<IngestionResult>;
+  return (
+    typeof candidate.success === 'boolean' &&
+    typeof candidate.runId === 'string' &&
+    typeof candidate.message === 'string'
+  );
 }
 
 /**
@@ -149,119 +169,6 @@ async function publishToQueue(params: {
 }
 
 /**
- * Check if event data matches ingestion parameters
- */
-function matchesIngestionParams(
-  eventData: { commitSha?: string; runId?: string; framework?: string } | null,
-  params: { commitSha: string; runId: string; framework: string }
-): boolean {
-  return (
-    eventData?.commitSha === params.commitSha &&
-    eventData?.runId === params.runId &&
-    eventData?.framework === params.framework
-  );
-}
-
-/**
- * Check for duplicate ingestion (basic idempotency)
- */
-async function checkDuplicateIngestion(params: {
-  repoId: string;
-  commitSha: string;
-  runId: string;
-  framework: string;
-}): Promise<{ isDuplicate: boolean; existingEventId?: string }> {
-  try {
-    // Check for recent ingestion events (within last hour) with same repo
-    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
-    const recentEvents = await prisma.telemetryEvent.findMany({
-      where: {
-        repoId: params.repoId,
-        eventType: 'ingestion.received',
-        eventTimestamp: {
-          gte: oneHourAgo,
-        },
-      },
-      orderBy: {
-        eventTimestamp: 'desc',
-      },
-      take: 50, // Check last 50 events
-    });
-
-    // Check each event for matching identifiers
-    for (const event of recentEvents) {
-      const eventData = event.eventData as {
-        commitSha?: string;
-        runId?: string;
-        framework?: string;
-      } | null;
-
-      if (matchesIngestionParams(eventData, params)) {
-        return { isDuplicate: true, existingEventId: event.id };
-      }
-    }
-
-    return { isDuplicate: false };
-  } catch (error) {
-    logger.error('Failed to check duplicate ingestion', {
-      repoId: params.repoId,
-      commitSha: params.commitSha,
-      runId: params.runId,
-      error: error instanceof Error ? error.message : 'Unknown error',
-    });
-    // Don't throw - idempotency check failure shouldn't block ingestion
-    return { isDuplicate: false };
-  }
-}
-
-/**
- * Handle duplicate ingestion
- */
-async function handleDuplicateIngestion(params: {
-  repoId: string;
-  commitSha: string;
-  runId: string;
-  framework: string;
-  testCount: number;
-  existingEventId?: string;
-  context: { ipAddress: string | null; userAgent: string | null };
-}): Promise<IngestionResult> {
-  logger.info('Duplicate ingestion detected', {
-    repoId: params.repoId,
-    commitSha: params.commitSha,
-    runId: params.runId,
-    framework: params.framework,
-    existingEventId: params.existingEventId,
-  });
-
-  // Log audit event
-  await writeAuditLog({
-    action: AUDIT_ACTIONS.other,
-    subject: AUDIT_SUBJECTS.system,
-    description: `Duplicate ingestion detected: ${params.runId}`,
-    metadata: {
-      repoId: params.repoId,
-      commitSha: params.commitSha,
-      runId: params.runId,
-      framework: params.framework,
-      existingEventId: params.existingEventId,
-    },
-    ipAddress: params.context.ipAddress,
-    userAgent: params.context.userAgent,
-  });
-
-  return {
-    success: true,
-    runId: params.runId,
-    message: 'Test report received (duplicate)',
-    summary: {
-      tests_parsed: params.testCount,
-      flaky_candidates: 0, // Will be calculated later
-    },
-  };
-}
-
-/**
  * Process successful ingestion
  */
 async function processSuccessfulIngestion(params: {
@@ -351,29 +258,60 @@ export async function processIngestion(
   context: { ipAddress: string | null; userAgent: string | null }
 ): Promise<IngestionResult> {
   const { commit_sha: commitSha, run_id: runId, framework, tests } = payload;
+  const idempotencyData: IdempotencyKeyData = {
+    repoId,
+    commitSha,
+    runId,
+    framework,
+  };
 
   try {
-    // Check for duplicates (basic idempotency)
-    const duplicateCheck = await checkDuplicateIngestion({
-      repoId,
-      commitSha,
-      runId,
-      framework,
-    });
-    if (duplicateCheck.isDuplicate) {
-      return await handleDuplicateIngestion({
+    // Check for duplicates via idempotency table
+    const idempotencyCheck = await checkIdempotency(idempotencyData);
+    if (idempotencyCheck.isDuplicate) {
+      const fallback: IngestionResult = {
+        success: true,
+        runId,
+        message: 'Test report received (duplicate)',
+        summary: {
+          tests_parsed: tests.length,
+          flaky_candidates: 0,
+        },
+      };
+      const cachedResponse = idempotencyCheck.existingResponse;
+      const duplicateResponse = isIngestionResultPayload(cachedResponse)
+        ? cachedResponse
+        : fallback;
+
+      logger.info('Idempotent ingestion deduplicated', {
         repoId,
         commitSha,
         runId,
         framework,
-        testCount: tests.length,
-        existingEventId: duplicateCheck.existingEventId,
-        context,
       });
+
+      await writeAuditLog({
+        action: AUDIT_ACTIONS.other,
+        subject: AUDIT_SUBJECTS.system,
+        description: `Duplicate ingestion detected: ${runId}`,
+        metadata: {
+          repoId,
+          commitSha,
+          runId,
+          framework,
+        },
+        ipAddress: context.ipAddress,
+        userAgent: context.userAgent,
+      });
+
+      return {
+        ...duplicateResponse,
+        isDuplicate: true,
+      };
     }
 
     // Process successful ingestion
-    return await processSuccessfulIngestion({
+    const response = await processSuccessfulIngestion({
       repoId,
       commitSha,
       runId,
@@ -382,6 +320,9 @@ export async function processIngestion(
       payload,
       context,
     });
+
+    await recordIdempotency(idempotencyData, serializeToJsonValue(response));
+    return response;
   } catch (error) {
     logger.error('Failed to process ingestion', {
       repoId,
