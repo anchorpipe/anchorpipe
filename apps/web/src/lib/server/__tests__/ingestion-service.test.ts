@@ -1,16 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const mockTelemetryFindMany = vi.hoisted(() => vi.fn());
 const mockTelemetryCreate = vi.hoisted(() => vi.fn());
 const mockWriteAuditLog = vi.hoisted(() => vi.fn());
 const mockAssertQueue = vi.hoisted(() => vi.fn());
 const mockConnectRabbit = vi.hoisted(() => vi.fn());
 const mockPublishJson = vi.hoisted(() => vi.fn());
+const mockCheckIdempotency = vi.hoisted(() => vi.fn());
+const mockRecordIdempotency = vi.hoisted(() => vi.fn());
+const mockSerializeToJsonValue = vi.hoisted(() => vi.fn((value) => value));
 
 vi.mock('@anchorpipe/database', () => ({
   prisma: {
     telemetryEvent: {
-      findMany: mockTelemetryFindMany,
       create: mockTelemetryCreate,
     },
   },
@@ -26,6 +27,12 @@ vi.mock('../audit-service', () => ({
   AUDIT_ACTIONS: { other: 'other' },
   AUDIT_SUBJECTS: { system: 'system' },
   writeAuditLog: mockWriteAuditLog,
+}));
+
+vi.mock('../idempotency-service', () => ({
+  checkIdempotency: mockCheckIdempotency,
+  recordIdempotency: mockRecordIdempotency,
+  serializeToJsonValue: mockSerializeToJsonValue,
 }));
 
 // Silence logger output in tests
@@ -63,41 +70,43 @@ describe('ingestion-service', () => {
     delete process.env.RABBIT_URL;
   });
 
-  it('returns duplicate result when prior ingestion matches run metadata', async () => {
-    mockTelemetryFindMany.mockResolvedValueOnce([
-      {
-        id: 'existing-event',
-        eventData: {
-          commitSha: basePayload.commit_sha,
-          runId: basePayload.run_id,
-          framework: basePayload.framework,
-        },
+  it('returns cached response when idempotency key already processed', async () => {
+    mockCheckIdempotency.mockResolvedValueOnce({
+      isDuplicate: true,
+      existingResponse: {
+        success: true,
+        runId: basePayload.run_id,
+        message: 'cached',
+        summary: { tests_parsed: 1, flaky_candidates: 0 },
       },
-    ]);
+    });
 
     const result = await processIngestion(basePayload, repoId, context);
 
     expect(result).toEqual({
       success: true,
       runId: basePayload.run_id,
-      message: 'Test report received (duplicate)',
+      message: 'cached',
       summary: {
         tests_parsed: basePayload.tests.length,
         flaky_candidates: 0,
       },
+      isDuplicate: true,
     });
     expect(mockTelemetryCreate).not.toHaveBeenCalled();
+    expect(mockRecordIdempotency).not.toHaveBeenCalled();
     expect(mockWriteAuditLog).toHaveBeenCalledWith(
       expect.objectContaining({
         description: expect.stringContaining('Duplicate ingestion detected'),
-        metadata: expect.objectContaining({ existingEventId: 'existing-event' }),
       })
     );
   });
 
   it('stores metadata and logs audit events for new ingestions', async () => {
-    mockTelemetryFindMany.mockResolvedValueOnce([]);
+    mockCheckIdempotency.mockResolvedValueOnce({ isDuplicate: false });
     mockTelemetryCreate.mockResolvedValueOnce({});
+    mockRecordIdempotency.mockResolvedValueOnce(undefined);
+    mockSerializeToJsonValue.mockImplementationOnce((value) => value);
 
     const result = await processIngestion(basePayload, repoId, context);
 
@@ -116,6 +125,7 @@ describe('ingestion-service', () => {
         description: expect.stringContaining('Test report ingested'),
       })
     );
+    expect(mockRecordIdempotency).toHaveBeenCalled();
   });
 });
 
