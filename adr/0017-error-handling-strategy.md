@@ -53,4 +53,3 @@ Anchorpipe adopts a tiered error handling model:
 - Standardize helper functions in route modules (`createAuthErrorResponse`, etc.).
 - Add Vitest coverage for authentication failures, validation errors, and idempotency fallbacks.
 - Document patterns in `docs/guides/architecture/testing.md` and `docs/guides/architecture/idempotency.md`.
-

@@ -53,4 +53,3 @@ Adopt a three-pillar observability plan:
 - Ensure middleware, ingestion route, SIEM forwarder, and GitHub App service log structured objects with `requestId`.
 - Expand Prometheus metrics in future milestones to include queue depth and Redis latency.
 - Track these decisions in the new architecture guides so docs, tests, and ADRs stay aligned.
-

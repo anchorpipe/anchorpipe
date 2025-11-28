@@ -72,7 +72,7 @@ GDPR/CCPA compliant with comprehensive data protection:
 
 ✅ **Tests in CI** - All tests run on every PR with coverage reporting  
 ✅ **Redis Rate Limiting** - Distributed rate limiting across instances  
-✅ **Robust Idempotency** - ACID-guaranteed duplicate prevention  
+✅ **Robust Idempotency** - ACID-guaranteed duplicate prevention
 
 See [Architecture Guides](./docs/guides/architecture/) for details.
 
