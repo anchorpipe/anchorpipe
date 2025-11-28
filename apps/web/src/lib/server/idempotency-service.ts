@@ -1,5 +1,8 @@
 import { prisma, Prisma } from '@anchorpipe/database';
 
+/**
+ * Attributes that uniquely identify an ingestion request.
+ */
 export interface IdempotencyKeyData {
   repoId: string;
   commitSha: string;
@@ -7,6 +10,9 @@ export interface IdempotencyKeyData {
   framework: string;
 }
 
+/**
+ * Result of checking whether a key already exists.
+ */
 export interface IdempotencyCheckResult {
   isDuplicate: boolean;
   existingResponse?: Prisma.JsonValue;
@@ -14,11 +20,17 @@ export interface IdempotencyCheckResult {
 
 const IDEMPOTENCY_TTL_HOURS = 24;
 
+/**
+ * Create a deterministic key that uniquely references an ingestion attempt.
+ */
 function generateIdempotencyKey(data: IdempotencyKeyData): string {
   const runIdPart = data.runId?.trim() ? data.runId : 'no-run-id';
   return `${data.repoId}:${data.commitSha}:${runIdPart}:${data.framework}`;
 }
 
+/**
+ * Determine whether an ingestion with the same attributes already exists.
+ */
 export async function checkIdempotency(data: IdempotencyKeyData): Promise<IdempotencyCheckResult> {
   const key = generateIdempotencyKey(data);
   try {
@@ -107,8 +119,19 @@ export async function cleanupExpiredIdempotencyKeys(): Promise<number> {
   }
 }
 
+/**
+ * Convert arbitrary response payloads into JSON-safe values for persistence.
+ * BigInts are coerced into numbers to satisfy JSON.stringify constraints.
+ */
 export function serializeToJsonValue<T>(value: T): Prisma.InputJsonValue {
-  return JSON.parse(JSON.stringify(value)) as Prisma.InputJsonValue;
+  return JSON.parse(
+    JSON.stringify(value, (_, val) => {
+      if (typeof val === 'bigint') {
+        return Number(val);
+      }
+      return val;
+    })
+  ) as Prisma.InputJsonValue;
 }
 
 export { generateIdempotencyKey, IDEMPOTENCY_TTL_HOURS };

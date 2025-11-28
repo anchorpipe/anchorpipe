@@ -134,22 +134,32 @@ function createIngestionErrorResponse(error: string | undefined): NextResponse<{
 function createSuccessResponse(
   runId: string,
   message: string,
-  summary: { tests_parsed: number; flaky_candidates: number } | undefined
+  summary: { tests_parsed: number; flaky_candidates: number } | undefined,
+  isDuplicate?: boolean
 ): NextResponse<{
   runId: string;
   message: string;
   summary?: { tests_parsed: number; flaky_candidates: number };
+  isDuplicate?: boolean;
 }> {
-  return NextResponse.json(
-    {
-      runId,
-      message,
-      summary,
-    },
-    {
-      status: 200,
-    }
-  );
+  const body: {
+    runId: string;
+    message: string;
+    summary?: { tests_parsed: number; flaky_candidates: number };
+    isDuplicate?: boolean;
+  } = {
+    runId,
+    message,
+    summary,
+  };
+
+  if (typeof isDuplicate === 'boolean') {
+    body.isDuplicate = isDuplicate;
+  }
+
+  return NextResponse.json(body, {
+    status: 200,
+  });
 }
 
 /**
@@ -203,7 +213,7 @@ export async function POST(request: NextRequest) {
       return createIngestionErrorResponse(result.error);
     }
 
-    return createSuccessResponse(result.runId, result.message, result.summary);
+    return createSuccessResponse(result.runId, result.message, result.summary, result.isDuplicate);
   } catch (error) {
     return createUnexpectedErrorResponse(error);
   }

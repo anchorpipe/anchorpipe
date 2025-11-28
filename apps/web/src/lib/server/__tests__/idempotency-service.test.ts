@@ -174,7 +174,7 @@ describe('idempotency-service', () => {
   });
 
   it('serializes payloads into JSON-safe values', () => {
-    const input = { date: new Date('2025-01-01T00:00:00Z'), value: 42, nested: { ok: true } };
+    const input = { date: new Date('2025-01-01T00:00:00Z'), value: 42n, nested: { ok: true } };
     const serialized = serializeToJsonValue(input);
 
     expect(serialized).toEqual({
