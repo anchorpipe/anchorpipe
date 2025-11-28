@@ -16,11 +16,13 @@ jobs:
 
       - name: Validate PR requirements
         shell: bash
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
           echo "Checking PR requirements..."
 
           # Load PR metadata safely from event payload (avoid shell injection)
-          PR_NUMBER="${{ github.event.pull_request.number }}"
           PR_BODY="$(jq -r '.pull_request.body // ""' "$GITHUB_EVENT_PATH")"
 
           if ! echo "$PR_BODY" | grep -qE "(#\d+|closes|fixes|resolves)"; then
@@ -29,7 +31,6 @@ jobs:
           fi
 
           # Check that PR title follows Conventional Commits (optional but recommended)
-          PR_TITLE="${{ github.event.pull_request.title }}"
           if ! echo "$PR_TITLE" | grep -qE "^(feat|fix|docs|style|refactor|perf|test|chore|ci|build|revert)(\(.+\))?:"; then
             echo "⚠️  PR title should follow Conventional Commits format"
             echo "Example: feat(web): add user authentication"
@@ -40,8 +41,9 @@ jobs:
 
       - name: Check branch name
         shell: bash
+        env:
+          BRANCH_NAME: ${{ github.head_ref }}
         run: |
-          BRANCH_NAME="${{ github.head_ref }}"
           # Check branch naming convention using grep (POSIX-compatible)
           if echo "$BRANCH_NAME" | grep -Eq '^(feat|fix|docs|chore|refactor|perf|test|ci|build)/.+'; then
             echo "✅ Branch name follows convention"

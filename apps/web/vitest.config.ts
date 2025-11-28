@@ -1,4 +1,5 @@
 import path from 'path';
+import type { CoverageOptions } from 'vitest';
 import { defineConfig, defineProject } from 'vitest/config';
 
 const COVERAGE_TARGET = 80; // Decision 1: apps should trend toward ≥80% line coverage (libs to 90%) once suites mature.
@@ -19,33 +20,37 @@ const DOM_TEST_GLOBS = [
   '**/*.component.test.tsx',
 ];
 
+const coverageConfig: CoverageOptions = {
+  enabled: true,
+  provider: 'v8',
+  reporter: ['text', 'json', 'html', 'lcov'],
+  include: ['src/**/*.{ts,tsx}'],
+  exclude: [
+    'node_modules/',
+    'src/test-utils/',
+    '.next/**',
+    '**/*.config.ts',
+    '**/*.d.ts',
+    '**/types.ts',
+  ],
+  thresholds: STRICT_COVERAGE
+    ? {
+        lines: COVERAGE_TARGET,
+        functions: COVERAGE_TARGET,
+        branches: COVERAGE_TARGET,
+        statements: COVERAGE_TARGET,
+      }
+    : undefined,
+};
+
 const sharedTestOptions = {
   globals: true,
   setupFiles: ['./src/test-utils/setup.ts'],
-  coverage: {
-    provider: 'v8' as const,
-    reporter: ['text', 'json', 'html', 'lcov'],
-    exclude: [
-      'node_modules/',
-      'src/test-utils/',
-      '.next/**',
-      '**/*.config.ts',
-      '**/*.d.ts',
-      '**/types.ts',
-    ],
-    thresholds: STRICT_COVERAGE
-      ? {
-          lines: COVERAGE_TARGET,
-          functions: COVERAGE_TARGET,
-          branches: COVERAGE_TARGET,
-          statements: COVERAGE_TARGET,
-        }
-      : undefined,
-  },
 };
 
 export default defineConfig({
   test: {
+    coverage: coverageConfig,
     projects: [
       defineProject({
         resolve: { alias: ALIASES },

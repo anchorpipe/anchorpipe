@@ -15,7 +15,6 @@ import {
   syncRepositoriesFromInstallation,
   validateInstallationPermissions,
   refreshInstallationPermissions,
-  checkInstallationHealth,
   type GitHubAppInstallationData,
 } from '../github-app-service';
 import { prisma } from '@anchorpipe/database';

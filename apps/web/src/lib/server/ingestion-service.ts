@@ -9,20 +9,6 @@
 
 import { prisma } from '@anchorpipe/database';
 import { connectRabbit, assertQueue, publishJson } from '@anchorpipe/mq';
-// Queue configuration
-const QUEUE_CONFIG = {
-  testIngestion: {
-    name: 'test.ingestion',
-    options: {
-      durable: true,
-      deadLetterExchange: 'dlx',
-      deadLetterRoutingKey: 'test.ingestion.failed',
-      arguments: {
-        'x-message-ttl': 86400000, // 24h
-      },
-    },
-  },
-} as const;
 import { logger } from './logger';
 import { IngestionPayload } from './ingestion-schema';
 import { writeAuditLog, AUDIT_ACTIONS, AUDIT_SUBJECTS } from './audit-service';
@@ -32,6 +18,23 @@ import {
   serializeToJsonValue,
   type IdempotencyKeyData,
 } from './idempotency-service';
+
+const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+
+// Queue configuration
+const QUEUE_CONFIG = {
+  testIngestion: {
+    name: 'test.ingestion',
+    options: {
+      durable: true,
+      deadLetterExchange: 'dlx',
+      deadLetterRoutingKey: 'test.ingestion.failed',
+      arguments: {
+        'x-message-ttl': ONE_DAY_MS,
+      },
+    },
+  },
+} as const;
 
 /**
  * Ingestion result
@@ -48,6 +51,9 @@ export interface IngestionResult {
   isDuplicate?: boolean;
 }
 
+/**
+ * Type guard to ensure cached values look like `IngestionResult`.
+ */
 function isIngestionResultPayload(value: unknown): value is IngestionResult {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) {
     return false;
@@ -62,7 +68,7 @@ function isIngestionResultPayload(value: unknown): value is IngestionResult {
 }
 
 /**
- * Store ingestion metadata in database
+ * Persist telemetry for received ingestion requests.
  */
 async function storeIngestionMetadata(params: {
   repoId: string;
@@ -98,7 +104,8 @@ async function storeIngestionMetadata(params: {
 }
 
 /**
- * Publish ingestion event to message queue
+ * Publish an ingestion event to RabbitMQ for downstream processing.
+ * Continues gracefully when RabbitMQ is unavailable.
  */
 async function publishToQueue(params: {
   repoId: string;
@@ -169,7 +176,7 @@ async function publishToQueue(params: {
 }
 
 /**
- * Process successful ingestion
+ * Handle the happy-path ingestion work after validation passes.
  */
 async function processSuccessfulIngestion(params: {
   repoId: string;
@@ -250,7 +257,7 @@ async function processSuccessfulIngestion(params: {
 }
 
 /**
- * Process ingestion payload
+ * Main ingestion entry point invoked by the API route.
  */
 export async function processIngestion(
   payload: IngestionPayload,
