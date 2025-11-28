@@ -20,4 +20,3 @@ jobs:
           fi
           curl -sSf -X GET "$APP_URL/api/cron/cleanup-idempotency" \
             -H "Authorization: Bearer $CRON_SECRET"
-
