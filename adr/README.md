@@ -37,6 +37,8 @@ This directory contains the official architecture decision records (ADRs) for an
 | [0014](0014-test-database-strategy.md)                     | Test Database Strategy                                                  | Accepted | 2025-11-24 |
 | [0015](0015-redis-rate-limiting.md)                        | Redis-Based Rate Limiting                                               | Accepted | 2025-11-25 |
 | [0016](0016-idempotency-strategy.md)                       | Idempotency Strategy for Ingestion API                                  | Accepted | 2025-11-28 |
+| [0019](0019-error-handling-strategy.md)                    | Error Handling Strategy                                                 | Accepted | 2025-11-28 |
+| [0020](0020-observability-strategy.md)                     | Observability Strategy                                                  | Accepted | 2025-11-28 |
 
 ## Related Documentation
 
