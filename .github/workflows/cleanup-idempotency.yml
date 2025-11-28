@@ -1,23 +1,24 @@
 name: Cleanup Idempotency Keys
 
+# This workflow cleans up expired idempotency keys from the database.
+# It will only run when APP_URL and CRON_SECRET secrets are configured.
+# Enable the schedule once your application is deployed.
+
 on:
-  schedule:
-    - cron: '0 * * * *' # Hourly
-  workflow_dispatch:
+  # schedule:
+  #   - cron: '0 * * * *' # Hourly - Uncomment when deployment is ready
+  workflow_dispatch: # Manual trigger available for testing
 
 jobs:
   cleanup:
     runs-on: ubuntu-latest
+    # Only run if secrets are configured (prevents failures when not deployed)
+    if: ${{ secrets.APP_URL != '' && secrets.CRON_SECRET != '' }}
     steps:
       - name: Call cleanup endpoint
         env:
           APP_URL: ${{ secrets.APP_URL }}
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
-          if [ -z "$APP_URL" ] || [ -z "$CRON_SECRET" ]; then
-            echo "⚠️  APP_URL and CRON_SECRET secrets are not set. Skipping cleanup."
-            echo "To enable this workflow, add APP_URL and CRON_SECRET to repository secrets."
-            exit 0
-          fi
           curl -sSf -X GET "$APP_URL/api/cron/cleanup-idempotency" \
             -H "Authorization: Bearer $CRON_SECRET"
