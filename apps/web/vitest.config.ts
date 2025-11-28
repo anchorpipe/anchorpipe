@@ -1,4 +1,5 @@
 import path from 'path';
+import type { CoverageOptions } from 'vitest';
 import { defineConfig, defineProject } from 'vitest/config';
 
 const COVERAGE_TARGET = 80; // Decision 1: apps should trend toward ≥80% line coverage (libs to 90%) once suites mature.
@@ -19,8 +20,9 @@ const DOM_TEST_GLOBS = [
   '**/*.component.test.tsx',
 ];
 
-const coverageConfig = {
-  provider: 'v8' as const,
+const coverageConfig: CoverageOptions = {
+  enabled: true,
+  provider: 'v8',
   reporter: ['text', 'json', 'html', 'lcov'],
   include: ['src/**/*.{ts,tsx}'],
   exclude: [
@@ -48,6 +50,7 @@ const sharedTestOptions = {
 
 export default defineConfig({
   test: {
+    coverage: coverageConfig,
     projects: [
       defineProject({
         resolve: { alias: ALIASES },
@@ -56,7 +59,6 @@ export default defineConfig({
           name: 'node',
           environment: 'node',
           exclude: DOM_TEST_GLOBS,
-          coverage: coverageConfig,
         },
       }),
       defineProject({
@@ -66,9 +68,6 @@ export default defineConfig({
           name: 'dom',
           environment: 'jsdom',
           include: DOM_TEST_GLOBS,
-          coverage: {
-            enabled: false,
-          },
         },
       }),
     ],
