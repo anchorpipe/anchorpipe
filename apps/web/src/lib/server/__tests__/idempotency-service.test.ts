@@ -5,6 +5,7 @@ import {
   deleteIdempotencyKey,
   cleanupExpiredIdempotencyKeys,
   generateIdempotencyKey,
+  serializeToJsonValue,
   IDEMPOTENCY_TTL_HOURS,
 } from '../idempotency-service';
 
@@ -80,6 +81,17 @@ describe('idempotency-service', () => {
     expect(mockPrisma.idempotencyKey.delete).toHaveBeenCalledWith({ where: { id: 'key-1' } });
   });
 
+  it('fails open when check throws', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    mockPrisma.idempotencyKey.findUnique.mockRejectedValueOnce(new Error('db down'));
+
+    const result = await checkIdempotency(baseData);
+
+    expect(result.isDuplicate).toBe(false);
+    expect(errorSpy).toHaveBeenCalledWith('[Idempotency] check failed', expect.any(Error));
+    errorSpy.mockRestore();
+  });
+
   it('records key with TTL and ignores unique violations', async () => {
     mockPrisma.idempotencyKey.create.mockResolvedValueOnce({});
 
@@ -99,6 +111,28 @@ describe('idempotency-service', () => {
     expect(mockPrisma.idempotencyKey.create).toHaveBeenCalledTimes(2);
   });
 
+  it('normalizes blank runId to null when recording', async () => {
+    mockPrisma.idempotencyKey.create.mockResolvedValueOnce({});
+
+    await recordIdempotency({ ...baseData, runId: '   ' }, { success: true });
+
+    expect(mockPrisma.idempotencyKey.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        runId: null,
+      }),
+    });
+  });
+
+  it('logs unexpected errors when recording', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    mockPrisma.idempotencyKey.create.mockRejectedValueOnce(new Error('db fail'));
+
+    await recordIdempotency(baseData, { success: true });
+
+    expect(errorSpy).toHaveBeenCalledWith('[Idempotency] record failed', expect.any(Error));
+    errorSpy.mockRestore();
+  });
+
   it('deletes keys safely', async () => {
     mockPrisma.idempotencyKey.delete.mockResolvedValueOnce({});
 
@@ -109,6 +143,14 @@ describe('idempotency-service', () => {
     });
   });
 
+  it('ignores missing record errors when deleting', async () => {
+    mockPrisma.idempotencyKey.delete.mockRejectedValueOnce(
+      new Error('Record to delete does not exist')
+    );
+
+    await expect(deleteIdempotencyKey(baseData)).resolves.not.toThrow();
+  });
+
   it('cleans up expired keys via helper', async () => {
     mockPrisma.idempotencyKey.deleteMany.mockResolvedValueOnce({ count: 3 });
 
@@ -117,6 +159,28 @@ describe('idempotency-service', () => {
     expect(deleted).toBe(3);
     expect(mockPrisma.idempotencyKey.deleteMany).toHaveBeenCalledWith({
       where: { expiresAt: { lt: expect.any(Date) } },
+    });
+  });
+
+  it('returns zero when cleanup fails', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    mockPrisma.idempotencyKey.deleteMany.mockRejectedValueOnce(new Error('timeout'));
+
+    const deleted = await cleanupExpiredIdempotencyKeys();
+
+    expect(deleted).toBe(0);
+    expect(errorSpy).toHaveBeenCalledWith('[Idempotency] cleanup failed', expect.any(Error));
+    errorSpy.mockRestore();
+  });
+
+  it('serializes payloads into JSON-safe values', () => {
+    const input = { date: new Date('2025-01-01T00:00:00Z'), value: 42, nested: { ok: true } };
+    const serialized = serializeToJsonValue(input);
+
+    expect(serialized).toEqual({
+      date: '2025-01-01T00:00:00.000Z',
+      value: 42,
+      nested: { ok: true },
     });
   });
 });
