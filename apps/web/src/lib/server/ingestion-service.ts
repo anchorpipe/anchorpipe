@@ -9,6 +9,15 @@
 
 import { prisma } from '@anchorpipe/database';
 import { connectRabbit, assertQueue, publishJson } from '@anchorpipe/mq';
+import { logger } from './logger';
+import { IngestionPayload } from './ingestion-schema';
+import { writeAuditLog, AUDIT_ACTIONS, AUDIT_SUBJECTS } from './audit-service';
+import {
+  checkIdempotency,
+  recordIdempotency,
+  serializeToJsonValue,
+  type IdempotencyKeyData,
+} from './idempotency-service';
 
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -26,15 +35,6 @@ const QUEUE_CONFIG = {
     },
   },
 } as const;
-import { logger } from './logger';
-import { IngestionPayload } from './ingestion-schema';
-import { writeAuditLog, AUDIT_ACTIONS, AUDIT_SUBJECTS } from './audit-service';
-import {
-  checkIdempotency,
-  recordIdempotency,
-  serializeToJsonValue,
-  type IdempotencyKeyData,
-} from './idempotency-service';
 
 /**
  * Ingestion result
