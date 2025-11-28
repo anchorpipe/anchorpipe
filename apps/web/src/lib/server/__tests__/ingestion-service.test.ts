@@ -127,5 +127,78 @@ describe('ingestion-service', () => {
     );
     expect(mockRecordIdempotency).toHaveBeenCalled();
   });
+
+  it('falls back to default duplicate payload when cache is invalid', async () => {
+    mockCheckIdempotency.mockResolvedValueOnce({
+      isDuplicate: true,
+      existingResponse: 'not-a-valid-response',
+    });
+
+    const result = await processIngestion(basePayload, repoId, context);
+
+    expect(result.message).toBe('Test report received (duplicate)');
+    expect(result.summary?.tests_parsed).toBe(basePayload.tests.length);
+  });
+
+  it('publishes to the queue when RABBIT_URL is configured', async () => {
+    mockCheckIdempotency.mockResolvedValueOnce({ isDuplicate: false });
+    mockTelemetryCreate.mockResolvedValueOnce({});
+    mockSerializeToJsonValue.mockImplementationOnce((value) => value);
+    process.env.RABBIT_URL = 'amqp://localhost';
+
+    const channelClose = vi.fn().mockResolvedValue(undefined);
+    const connectionClose = vi.fn().mockResolvedValue(undefined);
+    const channel = { close: channelClose } as any;
+    const connection = { close: connectionClose } as any;
+
+    mockConnectRabbit.mockResolvedValueOnce({ channel, connection });
+    mockAssertQueue.mockResolvedValueOnce(undefined);
+    mockPublishJson.mockResolvedValueOnce(undefined);
+
+    const result = await processIngestion(basePayload, repoId, context);
+
+    expect(result.success).toBe(true);
+    expect(mockConnectRabbit).toHaveBeenCalledWith('amqp://localhost');
+    expect(mockAssertQueue).toHaveBeenCalled();
+    expect(mockPublishJson).toHaveBeenCalledWith(
+      channel,
+      expect.any(String),
+      expect.objectContaining({
+        payload: expect.objectContaining({ repoId }),
+      })
+    );
+    expect(channelClose).toHaveBeenCalled();
+    expect(connectionClose).toHaveBeenCalled();
+  });
+
+  it('continues when queue publish fails', async () => {
+    mockCheckIdempotency.mockResolvedValueOnce({ isDuplicate: false });
+    mockTelemetryCreate.mockResolvedValueOnce({});
+    mockSerializeToJsonValue.mockImplementationOnce((value) => value);
+    process.env.RABBIT_URL = 'amqp://localhost';
+
+    mockConnectRabbit.mockRejectedValueOnce(new Error('Connection refused'));
+
+    const result = await processIngestion(basePayload, repoId, context);
+
+    expect(result.success).toBe(true);
+    expect(mockRecordIdempotency).toHaveBeenCalled();
+  });
+
+  it('returns failure when recording idempotency throws', async () => {
+    mockCheckIdempotency.mockResolvedValueOnce({ isDuplicate: false });
+    mockTelemetryCreate.mockResolvedValueOnce({});
+    mockRecordIdempotency.mockRejectedValueOnce(new Error('db error'));
+
+    const result = await processIngestion(basePayload, repoId, context);
+
+    expect(result.success).toBe(false);
+    expect(result.message).toBe('Ingestion failed');
+    expect(mockWriteAuditLog).toHaveBeenCalledWith(
+      expect.objectContaining({
+        description: expect.stringContaining('Ingestion failed'),
+      })
+    );
+  });
 });
 
