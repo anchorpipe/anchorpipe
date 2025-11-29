@@ -1,0 +1,168 @@
+name: Comment Vercel Preview URLs
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'apps/docs/**'
+      - 'docs/**'
+      - 'adr/**'
+      - '.github/workflows/docs-deploy.yml'
+
+jobs:
+  comment-preview:
+    name: Comment Preview URL
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Check Vercel secrets
+        id: check-secrets
+        run: |
+          if [ -z "$VERCEL_TOKEN" ] || [ -z "$VERCEL_PROJECT_ID" ]; then
+            echo "⚠️  Vercel secrets are not configured. Skipping PR comment."
+            echo "Vercel will still deploy automatically via GitHub integration."
+            echo "To enable PR comments, configure VERCEL_TOKEN and VERCEL_PROJECT_ID secrets."
+            echo "skip_comment=true" >> $GITHUB_OUTPUT
+          else
+            echo "✅ Vercel secrets are configured"
+            echo "skip_comment=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Wait for Vercel deployment
+        if: steps.check-secrets.outputs.skip_comment == 'false'
+        run: |
+          echo "Waiting for Vercel to deploy (Vercel handles deployments automatically via GitHub integration)..."
+          echo "This workflow will comment the preview URL once Vercel deployment is ready."
+          sleep 30
+
+      - name: Get Vercel preview URL
+        if: steps.check-secrets.outputs.skip_comment == 'false'
+        id: get-preview-url
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID || '' }}
+        run: |
+          # Get the latest deployment for this PR from Vercel API
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          PR_SHA="${{ github.event.pull_request.head.sha }}"
+
+          echo "Fetching deployment for PR #${PR_NUMBER} (SHA: ${PR_SHA})"
+
+          # Build API URL
+          if [ -n "$VERCEL_ORG_ID" ]; then
+            API_URL="https://api.vercel.com/v6/deployments?projectId=${VERCEL_PROJECT_ID}&target=preview&meta-githubPullRequestNumber=${PR_NUMBER}"
+            AUTH_HEADER="Authorization: Bearer ${VERCEL_TOKEN}"
+            ORG_HEADER="x-vercel-scope: ${VERCEL_ORG_ID}"
+            RESPONSE=$(curl -s -H "$AUTH_HEADER" -H "$ORG_HEADER" "$API_URL" || echo "")
+          else
+            API_URL="https://api.vercel.com/v6/deployments?projectId=${VERCEL_PROJECT_ID}&target=preview&meta-githubPullRequestNumber=${PR_NUMBER}"
+            AUTH_HEADER="Authorization: Bearer ${VERCEL_TOKEN}"
+            RESPONSE=$(curl -s -H "$AUTH_HEADER" "$API_URL" || echo "")
+          fi
+
+          # Extract preview URL from response
+          PREVIEW_URL=$(echo "$RESPONSE" | grep -oE '"url":"https://[^"]+\.vercel\.app"' | head -1 | sed 's/"url":"//;s/"//' || echo "")
+
+          if [ -z "$PREVIEW_URL" ]; then
+            # Try alternative: get by git commit SHA
+            if [ -n "$VERCEL_ORG_ID" ]; then
+              API_URL="https://api.vercel.com/v6/deployments?projectId=${VERCEL_PROJECT_ID}&target=preview&meta-githubCommitSha=${PR_SHA}"
+              RESPONSE=$(curl -s -H "$AUTH_HEADER" -H "$ORG_HEADER" "$API_URL" || echo "")
+            else
+              API_URL="https://api.vercel.com/v6/deployments?projectId=${VERCEL_PROJECT_ID}&target=preview&meta-githubCommitSha=${PR_SHA}"
+              RESPONSE=$(curl -s -H "$AUTH_HEADER" "$API_URL" || echo "")
+            fi
+            PREVIEW_URL=$(echo "$RESPONSE" | grep -oE '"url":"https://[^"]+\.vercel\.app"' | head -1 | sed 's/"url":"//;s/"//' || echo "")
+          fi
+
+          if [ -n "$PREVIEW_URL" ]; then
+            echo "preview-url=$PREVIEW_URL" >> $GITHUB_OUTPUT
+            echo "Found preview URL: $PREVIEW_URL"
+          else
+            echo "Could not find preview URL. Vercel may still be deploying."
+            echo "preview-url=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Comment PR with preview URL
+        if: |
+          steps.check-secrets.outputs.skip_comment == 'false' &&
+          steps.get-preview-url.outputs.preview-url != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const previewUrl = '${{ steps.get-preview-url.outputs.preview-url }}';
+
+            // Check if comment already exists
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const existingComment = comments.data.find(comment => 
+              comment.user.type === 'Bot' && 
+              comment.body.includes('📚 Documentation Preview')
+            );
+
+            const comment = `## 📚 Documentation Preview
+
+            Your documentation changes have been deployed to Vercel!
+
+            **Preview URL:** ${previewUrl}
+
+            > This preview will be updated automatically when you push new commits to this PR.
+            > 
+            > Vercel handles deployments automatically via GitHub integration.
+
+            ---
+            *Preview deployed by [Vercel](https://vercel.com)*`;
+
+            if (existingComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: comment
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            }
+
+      - name: Deployment summary
+        if: always()
+        run: |
+          echo "## 📚 Documentation Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Vercel handles deployments automatically** via GitHub integration" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.check-secrets.outputs.skip_comment }}" == "true" ]; then
+            echo "ℹ️  **PR comments disabled:** Vercel secrets are not configured" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Vercel will still deploy automatically. To enable PR comments, configure:" >> $GITHUB_STEP_SUMMARY
+            echo "- \`VERCEL_TOKEN\` (required)" >> $GITHUB_STEP_SUMMARY
+            echo "- \`VERCEL_PROJECT_ID\` (required)" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "See \`apps/docs/DEPLOYMENT.md\` for setup instructions." >> $GITHUB_STEP_SUMMARY
+          elif [ -n "${{ steps.get-preview-url.outputs.preview-url }}" ]; then
+            echo "**Preview URL:** ${{ steps.get-preview-url.outputs.preview-url }}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "A preview comment has been added to the PR." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️  Preview URL not found yet. Vercel may still be deploying." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Check the [Vercel dashboard](https://vercel.com/dashboard) for deployment status." >> $GITHUB_STEP_SUMMARY
+          fi

@@ -1,0 +1,7 @@
+{
+  "buildCommand": "cd apps/docs && npm install --legacy-peer-deps && npm run build",
+  "outputDirectory": "apps/docs/build",
+  "framework": null,
+  "installCommand": "npm install --legacy-peer-deps",
+  "rootDirectory": "apps/docs"
+}
