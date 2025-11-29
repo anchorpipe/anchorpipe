@@ -1,0 +1,146 @@
+name: Deploy Documentation to Vercel
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/docs/**'
+      - 'docs/**'
+      - 'adr/**'
+      - '.github/workflows/docs-deploy.yml'
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'apps/docs/**'
+      - 'docs/**'
+      - 'adr/**'
+      - '.github/workflows/docs-deploy.yml'
+  workflow_dispatch:
+
+env:
+  NPM_VERSION: '11.1.0'
+  NODE_VERSION: '20'
+
+jobs:
+  deploy:
+    name: Deploy to Vercel
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Upgrade npm to patched release
+        run: npm install -g npm@${{ env.NPM_VERSION }}
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+        working-directory: .
+
+      - name: Build documentation
+        run: npm run build
+        working-directory: apps/docs
+
+      - name: Check Vercel secrets
+        id: check-secrets
+        run: |
+          if [ -z "$VERCEL_TOKEN" ] || [ -z "$VERCEL_ORG_ID" ] || [ -z "$VERCEL_PROJECT_ID" ]; then
+            echo "⚠️  Vercel secrets are not configured. Skipping deployment."
+            echo "Please configure VERCEL_TOKEN, VERCEL_ORG_ID, and VERCEL_PROJECT_ID secrets."
+            echo "See apps/docs/DEPLOYMENT.md for setup instructions."
+            echo "skip_deployment=true" >> $GITHUB_OUTPUT
+          else
+            echo "✅ Vercel secrets are configured"
+            echo "skip_deployment=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Deploy to Vercel (Production)
+        if: |
+          steps.check-secrets.outputs.skip_deployment == 'false' &&
+          github.event_name == 'push' &&
+          github.ref == 'refs/heads/main'
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod'
+          working-directory: apps/docs
+
+      - name: Deploy to Vercel (Preview)
+        if: |
+          steps.check-secrets.outputs.skip_deployment == 'false' &&
+          github.event_name == 'pull_request'
+        uses: amondnet/vercel-action@v25
+        id: vercel-preview
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--force'
+          working-directory: apps/docs
+
+      - name: Comment PR with preview URL
+        if: |
+          steps.check-secrets.outputs.skip_deployment == 'false' &&
+          github.event_name == 'pull_request' &&
+          steps.vercel-preview.outputs.preview-url != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const previewUrl = '${{ steps.vercel-preview.outputs.preview-url }}';
+            const comment = `## 📚 Documentation Preview
+
+            Your documentation changes have been deployed to Vercel!
+
+            **Preview URL:** ${previewUrl}
+
+            > This preview will be updated automatically when you push new commits to this PR.
+
+            ---
+            *Deployed by [GitHub Actions](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})*`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+      - name: Deployment summary
+        if: always()
+        run: |
+          echo "## 📚 Documentation Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.check-secrets.outputs.skip_deployment }}" == "true" ]; then
+            echo "⚠️  **Deployment skipped:** Vercel secrets are not configured" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "To enable deployment, configure the following GitHub secrets:" >> $GITHUB_STEP_SUMMARY
+            echo "- \`VERCEL_TOKEN\`" >> $GITHUB_STEP_SUMMARY
+            echo "- \`VERCEL_ORG_ID\`" >> $GITHUB_STEP_SUMMARY
+            echo "- \`VERCEL_PROJECT_ID\`" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "See \`apps/docs/DEPLOYMENT.md\` for setup instructions." >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ github.event_name }}" == "push" ] && [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            echo "✅ **Production deployment** completed successfully" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "The documentation site has been deployed to production." >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ github.event_name }}" == "pull_request" ]; then
+            echo "✅ **Preview deployment** completed successfully" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            if [ -n "${{ steps.vercel-preview.outputs.preview-url }}" ]; then
+              echo "**Preview URL:** ${{ steps.vercel-preview.outputs.preview-url }}" >> $GITHUB_STEP_SUMMARY
+            fi
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "A preview comment has been added to the PR." >> $GITHUB_STEP_SUMMARY
+          fi
