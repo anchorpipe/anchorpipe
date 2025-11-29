@@ -228,6 +228,50 @@ vercel --prod
 - Verify the workflow has permission to comment on PRs
 - Check if the PR is from a fork (may have permission issues)
 
+### Production Domain Shows Preview URL
+
+**Issue**: GitHub deployments page shows a preview-style URL (e.g., `anchorpipe-docs-xxx.vercel.app`) for production deployments instead of the production domain
+
+**Explanation**: This is **completely normal and expected behavior**. Here's what's happening:
+
+1. **Vercel creates a unique deployment URL** for each deployment (the preview-style URL like `anchorpipe-docs-qkr3z6dgg-...vercel.app`)
+2. **Your production domain** (`anchorpipe-docs.vercel.app`) is an **alias** that automatically points to the latest production deployment
+3. **Both URLs work** and point to the same deployment - they're just different ways to access it
+4. **GitHub shows the deployment URL** because that's what Vercel reports, but your production domain is configured separately
+
+**This is not a problem** - it's how Vercel works. The production domain is the one you should:
+
+- Share with users
+- Use in documentation
+- Set as your primary URL
+
+The preview-style URL in GitHub is just the unique identifier for that specific deployment. Both URLs work because they point to the same deployment.
+
+**Solutions** (only if the production domain doesn't work):
+
+1. **Verify Production Branch is Set Correctly**:
+   - Go to Vercel project settings → **Settings** → **Git**
+   - Under **Production Branch**, ensure it's set to `main`
+   - If it's not `main`, change it and redeploy
+
+2. **Verify Domain Assignment**:
+   - Go to Vercel project settings → **Settings** → **Domains**
+   - Ensure `anchorpipe-docs.vercel.app` is listed and shows "Valid Configuration"
+   - The domain should show "Production" as its environment
+   - If it shows "Preview" or another environment, click "Edit" and assign it to "Production"
+
+3. **Test Production Domain**:
+   - Visit `https://anchorpipe-docs.vercel.app` directly
+   - It should show your production site (latest code from `main` branch)
+   - **Both URLs work** - the preview-style URL and the production domain point to the same deployment
+   - The production domain (`anchorpipe-docs.vercel.app`) is the one you should use and share
+   - The preview-style URL in GitHub is just the unique deployment identifier - this is normal
+
+4. **Redeploy if Needed**:
+   - If the domain isn't working, trigger a new production deployment:
+     - Push a commit to `main`, or
+     - Go to Vercel dashboard → Deployments → Find the latest production deployment → Click "..." → "Redeploy"
+
 ### Custom Domain Not Working
 
 **Issue**: `docs.anchorpipe.dev` doesn't resolve
