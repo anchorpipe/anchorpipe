@@ -47,10 +47,6 @@ jobs:
         run: npm install --legacy-peer-deps
         working-directory: apps/docs
 
-      - name: Build documentation
-        run: npm run build
-        working-directory: apps/docs
-
       - name: Check Vercel secrets
         id: check-secrets
         run: |
@@ -105,9 +101,9 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
           if [ -n "$VERCEL_ORG_ID" ]; then
-            vercel deploy --prebuilt --prod --yes --token "$VERCEL_TOKEN" --scope "$VERCEL_ORG_ID"
+            vercel deploy --prod --yes --token "$VERCEL_TOKEN" --scope "$VERCEL_ORG_ID"
           else
-            vercel deploy --prebuilt --prod --yes --token "$VERCEL_TOKEN"
+            vercel deploy --prod --yes --token "$VERCEL_TOKEN"
           fi
 
       - name: Deploy to Vercel (Preview)
@@ -123,13 +119,13 @@ jobs:
         run: |
           set -e
           if [ -n "$VERCEL_ORG_ID" ]; then
-            DEPLOY_OUTPUT=$(vercel deploy --prebuilt --force --yes --token "$VERCEL_TOKEN" --scope "$VERCEL_ORG_ID" 2>&1) || {
+            DEPLOY_OUTPUT=$(vercel deploy --force --yes --token "$VERCEL_TOKEN" --scope "$VERCEL_ORG_ID" 2>&1) || {
               echo "Deployment failed. Output:"
               echo "$DEPLOY_OUTPUT"
               exit 1
             }
           else
-            DEPLOY_OUTPUT=$(vercel deploy --prebuilt --force --yes --token "$VERCEL_TOKEN" 2>&1) || {
+            DEPLOY_OUTPUT=$(vercel deploy --force --yes --token "$VERCEL_TOKEN" 2>&1) || {
               echo "Deployment failed. Output:"
               echo "$DEPLOY_OUTPUT"
               exit 1
