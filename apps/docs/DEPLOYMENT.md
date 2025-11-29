@@ -4,10 +4,12 @@ This guide explains how to set up and manage automatic deployments of the anchor
 
 ## Overview
 
-The documentation site is automatically deployed to Vercel:
+The documentation site is automatically deployed to Vercel via **Vercel's GitHub integration**:
 
 - **Production**: Deploys on every push to `main` branch
 - **Preview**: Creates preview deployments for pull requests
+
+> **Note**: Vercel handles deployments automatically when the project is connected to GitHub. The GitHub Actions workflow (`.github/workflows/docs-deploy.yml`) is optional and only adds PR comments with preview URLs. If you prefer, you can rely entirely on Vercel's native GitHub integration.
 
 ## Initial Setup
 
@@ -30,9 +32,19 @@ The documentation site is automatically deployed to Vercel:
 - This prevents Vercel from trying to use Nx to build the entire monorepo
 - The `apps/docs/vercel.json` file will be used for configuration
 
-### 2. Get Vercel Credentials
+### 2. Verify GitHub Integration
 
-After creating the project, you need to get the following values:
+Once you've imported the repository, Vercel will automatically:
+
+- Deploy on every push to `main` (production)
+- Create preview deployments for pull requests
+- Add deployment status checks to PRs
+
+You should see Vercel deployment checks appearing in your PRs automatically.
+
+### 3. Get Vercel Credentials (Optional - for PR comments)
+
+If you want the GitHub Actions workflow to comment preview URLs on PRs, you need to get the following values:
 
 #### VERCEL_TOKEN
 
@@ -60,7 +72,7 @@ After creating the project, you need to get the following values:
 3. The Project ID is listed under "Project ID"
 4. Or use the Vercel CLI: `vercel ls` to list projects and their IDs
 
-### 3. Configure GitHub Secrets
+### 4. Configure GitHub Secrets (Optional)
 
 1. Go to your GitHub repository: `https://github.com/anchorpipe/anchorpipe`
 2. Navigate to **Settings** → **Secrets and variables** → **Actions**
@@ -73,7 +85,7 @@ After creating the project, you need to get the following values:
      - **Value**: Your organization ID from step 2.2
      - **Note**: Only needed if you're using a Vercel team account. Personal accounts can skip this.
 
-### 4. Configure Custom Domain (Optional)
+### 5. Configure Custom Domain (Optional)
 
 1. In Vercel project settings, go to **Settings** → **Domains**
 2. Add your custom domain: `docs.anchorpipe.dev`
@@ -86,30 +98,21 @@ After creating the project, you need to get the following values:
 
 ## How It Works
 
-### Workflow Triggers
+### How Deployments Work
 
-The deployment workflow (`.github/workflows/docs-deploy.yml`) runs when:
+**Vercel handles deployments automatically** via GitHub integration:
 
-- **Push to main**: Deploys to production
-- **Pull request**: Creates a preview deployment
-- **Manual trigger**: Can be triggered manually via GitHub Actions UI
+1. **Push to main**: Vercel automatically deploys to production
+2. **Pull request**: Vercel automatically creates a preview deployment
+3. **Deployment status**: Vercel adds deployment checks to PRs
 
-The workflow only runs when files in these directories change:
+The GitHub Actions workflow (`.github/workflows/docs-deploy.yml`) is **optional** and only:
 
-- `apps/docs/`
-- `docs/`
-- `adr/`
+- Fetches preview URLs from Vercel API
+- Comments on PRs with preview URLs
+- Updates existing comments when new commits are pushed
 
-### Deployment Process
-
-1. **Checkout code**: Gets the latest code from GitHub
-2. **Setup Node.js**: Installs Node.js 20
-3. **Install dependencies**: Runs `npm install --legacy-peer-deps`
-4. **Build documentation**: Runs `npm run build` in `apps/docs`
-5. **Deploy to Vercel**:
-   - Production: Uses `--prod` flag for main branch
-   - Preview: Uses `--force` flag for PRs
-6. **Comment on PR**: Adds preview URL to pull request (preview deployments only)
+**Note**: If you don't configure GitHub secrets, Vercel will still deploy automatically. The workflow just won't add PR comments.
 
 ### Preview Deployments
 
