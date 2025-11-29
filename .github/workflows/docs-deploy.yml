@@ -75,31 +75,56 @@ jobs:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
+      - name: Install Vercel CLI
+        if: steps.check-secrets.outputs.skip_deployment == 'false'
+        run: npm install -g vercel@latest
+
       - name: Deploy to Vercel (Production)
         if: |
           steps.check-secrets.outputs.skip_deployment == 'false' &&
           github.event_name == 'push' &&
           github.ref == 'refs/heads/main'
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID || '' }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: '--prod --yes'
-          working-directory: apps/docs
+        working-directory: apps/docs
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID || '' }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          if [ -n "$VERCEL_ORG_ID" ]; then
+            vercel deploy --prod --yes --token "$VERCEL_TOKEN" --scope "$VERCEL_ORG_ID"
+          else
+            vercel deploy --prod --yes --token "$VERCEL_TOKEN"
+          fi
 
       - name: Deploy to Vercel (Preview)
         if: |
           steps.check-secrets.outputs.skip_deployment == 'false' &&
           github.event_name == 'pull_request'
-        uses: amondnet/vercel-action@v25
+        working-directory: apps/docs
         id: vercel-preview
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID || '' }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: '--force --yes'
-          working-directory: apps/docs
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID || '' }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          if [ -n "$VERCEL_ORG_ID" ]; then
+            DEPLOY_OUTPUT=$(vercel deploy --force --yes --token "$VERCEL_TOKEN" --scope "$VERCEL_ORG_ID" 2>&1)
+          else
+            DEPLOY_OUTPUT=$(vercel deploy --force --yes --token "$VERCEL_TOKEN" 2>&1)
+          fi
+          echo "$DEPLOY_OUTPUT"
+          # Extract preview URL from output (Vercel CLI outputs URLs in various formats)
+          PREVIEW_URL=$(echo "$DEPLOY_OUTPUT" | grep -oE 'https://[a-zA-Z0-9-]+\.vercel\.app' | head -1 || echo "")
+          if [ -z "$PREVIEW_URL" ]; then
+            # Try alternative pattern
+            PREVIEW_URL=$(echo "$DEPLOY_OUTPUT" | grep -oE 'https://[^ ]*\.vercel\.app' | head -1 || echo "")
+          fi
+          if [ -z "$PREVIEW_URL" ]; then
+            # Try to get from Vercel API using deployment URL
+            PREVIEW_URL=$(echo "$DEPLOY_OUTPUT" | grep -i 'ready\|deployed\|production' | grep -oE 'https://[^ ]+' | head -1 || echo "")
+          fi
+          echo "preview-url=$PREVIEW_URL" >> $GITHUB_OUTPUT
+          echo "Preview URL: $PREVIEW_URL"
 
       - name: Comment PR with preview URL
         if: |
