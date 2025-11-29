@@ -6,8 +6,17 @@ This guide explains how to set up and manage automatic deployments of the anchor
 
 The documentation site is automatically deployed to Vercel via **Vercel's GitHub integration**:
 
-- **Production**: Deploys on every push to `main` branch
-- **Preview**: Creates preview deployments for pull requests
+- **Production**: Deploys **only** on every push to `main` branch (this is your live site)
+- **Preview**: Creates preview deployments for pull requests (temporary, separate from production)
+
+> **Important**: Preview deployments are **NOT production**. They are temporary URLs that:
+>
+> - Are only accessible via the preview URL
+> - Are automatically deleted when the PR is closed
+> - Do not affect your production site
+> - Help reviewers see changes before merging
+>
+> **Production deployments only happen when code is merged to `main`.**
 
 > **Note**: Vercel handles deployments automatically when the project is connected to GitHub. The GitHub Actions workflow (`.github/workflows/docs-deploy.yml`) is optional and only adds PR comments with preview URLs. If you prefer, you can rely entirely on Vercel's native GitHub integration.
 
@@ -32,15 +41,29 @@ The documentation site is automatically deployed to Vercel via **Vercel's GitHub
 - This prevents Vercel from trying to use Nx to build the entire monorepo
 - The `apps/docs/vercel.json` file will be used for configuration
 
-### 2. Verify GitHub Integration
+### 2. Configure Deployment Settings
 
 Once you've imported the repository, Vercel will automatically:
 
-- Deploy on every push to `main` (production)
-- Create preview deployments for pull requests
+- Deploy on every push to `main` (production) ✅ **This is your live site**
+- Create preview deployments for pull requests (optional, see below)
 - Add deployment status checks to PRs
 
-You should see Vercel deployment checks appearing in your PRs automatically.
+**To disable preview deployments** (if you don't want them):
+
+1. Go to your Vercel project settings
+2. Navigate to **Settings** → **Git**
+3. Under **Production Branch**, ensure it's set to `main`
+4. Under **Preview Deployments**, you can:
+   - **Disable for all branches**: Turn off preview deployments entirely
+   - **Keep enabled**: Preview deployments help reviewers see changes (recommended)
+
+**Recommendation**: Keep preview deployments enabled. They:
+
+- Help reviewers see documentation changes before merging
+- Are automatically cleaned up when PRs are closed
+- Do not affect production
+- Use minimal resources (only build when PRs are opened/updated)
 
 ### 3. Get Vercel Credentials (Optional - for PR comments)
 
@@ -102,9 +125,15 @@ If you want the GitHub Actions workflow to comment preview URLs on PRs, you need
 
 **Vercel handles deployments automatically** via GitHub integration:
 
-1. **Push to main**: Vercel automatically deploys to production
-2. **Pull request**: Vercel automatically creates a preview deployment
+1. **Push to `main`**: Vercel automatically deploys to **production** (your live site)
+2. **Pull request**: Vercel automatically creates a **preview deployment** (temporary, separate URL)
 3. **Deployment status**: Vercel adds deployment checks to PRs
+
+**Key Points:**
+
+- ✅ **Production only deploys from `main`** - Your live site is only updated when code is merged
+- ✅ **Preview deployments are temporary** - They don't affect production and are deleted when PRs close
+- ✅ **Preview deployments help reviewers** - They can see documentation changes before merging
 
 The GitHub Actions workflow (`.github/workflows/docs-deploy.yml`) is **optional** and only:
 
@@ -118,10 +147,17 @@ The GitHub Actions workflow (`.github/workflows/docs-deploy.yml`) is **optional*
 
 When a pull request is opened or updated:
 
-- A preview deployment is automatically created
+- A preview deployment is automatically created (separate from production)
 - A comment is added to the PR with the preview URL
 - The preview URL is updated when new commits are pushed
 - Preview deployments are automatically cleaned up when the PR is closed
+- **Preview deployments never affect your production site**
+
+**To disable preview deployments:**
+
+1. Go to Vercel project settings → **Settings** → **Git**
+2. Under **Preview Deployments**, disable them
+3. Note: This means reviewers won't be able to preview documentation changes before merging
 
 ## Manual Deployment
 
