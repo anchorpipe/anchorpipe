@@ -39,9 +39,13 @@ jobs:
       - name: Upgrade npm to patched release
         run: npm install -g npm@${{ env.NPM_VERSION }}
 
-      - name: Install dependencies
+      - name: Install dependencies (root)
         run: npm install --legacy-peer-deps
         working-directory: .
+
+      - name: Install dependencies (docs)
+        run: npm install --legacy-peer-deps
+        working-directory: apps/docs
 
       - name: Build documentation
         run: npm run build
@@ -81,7 +85,7 @@ jobs:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID || '' }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: '--prod'
+          vercel-args: '--prod --yes'
           working-directory: apps/docs
 
       - name: Deploy to Vercel (Preview)
@@ -94,7 +98,7 @@ jobs:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID || '' }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: '--force'
+          vercel-args: '--force --yes'
           working-directory: apps/docs
 
       - name: Comment PR with preview URL
