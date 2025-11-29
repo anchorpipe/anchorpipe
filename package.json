@@ -24,7 +24,11 @@
     "db:migrate:deploy": "cd libs/database && npm run db:migrate:deploy",
     "db:studio": "cd libs/database && npm run db:studio",
     "db:seed": "cd libs/database && npm run db:seed",
-    "openapi:validate": "swagger-cli validate apps/web/public/openapi.yaml"
+    "openapi:validate": "swagger-cli validate apps/web/public/openapi.yaml",
+    "docs:dev": "cd apps/docs && npm run start",
+    "docs:build": "cd apps/docs && npm run build",
+    "docs:serve": "cd apps/docs && npm run serve",
+    "docs:deploy": "cd apps/docs && npm run deploy"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",

@@ -11,6 +11,8 @@ export default [
       '**/.next/**',
       '**/coverage/**',
       '**/.turbo/**',
+      '**/build/**',
+      '**/.docusaurus/**',
       'libs/database/src/generated/**',
       'tempo-local/**',
       '**/vite.config.*.timestamp*',
