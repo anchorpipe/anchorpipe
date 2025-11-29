@@ -16,13 +16,19 @@ The documentation site is automatically deployed to Vercel:
 1. Go to [Vercel Dashboard](https://vercel.com/dashboard)
 2. Click "Add New Project"
 3. Import the `anchorpipe/anchorpipe` GitHub repository
-4. Configure the project:
+4. **IMPORTANT - Configure the project:**
    - **Framework Preset**: Other (or Docusaurus if available)
-   - **Root Directory**: `apps/docs`
-   - **Build Command**: `npm run build` (or leave empty, it's in `vercel.json`)
-   - **Output Directory**: `build`
-   - **Install Command**: `npm install --legacy-peer-deps`
+   - **Root Directory**: `apps/docs` ⚠️ **This is critical!** Set this to `apps/docs`
+   - **Build Command**: Leave empty (will use `npm run build` from `apps/docs/vercel.json`)
+   - **Output Directory**: `build` (relative to `apps/docs`)
+   - **Install Command**: `npm install --legacy-peer-deps` (runs from root)
 5. Click "Deploy"
+
+**Why Root Directory is Important:**
+
+- Setting Root Directory to `apps/docs` tells Vercel to treat `apps/docs` as the project root
+- This prevents Vercel from trying to use Nx to build the entire monorepo
+- The `apps/docs/vercel.json` file will be used for configuration
 
 ### 2. Get Vercel Credentials
 
@@ -36,12 +42,16 @@ After creating the project, you need to get the following values:
 4. Set expiration (recommended: "No expiration" for CI/CD)
 5. Copy the token (you'll only see it once)
 
-#### VERCEL_ORG_ID
+#### VERCEL_ORG_ID (Optional - Only for Team Accounts)
+
+**Note:** This is only required if you're using a Vercel team account. For personal accounts, you can skip this.
 
 1. Go to your [Vercel Team Settings](https://vercel.com/teams)
 2. Select your team/organization
 3. The Organization ID is in the URL: `https://vercel.com/teams/[ORG_ID]/settings`
 4. Or use the Vercel CLI: `vercel whoami` and check the output
+
+**If you're using a personal account:** You can leave this secret empty or not set it at all. The workflow will work without it.
 
 #### VERCEL_PROJECT_ID
 
@@ -55,12 +65,13 @@ After creating the project, you need to get the following values:
 1. Go to your GitHub repository: `https://github.com/anchorpipe/anchorpipe`
 2. Navigate to **Settings** → **Secrets and variables** → **Actions**
 3. Click "New repository secret" and add:
-   - **Name**: `VERCEL_TOKEN`
+   - **Name**: `VERCEL_TOKEN` (Required)
      - **Value**: The token from step 2.1
-   - **Name**: `VERCEL_ORG_ID`
-     - **Value**: Your organization ID from step 2.2
-   - **Name**: `VERCEL_PROJECT_ID`
+   - **Name**: `VERCEL_PROJECT_ID` (Required)
      - **Value**: Your project ID from step 2.3
+   - **Name**: `VERCEL_ORG_ID` (Optional - Only for Team Accounts)
+     - **Value**: Your organization ID from step 2.2
+     - **Note**: Only needed if you're using a Vercel team account. Personal accounts can skip this.
 
 ### 4. Configure Custom Domain (Optional)
 
@@ -151,9 +162,22 @@ vercel --prod
 
 **Solutions**:
 
-- Verify all three secrets are set in GitHub repository settings
-- Check secret names match exactly: `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`
+- Verify required secrets are set: `VERCEL_TOKEN` and `VERCEL_PROJECT_ID`
+- `VERCEL_ORG_ID` is optional (only needed for team accounts)
+- Check secret names match exactly
 - Ensure secrets are not empty
+
+### Build Fails with "Cannot find project 'docs'"
+
+**Issue**: Vercel tries to run `nx build docs` and fails
+
+**Solutions**:
+
+- **Most Important**: Make sure Root Directory is set to `apps/docs` in Vercel project settings
+- Go to Project Settings → General → Root Directory
+- Set it to `apps/docs`
+- This tells Vercel to use `apps/docs` as the project root, not the monorepo root
+- Redeploy after changing the root directory
 
 ### Preview URL Not Commented
 

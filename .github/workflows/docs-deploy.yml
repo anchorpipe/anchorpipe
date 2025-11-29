@@ -50,14 +50,21 @@ jobs:
       - name: Check Vercel secrets
         id: check-secrets
         run: |
-          if [ -z "$VERCEL_TOKEN" ] || [ -z "$VERCEL_ORG_ID" ] || [ -z "$VERCEL_PROJECT_ID" ]; then
+          if [ -z "$VERCEL_TOKEN" ] || [ -z "$VERCEL_PROJECT_ID" ]; then
             echo "⚠️  Vercel secrets are not configured. Skipping deployment."
-            echo "Please configure VERCEL_TOKEN, VERCEL_ORG_ID, and VERCEL_PROJECT_ID secrets."
+            echo "Please configure VERCEL_TOKEN and VERCEL_PROJECT_ID secrets."
+            echo "VERCEL_ORG_ID is optional - only needed for team accounts."
             echo "See apps/docs/DEPLOYMENT.md for setup instructions."
             echo "skip_deployment=true" >> $GITHUB_OUTPUT
           else
             echo "✅ Vercel secrets are configured"
             echo "skip_deployment=false" >> $GITHUB_OUTPUT
+            # Check if ORG_ID is set (optional)
+            if [ -n "$VERCEL_ORG_ID" ]; then
+              echo "has_org_id=true" >> $GITHUB_OUTPUT
+            else
+              echo "has_org_id=false" >> $GITHUB_OUTPUT
+            fi
           fi
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
@@ -72,7 +79,7 @@ jobs:
         uses: amondnet/vercel-action@v25
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID || '' }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           vercel-args: '--prod'
           working-directory: apps/docs
@@ -85,7 +92,7 @@ jobs:
         id: vercel-preview
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID || '' }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           vercel-args: '--force'
           working-directory: apps/docs
@@ -126,9 +133,9 @@ jobs:
             echo "⚠️  **Deployment skipped:** Vercel secrets are not configured" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "To enable deployment, configure the following GitHub secrets:" >> $GITHUB_STEP_SUMMARY
-            echo "- \`VERCEL_TOKEN\`" >> $GITHUB_STEP_SUMMARY
-            echo "- \`VERCEL_ORG_ID\`" >> $GITHUB_STEP_SUMMARY
-            echo "- \`VERCEL_PROJECT_ID\`" >> $GITHUB_STEP_SUMMARY
+            echo "- \`VERCEL_TOKEN\` (required)" >> $GITHUB_STEP_SUMMARY
+            echo "- \`VERCEL_PROJECT_ID\` (required)" >> $GITHUB_STEP_SUMMARY
+            echo "- \`VERCEL_ORG_ID\` (optional - only needed for team accounts)" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "See \`apps/docs/DEPLOYMENT.md\` for setup instructions." >> $GITHUB_STEP_SUMMARY
           elif [ "${{ github.event_name }}" == "push" ] && [ "${{ github.ref }}" == "refs/heads/main" ]; then
