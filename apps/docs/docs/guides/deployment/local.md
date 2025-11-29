@@ -7,4 +7,3 @@ sidebar_position: 1
 Deploy anchorpipe locally for development.
 
 [Local deployment guide coming soon]
-

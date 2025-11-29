@@ -24,4 +24,3 @@ Learn about anchorpipe's architecture and design decisions.
 - [Rate Limiting](/docs/guides/architecture/rate-limiting)
 - [Idempotency](/docs/guides/architecture/idempotency)
 - [Testing](/docs/guides/architecture/testing)
-

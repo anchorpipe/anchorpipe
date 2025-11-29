@@ -35,4 +35,3 @@ sidebar_position: 1
 ## References
 
 - PRD §5.2, §5.8; Algorithm doc; Research §3.2.
-

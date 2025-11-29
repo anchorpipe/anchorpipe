@@ -7,4 +7,3 @@ sidebar_position: 2
 Configure and use anchorpipe webhooks.
 
 [Webhook documentation coming soon]
-

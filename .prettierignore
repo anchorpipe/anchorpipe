@@ -3,6 +3,8 @@
 **/.next/**
 **/coverage/**
 **/.turbo/**
+**/build/**
+**/.docusaurus/**
 **/next-env.d.ts
 tempo-local/**
 scripts/**

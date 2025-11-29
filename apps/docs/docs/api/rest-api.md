@@ -7,4 +7,3 @@ sidebar_position: 1
 Complete reference for anchorpipe's REST API.
 
 [API documentation coming soon]
-

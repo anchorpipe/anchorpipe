@@ -32,4 +32,3 @@ sidebar_position: 1
 ## References
 
 - UI/UX §8.3; PRD §5.4.
-

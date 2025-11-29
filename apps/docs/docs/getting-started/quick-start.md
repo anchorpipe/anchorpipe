@@ -24,4 +24,3 @@ Add anchorpipe to your CI pipeline.
 
 - [Configuration Guide](/docs/getting-started/configuration)
 - [CI Integration](/docs/guides/integrations/github-actions)
-

@@ -16,12 +16,12 @@ Each response includes `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `X-Rate
 
 Environment variables control per-route budgets:
 
-| Variable | Default | Description |
-| --- | --- | --- |
-| `RATE_LIMIT_INGESTION` | `100` | Requests/min for ingestion |
-| `RATE_LIMIT_AUTH` | `10` | Requests/15 min for auth routes |
-| `RATE_LIMIT_WEBHOOKS` | `60` | Requests/min for GitHub App webhooks |
-| `RATE_LIMIT_DEFAULT` | `60` | Fallback for other `/api/*` routes |
+| Variable               | Default | Description                          |
+| ---------------------- | ------- | ------------------------------------ |
+| `RATE_LIMIT_INGESTION` | `100`   | Requests/min for ingestion           |
+| `RATE_LIMIT_AUTH`      | `10`    | Requests/15 min for auth routes      |
+| `RATE_LIMIT_WEBHOOKS`  | `60`    | Requests/min for GitHub App webhooks |
+| `RATE_LIMIT_DEFAULT`   | `60`    | Fallback for other `/api/*` routes   |
 
 Redis connection details live in `libs/redis`. Middleware uses `checkRateLimit`/`getRateLimitInfo` from `@/lib/server/rate-limit` so swapping implementations requires only that module.
 
@@ -33,11 +33,10 @@ Redis connection details live in `libs/redis`. Middleware uses `checkRateLimit`/
 
 ## Troubleshooting
 
-| Symptom | Checks |
-| --- | --- |
+| Symptom                     | Checks                                                                                                                        |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | All API calls returning 429 | Verify Redis connectivity and that the middleware isn't reusing a fixed IP (e.g., reverse proxies missing `x-forwarded-for`). |
-| Headers missing or zero | Ensure middleware is executing (Next.js `matcher` must include route). |
-| Health endpoints throttled | Confirm additional routes were not added under `/api/health/*`; only `/api/health` is exempt. |
+| Headers missing or zero     | Ensure middleware is executing (Next.js `matcher` must include route).                                                        |
+| Health endpoints throttled  | Confirm additional routes were not added under `/api/health/*`; only `/api/health` is exempt.                                 |
 
-Fallback behavior: if Redis is unavailable, middleware logs `[Middleware] Unexpected rate limit error` and allows the request so production traffic continues. Use logs plus Redis metrics to detect this state.***
-
+Fallback behavior: if Redis is unavailable, middleware logs `[Middleware] Unexpected rate limit error` and allows the request so production traffic continues. Use logs plus Redis metrics to detect this state.\*\*\*

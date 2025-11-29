@@ -7,4 +7,3 @@ sidebar_position: 3
 Deploy anchorpipe to production.
 
 [Production deployment guide coming soon]
-

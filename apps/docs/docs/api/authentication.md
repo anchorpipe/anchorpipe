@@ -7,4 +7,3 @@ sidebar_position: 3
 Learn how to authenticate with anchorpipe's API.
 
 [Authentication documentation coming soon]
-

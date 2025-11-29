@@ -7,4 +7,3 @@ sidebar_position: 2
 Follow anchorpipe's coding standards and conventions.
 
 [Code standards guide coming soon]
-

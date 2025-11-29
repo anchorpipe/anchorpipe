@@ -36,4 +36,3 @@ sidebar_position: 1
 ## References
 
 - PRD §5.1; Research §7.1; Architecture Containers.
-

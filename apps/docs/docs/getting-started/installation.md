@@ -38,4 +38,3 @@ docker-compose up -d
 
 - [Quick Start Guide](/docs/getting-started/quick-start)
 - [Configuration](/docs/getting-started/configuration)
-

@@ -32,4 +32,3 @@ sidebar_position: 1
 ## References
 
 - UI/UX Landing; PRD §11.
-

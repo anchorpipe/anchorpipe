@@ -21,4 +21,3 @@ See [Environment Variables Reference](/docs/reference/environment-variables) for
 ## CI/CD Integration
 
 [CI/CD configuration details coming soon]
-

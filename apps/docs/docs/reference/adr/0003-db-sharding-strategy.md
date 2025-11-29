@@ -35,4 +35,3 @@ sidebar_position: 1
 ## References
 
 - PRD §6; Architecture §6.3.
-

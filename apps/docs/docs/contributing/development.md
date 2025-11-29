@@ -7,4 +7,3 @@ sidebar_position: 1
 Learn how to contribute to anchorpipe development.
 
 [Development guide coming soon]
-

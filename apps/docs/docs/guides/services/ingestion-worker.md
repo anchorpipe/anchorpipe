@@ -36,5 +36,3 @@ RABBIT_URL="amqp://guest:guest@localhost:5672"
 
 - Keep this worker disabled by default and behind env flags in developer machines.
 - For production‑grade ingestion, see ADR‑0007 (cutover criteria) and plan for a Rust/Go replacement with streaming parsers and dedicated observability.
-
-

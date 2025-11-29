@@ -32,9 +32,8 @@ CI systems often retry ingestion when jobs fail. To prevent duplicate processing
 
 ## Troubleshooting
 
-| Issue | Action |
-| --- | --- |
+| Issue                     | Action                                                                                                              |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------- | ------ |
 | Duplicate still processed | Confirm payload normalization (run IDs trimmed). Logs will include `[Idempotency] check failed` if DB issues occur. |
-| Table grows unexpectedly | Ensure cleanup cron job is succeeding (GitHub Actions workflow + logs in `/api/cron/cleanup-idempotency`). |
-| Cached response invalid | `serializeToJsonValue` normalizes responses before storage. If response shape changes, update serialization tests. |***
-
+| Table grows unexpectedly  | Ensure cleanup cron job is succeeding (GitHub Actions workflow + logs in `/api/cron/cleanup-idempotency`).          |
+| Cached response invalid   | `serializeToJsonValue` normalizes responses before storage. If response shape changes, update serialization tests.  | \*\*\* |

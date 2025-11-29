@@ -7,4 +7,3 @@ sidebar_position: 1
 Complete configuration reference for anchorpipe.
 
 [Configuration reference coming soon]
-

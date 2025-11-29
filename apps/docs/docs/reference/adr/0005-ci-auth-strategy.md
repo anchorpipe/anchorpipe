@@ -33,4 +33,3 @@ sidebar_position: 1
 ## References
 
 - PRD §5.3; Research §4.
-

@@ -21,7 +21,7 @@ Architecture Decision Records (ADRs) document significant architectural decision
 | [0003](0003-db-sharding-strategy.md)                       | Database Sharding Strategy and Timing                                   | Proposed | 2025-10-21 |
 | [0004](0004-ml-serving-for-mcp.md)                         | ML Serving for MCP (Explainable, Versioned, gRPC-first)                 | Proposed | 2025-10-21 |
 | [0005](0005-ci-auth-strategy.md)                           | CI Integration Authentication Strategy                                  | Proposed | 2025-10-21 |
-| [0006](0006-web-entry-bundle-budget.md)                    | Web Entry Bundle Budget &lt;100KB gz                                       | Proposed | 2025-10-21 |
+| [0006](0006-web-entry-bundle-budget.md)                    | Web Entry Bundle Budget &lt;100KB gz                                    | Proposed | 2025-10-21 |
 | [0007](0007-ingestion-cutover-criteria.md)                 | Ingestion Cutover Criteria (Rust/Go on Render)                          | Proposed | 2025-10-21 |
 | [0008](0008-api-style-rest-vs-graphql.md)                  | API Style — REST-first; GraphQL for Aggregates (If Justified)           | Proposed | 2025-10-21 |
 | [0009](0009-search-engine.md)                              | Search Engine — Postgres FTS + Trigram (MVP)                            | Proposed | 2025-10-21 |

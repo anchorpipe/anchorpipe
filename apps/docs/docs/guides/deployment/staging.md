@@ -7,4 +7,3 @@ sidebar_position: 2
 Deploy anchorpipe to a staging environment.
 
 [Staging deployment guide coming soon]
-

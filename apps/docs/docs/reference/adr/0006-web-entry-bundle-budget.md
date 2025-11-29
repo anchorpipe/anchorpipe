@@ -33,4 +33,3 @@ sidebar_position: 1
 ## References
 
 - UI/UX §Performance; PRD §6.1.
-

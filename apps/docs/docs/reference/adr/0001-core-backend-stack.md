@@ -38,4 +38,3 @@ sidebar_position: 1
 ## References
 
 - PRD §§5.1–5.4; Architecture §§3–5; Research §7.1.
-

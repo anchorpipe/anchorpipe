@@ -32,4 +32,3 @@ sidebar_position: 1
 ## References
 
 - Architecture §5; UI/UX data needs.
-

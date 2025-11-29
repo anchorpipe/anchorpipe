@@ -7,4 +7,3 @@ sidebar_position: 2
 Complete list of environment variables for anchorpipe.
 
 [Environment variables reference coming soon]
-
