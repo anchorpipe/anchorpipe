@@ -79,6 +79,20 @@ jobs:
         if: steps.check-secrets.outputs.skip_deployment == 'false'
         run: npm install -g vercel@latest
 
+      - name: Link Vercel project
+        if: steps.check-secrets.outputs.skip_deployment == 'false'
+        working-directory: apps/docs
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID || '' }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          if [ -n "$VERCEL_ORG_ID" ] && [ -n "$VERCEL_PROJECT_ID" ]; then
+            vercel link --yes --token "$VERCEL_TOKEN" --scope "$VERCEL_ORG_ID" --project "$VERCEL_PROJECT_ID" || true
+          elif [ -n "$VERCEL_PROJECT_ID" ]; then
+            vercel link --yes --token "$VERCEL_TOKEN" --project "$VERCEL_PROJECT_ID" || true
+          fi
+
       - name: Deploy to Vercel (Production)
         if: |
           steps.check-secrets.outputs.skip_deployment == 'false' &&
@@ -91,9 +105,9 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
           if [ -n "$VERCEL_ORG_ID" ]; then
-            vercel deploy --prod --yes --token "$VERCEL_TOKEN" --scope "$VERCEL_ORG_ID"
+            vercel deploy --prebuilt --prod --yes --token "$VERCEL_TOKEN" --scope "$VERCEL_ORG_ID"
           else
-            vercel deploy --prod --yes --token "$VERCEL_TOKEN"
+            vercel deploy --prebuilt --prod --yes --token "$VERCEL_TOKEN"
           fi
 
       - name: Deploy to Vercel (Preview)
@@ -107,10 +121,19 @@ jobs:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID || '' }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
+          set -e
           if [ -n "$VERCEL_ORG_ID" ]; then
-            DEPLOY_OUTPUT=$(vercel deploy --force --yes --token "$VERCEL_TOKEN" --scope "$VERCEL_ORG_ID" 2>&1)
+            DEPLOY_OUTPUT=$(vercel deploy --prebuilt --force --yes --token "$VERCEL_TOKEN" --scope "$VERCEL_ORG_ID" 2>&1) || {
+              echo "Deployment failed. Output:"
+              echo "$DEPLOY_OUTPUT"
+              exit 1
+            }
           else
-            DEPLOY_OUTPUT=$(vercel deploy --force --yes --token "$VERCEL_TOKEN" 2>&1)
+            DEPLOY_OUTPUT=$(vercel deploy --prebuilt --force --yes --token "$VERCEL_TOKEN" 2>&1) || {
+              echo "Deployment failed. Output:"
+              echo "$DEPLOY_OUTPUT"
+              exit 1
+            }
           fi
           echo "$DEPLOY_OUTPUT"
           # Extract preview URL from output (Vercel CLI outputs URLs in various formats)
