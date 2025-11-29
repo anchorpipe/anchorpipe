@@ -77,40 +77,49 @@ jobs:
 
       - name: Link Vercel project
         if: steps.check-secrets.outputs.skip_deployment == 'false'
-        working-directory: .
+        working-directory: apps/docs
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID || '' }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
+          echo "Linking Vercel project..."
           if [ -n "$VERCEL_ORG_ID" ] && [ -n "$VERCEL_PROJECT_ID" ]; then
-            vercel link --yes --token "$VERCEL_TOKEN" --scope "$VERCEL_ORG_ID" --project "$VERCEL_PROJECT_ID" || true
+            vercel link --yes --token "$VERCEL_TOKEN" --scope "$VERCEL_ORG_ID" --project "$VERCEL_PROJECT_ID" 2>&1 || {
+              echo "Link failed, but continuing..."
+              exit 0
+            }
           elif [ -n "$VERCEL_PROJECT_ID" ]; then
-            vercel link --yes --token "$VERCEL_TOKEN" --project "$VERCEL_PROJECT_ID" || true
+            vercel link --yes --token "$VERCEL_TOKEN" --project "$VERCEL_PROJECT_ID" 2>&1 || {
+              echo "Link failed, but continuing..."
+              exit 0
+            }
           fi
+          echo "Project linked successfully"
 
       - name: Deploy to Vercel (Production)
         if: |
           steps.check-secrets.outputs.skip_deployment == 'false' &&
           github.event_name == 'push' &&
           github.ref == 'refs/heads/main'
-        working-directory: .
+        working-directory: apps/docs
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID || '' }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
+          echo "Deploying to production..."
           if [ -n "$VERCEL_ORG_ID" ]; then
-            vercel deploy --prod --yes --token "$VERCEL_TOKEN" --scope "$VERCEL_ORG_ID"
+            vercel deploy --prod --yes --token "$VERCEL_TOKEN" --scope "$VERCEL_ORG_ID" 2>&1
           else
-            vercel deploy --prod --yes --token "$VERCEL_TOKEN"
+            vercel deploy --prod --yes --token "$VERCEL_TOKEN" 2>&1
           fi
 
       - name: Deploy to Vercel (Preview)
         if: |
           steps.check-secrets.outputs.skip_deployment == 'false' &&
           github.event_name == 'pull_request'
-        working-directory: .
+        working-directory: apps/docs
         id: vercel-preview
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
@@ -118,20 +127,23 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
           set -e
+          echo "Deploying preview..."
           if [ -n "$VERCEL_ORG_ID" ]; then
             DEPLOY_OUTPUT=$(vercel deploy --force --yes --token "$VERCEL_TOKEN" --scope "$VERCEL_ORG_ID" 2>&1) || {
-              echo "Deployment failed. Output:"
+              echo "=== Deployment failed ==="
               echo "$DEPLOY_OUTPUT"
               exit 1
             }
           else
             DEPLOY_OUTPUT=$(vercel deploy --force --yes --token "$VERCEL_TOKEN" 2>&1) || {
-              echo "Deployment failed. Output:"
+              echo "=== Deployment failed ==="
               echo "$DEPLOY_OUTPUT"
               exit 1
             }
           fi
+          echo "=== Deployment output ==="
           echo "$DEPLOY_OUTPUT"
+          echo "=== End deployment output ==="
           # Extract preview URL from output (Vercel CLI outputs URLs in various formats)
           PREVIEW_URL=$(echo "$DEPLOY_OUTPUT" | grep -oE 'https://[a-zA-Z0-9-]+\.vercel\.app' | head -1 || echo "")
           if [ -z "$PREVIEW_URL" ]; then
