@@ -1,14 +1,13 @@
 /**
- * Homepage Styles
- * Professional, sophisticated design with unique brand identity
+ * Homepage Styles - GitHub Docs Style
+ * Clean, organized category-based navigation
  */
 
-/* Hero Section - Clean and Professional */
+/* Hero Section - Simple and Clean */
 .heroBanner {
-  padding: 7rem 0 8rem;
+  padding: 4rem 0 3rem;
   text-align: center;
   position: relative;
-  overflow: hidden;
   background: var(--color-surface);
   color: var(--color-text-primary);
   border-bottom: 1px solid var(--color-border);
@@ -19,523 +18,145 @@
   border-bottom-color: var(--color-border);
 }
 
-/* Subtle background pattern - not generic gradient */
-.heroBanner::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: 
-    radial-gradient(circle at 20% 30%, rgba(0, 102, 204, 0.03) 0%, transparent 50%),
-    radial-gradient(circle at 80% 70%, rgba(0, 102, 204, 0.02) 0%, transparent 50%);
-  pointer-events: none;
-}
-
-.heroContent {
-  position: relative;
-  z-index: 1;
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.heroIconContainer {
-  margin-bottom: 2rem;
-  display: flex;
-  justify-content: center;
-}
-
-.heroIcon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 80px;
-  height: 80px;
-  background: var(--color-surface-elevated);
-  border-radius: 16px;
-  border: 1px solid var(--color-border);
-  color: var(--ifm-color-primary);
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-}
-
-.heroIcon:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.12);
-  border-color: var(--ifm-color-primary);
-}
-
-[data-theme='dark'] .heroIcon {
-  background: var(--color-surface-elevated);
-  border-color: var(--color-border);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
 .heroTitle {
-  font-size: 3.5rem;
-  font-weight: 700;
-  margin-bottom: 1.25rem;
+  font-size: 3rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
   color: var(--color-text-primary);
-  line-height: 1.1;
-  letter-spacing: -0.03em;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
 }
 
 .heroSubtitle {
-  font-size: 1.5rem;
-  font-weight: 500;
-  margin-bottom: 1rem;
-  color: var(--color-text-secondary);
-  letter-spacing: -0.01em;
-}
-
-.heroDescription {
-  font-size: 1.125rem;
-  margin-bottom: 2.5rem;
-  color: var(--color-text-secondary);
-  line-height: 1.7;
-  max-width: 640px;
-  margin-left: auto;
-  margin-right: auto;
+  font-size: 1.25rem;
   font-weight: 400;
-}
-
-.buttons {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  margin-bottom: 2.5rem;
-  flex-wrap: wrap;
-}
-
-.buttons .button {
-  padding: 0.875rem 1.75rem;
-  font-size: 1rem;
-  font-weight: 500;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.buttonIcon {
-  transition: transform 0.2s ease;
-}
-
-.buttons .button:hover .buttonIcon {
-  transform: translateX(3px);
-}
-
-.buttons .button--primary {
-  background: var(--ifm-color-primary);
-  color: white;
-  border: 1px solid var(--ifm-color-primary);
-  box-shadow: 0 2px 4px rgba(0, 102, 204, 0.15);
-}
-
-.buttons .button--primary:hover {
-  background: var(--ifm-color-primary-dark);
-  border-color: var(--ifm-color-primary-dark);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 102, 204, 0.2);
-}
-
-.buttons .button--secondary {
-  background: var(--color-surface);
-  color: var(--ifm-color-primary);
-  border: 1px solid var(--color-border);
-}
-
-.buttons .button--secondary:hover {
-  background: var(--color-surface-elevated);
-  border-color: var(--ifm-color-primary);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.badges {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  margin-top: 2rem;
-}
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background: var(--color-surface-elevated);
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  border: 1px solid var(--color-border);
-  transition: all 0.2s ease;
   color: var(--color-text-secondary);
-}
-
-.badge:hover {
-  background: var(--color-surface);
-  border-color: var(--ifm-color-primary);
-  color: var(--ifm-color-primary);
-  transform: translateY(-1px);
-}
-
-.badge svg {
-  flex-shrink: 0;
-  color: var(--ifm-color-primary);
+  line-height: 1.5;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 @media screen and (max-width: 996px) {
   .heroBanner {
-    padding: 5rem 0 6rem;
-  }
-
-  .heroIcon {
-    width: 64px;
-    height: 64px;
-  }
-
-  .heroIcon svg {
-    width: 32px;
-    height: 32px;
+    padding: 3rem 0 2rem;
   }
 
   .heroTitle {
-    font-size: 2.5rem;
+    font-size: 2.25rem;
   }
 
   .heroSubtitle {
-    font-size: 1.25rem;
-  }
-
-  .heroDescription {
-    font-size: 1rem;
-  }
-
-  .buttons {
-    flex-direction: column;
-    width: 100%;
-  }
-
-  .buttons .button {
-    width: 100%;
-    max-width: 280px;
-    justify-content: center;
+    font-size: 1.125rem;
   }
 }
 
-/* Features Section - Professional Card Design */
-.features {
-  padding: 6rem 0;
-  background: var(--color-surface-elevated);
+/* Categories Section - GitHub Docs Style */
+.categories {
+  padding: 3rem 0 4rem;
+  background: var(--color-surface);
 }
 
-[data-theme='dark'] .features {
-  background: var(--ifm-background-surface-color);
+[data-theme='dark'] .categories {
+  background: var(--ifm-background-color);
 }
 
-.featuresHeader {
-  text-align: center;
-  margin-bottom: 4rem;
-}
-
-.sectionTitle {
-  font-size: 2.5rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-  color: var(--color-text-primary);
-  letter-spacing: -0.02em;
-}
-
-.sectionSubtitle {
-  font-size: 1.125rem;
-  color: var(--color-text-secondary);
-  max-width: 600px;
-  margin: 0 auto;
-  line-height: 1.6;
-  font-weight: 400;
-}
-
-.featuresGrid {
+.categoriesGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-  margin-top: 3rem;
-}
-
-.featureCard {
-  display: flex;
-  flex-direction: column;
-  padding: 2rem;
-  background: var(--color-surface);
-  border-radius: 8px;
-  border: 1px solid var(--color-border);
-  transition: all 0.2s ease;
-  text-decoration: none;
-  color: inherit;
-  height: 100%;
-  position: relative;
-}
-
-.featureCard:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
-  border-color: var(--ifm-color-primary);
-  text-decoration: none;
-  color: inherit;
-}
-
-[data-theme='dark'] .featureCard {
-  background: var(--ifm-background-color);
-}
-
-[data-theme='dark'] .featureCard:hover {
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-}
-
-.featureIconContainer {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  background: var(--color-surface-elevated);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  margin-bottom: 1.25rem;
-  transition: all 0.2s ease;
-}
-
-.featureCard:hover .featureIconContainer {
-  background: var(--ifm-color-primary);
-  border-color: var(--ifm-color-primary);
-  transform: scale(1.05);
-}
-
-.featureIcon {
-  color: var(--ifm-color-primary);
-  transition: all 0.2s ease;
-}
-
-.featureCard:hover .featureIcon {
-  color: white;
-}
-
-.featureTitle {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-bottom: 0.75rem;
-  color: var(--color-text-primary);
-  letter-spacing: -0.01em;
-}
-
-.featureDescription {
-  color: var(--color-text-secondary);
-  line-height: 1.6;
-  margin-bottom: 1.25rem;
-  flex-grow: 1;
-  font-size: 0.9375rem;
-}
-
-.featureLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--ifm-color-primary);
-  font-weight: 500;
-  margin-top: auto;
-  font-size: 0.9375rem;
-  transition: all 0.2s ease;
-}
-
-.featureLinkIcon {
-  transition: transform 0.2s ease;
-}
-
-.featureCard:hover .featureLinkIcon {
-  transform: translateX(3px);
-}
-
-/* Quick Start Section - Clean Step Design */
-.quickStart {
-  padding: 6rem 0;
-  background: var(--color-surface);
-}
-
-[data-theme='dark'] .quickStart {
-  background: var(--ifm-background-color);
-}
-
-.quickStartContent {
-  max-width: 800px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
-.quickStartSteps {
+.categorySection {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
-  margin-top: 3rem;
-  position: relative;
 }
 
-.step {
+.categoryHeader {
   display: flex;
-  gap: 1.5rem;
-  align-items: flex-start;
-  padding: 2rem;
-  background: var(--color-surface-elevated);
-  border-radius: 8px;
-  border: 1px solid var(--color-border);
-  transition: all 0.2s ease;
-  position: relative;
-}
-
-.step:hover {
-  border-color: var(--ifm-color-primary);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-  transform: translateX(4px);
-}
-
-[data-theme='dark'] .step {
-  background: var(--ifm-background-surface-color);
-}
-
-[data-theme='dark'] .step:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.stepNumberContainer {
-  display: flex;
-  flex-direction: column;
   align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.categoryIcon {
+  color: var(--ifm-color-primary);
   flex-shrink: 0;
 }
 
-.stepNumber {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  background: var(--ifm-color-primary);
-  color: white;
-  border-radius: 6px;
-  font-size: 1.125rem;
+.categoryTitle {
+  font-size: 1rem;
   font-weight: 600;
-  transition: all 0.2s ease;
-  position: relative;
-  z-index: 1;
-}
-
-.step:hover .stepNumber {
-  transform: scale(1.05);
-  box-shadow: 0 2px 8px rgba(0, 102, 204, 0.3);
-}
-
-.stepConnector {
-  width: 2px;
-  height: 2.5rem;
-  background: var(--color-border);
-  margin-top: 0.5rem;
-  border-radius: 2px;
-}
-
-.stepContent {
-  flex: 1;
-  padding-top: 0.25rem;
-}
-
-.stepContent h3 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
+  margin: 0;
   color: var(--color-text-primary);
   letter-spacing: -0.01em;
 }
 
-.stepContent p {
-  color: var(--color-text-secondary);
-  margin-bottom: 1rem;
-  line-height: 1.6;
-  font-size: 0.9375rem;
+.categoryList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.stepLink {
+.categoryItem {
+  margin: 0;
+}
+
+.categoryLink {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  color: var(--ifm-color-primary);
-  font-weight: 500;
+  color: var(--color-text-secondary);
   text-decoration: none;
   font-size: 0.9375rem;
-  transition: all 0.2s ease;
+  line-height: 1.5;
+  transition: color 0.2s ease;
+  padding: 0.25rem 0;
 }
 
-.stepLinkIcon {
-  transition: transform 0.2s ease;
-}
-
-.stepLink:hover .stepLinkIcon {
-  transform: translateX(3px);
-}
-
-.stepLink:hover {
+.categoryLink:hover {
+  color: var(--ifm-color-primary);
   text-decoration: none;
 }
 
-@media screen and (max-width: 768px) {
-  .featuresGrid {
+.externalLinkIcon {
+  opacity: 0.6;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.categoryLink:hover .externalLinkIcon {
+  opacity: 1;
+  transform: translateX(2px);
+}
+
+@media screen and (max-width: 996px) {
+  .categories {
+    padding: 2rem 0 3rem;
+  }
+
+  .categoriesGrid {
     grid-template-columns: 1fr;
+    gap: 1.5rem;
   }
 
-  .sectionTitle {
-    font-size: 2rem;
-  }
-
-  .step {
-    flex-direction: column;
-    text-align: left;
-    padding: 1.5rem;
-  }
-
-  .stepNumberContainer {
-    flex-direction: row;
-    justify-content: flex-start;
-    width: 100%;
-    margin-bottom: 1rem;
-  }
-
-  .stepConnector {
-    width: 2.5rem;
-    height: 2px;
-    margin-top: 0;
-    margin-left: 0.5rem;
-    margin-right: 0.5rem;
-  }
-
-  .stepContent {
-    padding-top: 0;
+  .categoryHeader {
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
   }
 }
 
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
-  .heroIcon,
-  .badge,
-  .featureCard,
-  .step {
+  .categoryLink,
+  .externalLinkIcon {
     transition: none;
-  }
-
-  .heroIcon:hover,
-  .featureCard:hover,
-  .step:hover {
-    transform: none;
   }
 }
