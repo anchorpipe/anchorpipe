@@ -6,7 +6,7 @@
       "line_length": 120,
       "code_blocks": false,
       "tables": false,
-      "headings": false
+      "headings": false,
     },
     "MD033": {
       // Allow inline HTML (needed for Docusaurus components)
@@ -85,21 +85,21 @@
         "metadata",
         "style",
         "script",
-        "noscript"
-      ]
+        "noscript",
+      ],
     },
     "MD041": {
       // First line in file should be a top-level heading
-      "level": 1
+      "level": 1,
     },
     "MD046": {
       // Code block style: fenced
-      "style": "fenced"
+      "style": "fenced",
     },
     "MD047": {
       // Files should end with a single newline character
-      "require": true
-    }
+      "require": true,
+    },
   },
   "globs": [
     "apps/docs/docs/**/*.{md,mdx}",
@@ -110,6 +110,6 @@
     "!**/build/**",
     "!**/.docusaurus/**",
     "!**/coverage/**",
-    "!**/dist/**"
-  ]
+    "!**/dist/**",
+  ],
 }
