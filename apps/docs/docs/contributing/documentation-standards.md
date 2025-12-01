@@ -6,7 +6,7 @@ sidebar_label: 'Documentation Standards'
 # Documentation Standards
 
 This guide describes how to write and maintain documentation for Anchorpipe.
-All documentation lives in `apps/docs/docs/**` and is published at [docs.anchorpipe.dev](https://docs.anchorpipe.dev).
+All documentation lives in `apps/docs/docs/**` and is published at [anchorpipe-docs.vercel.app](https://anchorpipe-docs.vercel.app).
 
 ## Goals
 
