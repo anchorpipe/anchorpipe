@@ -102,7 +102,7 @@ function HomepageCategories(): ReactNode {
         { label: 'Architecture Overview', to: '/docs/guides/architecture/overview' },
         { label: 'CI Integration', to: '/docs/guides/integrations/ci-integration' },
         { label: 'Security', to: '/docs/guides/security' },
-        { label: 'Foundation', to: '/docs/guides/foundation/README' },
+        { label: 'Foundation', to: '/docs/guides/foundation' },
       ],
     },
     {
@@ -153,7 +153,7 @@ function HomepageCategories(): ReactNode {
       items: [
         { label: 'Development Guide', to: '/docs/contributing/development' },
         { label: 'Documentation Standards', to: '/docs/contributing/documentation-standards' },
-        { label: 'Code of Conduct', to: '/docs/contributing/code-of-conduct' },
+        { label: 'Code Standards', to: '/docs/contributing/code-standards' },
       ],
     },
     {
