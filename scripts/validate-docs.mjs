@@ -1,4 +1,7 @@
 #!/usr/bin/env node
+/* eslint-env node */
+/* global URL, process, console */
+
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
