@@ -101,32 +101,34 @@ const config: Config = {
       ],
     },
     footer: {
-      style: 'dark',
+      style: 'light',
       links: [
         {
-          title: 'Docs',
+          title: 'Product',
           items: [
+            { label: 'Documentation', to: '/docs/intro' },
             { label: 'Getting Started', to: '/docs/getting-started/installation' },
-            { label: 'Architecture', to: '/docs/guides/architecture/overview' },
             { label: 'API Reference', to: '/docs/api/rest-api' },
+          ],
+        },
+        {
+          title: 'Resources',
+          items: [
+            { label: 'Architecture', to: '/docs/guides/architecture/overview' },
+            { label: 'Security', to: '/docs/guides/security' },
+            { label: 'Compliance', to: '/docs/reference/compliance' },
           ],
         },
         {
           title: 'Community',
           items: [
             { label: 'GitHub', href: 'https://github.com/anchorpipe/anchorpipe' },
-            // {label: 'Discord', href: '#'}, // Add actual link when available
-          ],
-        },
-        {
-          title: 'More',
-          items: [
             { label: 'Blog', to: '/blog' },
             { label: 'Changelog', to: '/docs/changelog' },
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} anchorpipe. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} anchorpipe.`,
     },
     prism: {
       theme: prismThemes.github,

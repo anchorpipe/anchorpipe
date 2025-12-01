@@ -327,23 +327,84 @@ blockquote p:last-child {
   border-left-color: var(--brand-error);
 }
 
-/* Enhanced Footer */
+/* Enhanced Footer - GitHub Docs Style */
 .footer {
   background: var(--color-surface);
   border-top: 1px solid var(--color-border);
+  padding: 3rem 0 2rem;
+  margin-top: 4rem;
 }
 
 [data-theme='dark'] .footer {
   background: var(--ifm-background-surface-color);
+  border-top-color: var(--color-border);
+}
+
+.footer__container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.footer__links {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
 }
 
 .footer__link-item {
   transition: color 0.2s ease;
   font-weight: 400;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
 }
 
 .footer__link-item:hover {
   color: var(--ifm-color-primary);
+  text-decoration: none;
+}
+
+.footer__title {
+  font-weight: 600;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  color: var(--color-text-primary);
+  letter-spacing: -0.01em;
+}
+
+.footer__copyright {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--color-border);
+  text-align: center;
+}
+
+/* Footer inside docs pages should be in content area */
+.theme-doc-wrapper .footer {
+  margin-left: 0;
+  margin-right: 0;
+  max-width: 100%;
+}
+
+/* Make footer appear under sidebar content area */
+.main-wrapper {
+  position: relative;
+}
+
+@media (min-width: 997px) {
+  .theme-doc-wrapper .footer {
+    padding-left: calc(var(--ifm-navbar-sidebar-width) + var(--ifm-spacing-horizontal));
+  }
+}
+
+@media (max-width: 996px) {
+  .theme-doc-wrapper .footer {
+    padding-left: var(--ifm-spacing-horizontal);
+  }
 }
 
 /* Responsive Design */
