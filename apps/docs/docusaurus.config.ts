@@ -126,13 +126,13 @@ const config: Config = {
       darkTheme: prismThemes.dracula,
       additionalLanguages: ['bash', 'typescript', 'javascript', 'yaml', 'json'],
     },
-    algolia: {
-      // We'll configure this later after deployment
-      appId: 'YOUR_APP_ID',
-      apiKey: 'YOUR_SEARCH_API_KEY',
-      indexName: 'anchorpipe',
-      contextualSearch: true,
-    },
+    // Algolia search - disabled until configured
+    // algolia: {
+    //   appId: 'YOUR_APP_ID',
+    //   apiKey: 'YOUR_SEARCH_API_KEY',
+    //   indexName: 'anchorpipe',
+    //   contextualSearch: true,
+    // },
   } satisfies Preset.ThemeConfig,
 };
 
