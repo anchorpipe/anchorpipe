@@ -9,16 +9,22 @@ The documentation site is automatically deployed to Vercel via **Vercel's GitHub
 - **Production**: Deploys **only** on every push to `main` branch (this is your live site)
 - **Preview**: Creates preview deployments for pull requests (temporary, separate from production)
 
-> **Important**: Preview deployments are **NOT production**. They are temporary URLs that:
->
-> - Are only accessible via the preview URL
-> - Are automatically deleted when the PR is closed
-> - Do not affect your production site
-> - Help reviewers see changes before merging
->
-> **Production deployments only happen when code is merged to `main`.**
+:::note Important
+Preview deployments are **NOT production**. They are temporary URLs that:
 
-> **Note**: Vercel handles deployments automatically when the project is connected to GitHub. The GitHub Actions workflow (`.github/workflows/docs-deploy.yml`) is optional and only adds PR comments with preview URLs. If you prefer, you can rely entirely on Vercel's native GitHub integration.
+- Are only accessible via the preview URL
+- Are automatically deleted when the PR is closed
+- Do not affect your production site
+- Help reviewers see changes before merging
+
+**Production deployments only happen when code is merged to `main`.**
+:::
+
+:::tip
+Vercel handles deployments automatically when the project is connected to GitHub.
+The GitHub Actions workflow (`.github/workflows/docs-deploy.yml`) is optional and only adds PR comments with preview URLs.
+If you prefer, you can rely entirely on Vercel's native GitHub integration.
+:::
 
 ## Initial Setup
 
@@ -79,14 +85,16 @@ If you want the GitHub Actions workflow to comment preview URLs on PRs, you need
 
 #### VERCEL_ORG_ID (Optional - Only for Team Accounts)
 
-**Note:** This is only required if you're using a Vercel team account. For personal accounts, you can skip this.
+**Note:** This is only required if you're using a Vercel team account.
+For personal accounts, you can skip this.
 
 1. Go to your [Vercel Team Settings](https://vercel.com/teams)
 2. Select your team/organization
 3. The Organization ID is in the URL: `https://vercel.com/teams/[ORG_ID]/settings`
 4. Or use the Vercel CLI: `vercel whoami` and check the output
 
-**If you're using a personal account:** You can leave this secret empty or not set it at all. The workflow will work without it.
+**If you're using a personal account:** You can leave this secret empty or not set it at all.
+The workflow will work without it.
 
 #### VERCEL_PROJECT_ID
 
@@ -230,14 +238,18 @@ vercel --prod
 
 ### Production Domain Shows Preview URL
 
-**Issue**: GitHub deployments page shows a preview-style URL (e.g., `anchorpipe-docs-xxx.vercel.app`) for production deployments instead of the production domain
+**Issue**: GitHub deployments page shows a preview-style URL for production deployments instead of the production domain.
+
+- Example: `anchorpipe-docs-xxx.vercel.app`
 
 **Explanation**: This is **completely normal and expected behavior**. Here's what's happening:
 
-1. **Vercel creates a unique deployment URL** for each deployment (the preview-style URL like `anchorpipe-docs-qkr3z6dgg-...vercel.app`)
-2. **Your production domain** (`anchorpipe-docs.vercel.app`) is an **alias** that automatically points to the latest production deployment
-3. **Both URLs work** and point to the same deployment - they're just different ways to access it
-4. **GitHub shows the deployment URL** because that's what Vercel reports, but your production domain is configured separately
+1. **Vercel creates a unique deployment URL** for each deployment.
+   The preview-style URL looks like `anchorpipe-docs-qkr3z6dgg-...vercel.app`.
+2. **Your production domain** (`anchorpipe-docs.vercel.app`) is an **alias** that automatically
+   points to the latest production deployment.
+3. **Both URLs work** and point to the same deployment—they're just different ways to access it.
+4. **GitHub shows the deployment URL** because that's what Vercel reports, but your production domain is configured separately.
 
 **This is not a problem** - it's how Vercel works. The production domain is the one you should:
 
@@ -245,7 +257,8 @@ vercel --prod
 - Use in documentation
 - Set as your primary URL
 
-The preview-style URL in GitHub is just the unique identifier for that specific deployment. Both URLs work because they point to the same deployment.
+The preview-style URL in GitHub is just the unique identifier for that specific deployment.
+Both URLs work because they point to the same deployment.
 
 **Solutions** (only if the production domain doesn't work):
 
@@ -265,7 +278,7 @@ The preview-style URL in GitHub is just the unique identifier for that specific 
    - It should show your production site (latest code from `main` branch)
    - **Both URLs work** - the preview-style URL and the production domain point to the same deployment
    - The production domain (`anchorpipe-docs.vercel.app`) is the one you should use and share
-   - The preview-style URL in GitHub is just the unique deployment identifier - this is normal
+   - The preview-style URL in GitHub is just the unique deployment identifier. This is normal.
 
 4. **Redeploy if Needed**:
    - If the domain isn't working, trigger a new production deployment:

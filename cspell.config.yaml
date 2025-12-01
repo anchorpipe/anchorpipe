@@ -1,0 +1,55 @@
+version: '0.2'
+language: en
+allowCompoundWords: true
+useGitignore: true
+
+dictionaryDefinitions:
+  - name: softwareTerms
+    path: './node_modules/@cspell/dict-software-terms/cspell-ext.json'
+    description: Software terms used across docs
+  - name: html
+    path: './node_modules/@cspell/dict-html/cspell-ext.json'
+    description: HTML tags and attributes
+
+dictionaries:
+  - en-us
+  - softwareTerms
+  - html
+
+words:
+  - anchorpipe
+  - docusaurus
+  - vercel
+  - frontmatter
+  - roadmap
+  - todos
+  - github
+  - docsify
+  - devcontainer
+  - monorepo
+  - deps
+  - cname
+  - CNAME
+
+ignorePaths:
+  - '**/node_modules/**'
+  - '**/dist/**'
+  - '**/.next/**'
+  - '**/build/**'
+  - '**/.docusaurus/**'
+  - '**/coverage/**'
+  - '**/.turbo/**'
+  - 'apps/docs/build/**'
+  - 'apps/docs/.docusaurus/**'
+  - '.github/workflows/**'
+  - 'package-lock.json'
+  - 'pnpm-lock.yaml'
+  - 'yarn.lock'
+  - 'bun.lockb'
+
+files:
+  - 'apps/docs/docs/**/*.{md,mdx}'
+  - 'docs/**/*.{md,mdx}'
+  - 'adr/**/*.md'
+  - '*.md'
+  - '*.mdx'
