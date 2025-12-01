@@ -410,41 +410,49 @@ blockquote p:last-child {
 }
 
 /* Footer should be in main content area, NOT in sidebar area */
-/* Docusaurus structure: .theme-doc-wrapper > .main-wrapper (contains sidebar + content) > footer */
+/* Docusaurus structure for doc pages:
+   .theme-doc-wrapper
+     .main-wrapper
+       .theme-doc-sidebar-container (fixed sidebar)
+       .container.main-container (content area)
+   .footer (rendered at Layout level, outside theme-doc-wrapper)
+*/
 .theme-doc-wrapper {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
 
-/* Footer inside docs pages should be in content area only - NOT in sidebar */
-/* The footer is rendered at the root level, so we need to position it correctly */
+/* Footer positioning - ensure it only appears in content area, not sidebar */
+/* Target footer specifically in doc pages */
+.theme-doc-wrapper ~ .footer,
 .theme-doc-wrapper .footer {
   /* Footer should NOT extend into sidebar area */
   margin-left: 0;
   margin-right: 0;
-  padding-left: 0;
-  padding-right: 0;
   position: relative;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Ensure footer is ONLY in main content area, not sidebar */
 @media (min-width: 997px) {
-  /* Footer must be positioned in content area only, not extending into sidebar */
-  /* The sidebar is fixed on the left, so footer needs to start after it */
+  /* Footer must be positioned in content area only */
+  /* The sidebar is fixed on the left with width var(--ifm-navbar-sidebar-width) */
+  .theme-doc-wrapper ~ .footer,
   .theme-doc-wrapper .footer {
     /* Footer should start after the sidebar width */
     margin-left: var(--ifm-navbar-sidebar-width);
     padding-left: var(--ifm-spacing-horizontal);
     padding-right: var(--ifm-spacing-horizontal);
     /* Ensure footer width is constrained to content area only */
-    width: calc(100vw - var(--ifm-navbar-sidebar-width));
-    max-width: calc(100vw - var(--ifm-navbar-sidebar-width));
-    box-sizing: border-box;
+    width: calc(100% - var(--ifm-navbar-sidebar-width));
+    max-width: calc(100% - var(--ifm-navbar-sidebar-width));
   }
 }
 
 @media (max-width: 996px) {
+  .theme-doc-wrapper ~ .footer,
   .theme-doc-wrapper .footer {
     margin-left: 0;
     padding-left: var(--ifm-spacing-horizontal);
