@@ -14,7 +14,6 @@ import {
   Rocket,
   Plug,
   Target,
-  CheckCircle2,
   ArrowRight,
 } from 'lucide-react';
 
@@ -28,7 +27,7 @@ function HomepageHeader() {
         <div className={styles.heroContent}>
           <div className={styles.heroIconContainer}>
             <div className={styles.heroIcon}>
-              <Rocket size={64} strokeWidth={1.5} />
+              <Rocket size={40} strokeWidth={1.5} />
             </div>
           </div>
           <Heading as="h1" className={styles.heroTitle}>
@@ -45,7 +44,7 @@ function HomepageHeader() {
               to="/docs/getting-started/installation"
             >
               Get Started
-              <ArrowRight size={20} className={styles.buttonIcon} />
+              <ArrowRight size={18} className={styles.buttonIcon} />
             </Link>
             <Link className="button button--secondary button--lg" to="/docs/intro">
               Learn More
@@ -71,8 +70,6 @@ function HomepageHeader() {
           </div>
         </div>
       </div>
-      <div className={styles.heroGradient}></div>
-      <div className={styles.heroPattern}></div>
     </header>
   );
 }
@@ -91,13 +88,13 @@ function FeatureCard({
   return (
     <Link to={link} className={styles.featureCard}>
       <div className={styles.featureIconContainer}>
-        <Icon size={32} className={styles.featureIcon} />
+        <Icon size={24} className={styles.featureIcon} />
       </div>
       <h3 className={styles.featureTitle}>{title}</h3>
       <p className={styles.featureDescription}>{description}</p>
       <span className={styles.featureLink}>
         Learn more
-        <ArrowRight size={16} className={styles.featureLinkIcon} />
+        <ArrowRight size={14} className={styles.featureLinkIcon} />
       </span>
     </Link>
   );
@@ -176,7 +173,7 @@ function QuickStartSection(): ReactNode {
                 <p>Set up in your environment with Docker Compose</p>
                 <Link to="/docs/getting-started/installation" className={styles.stepLink}>
                   Installation Guide
-                  <ArrowRight size={16} className={styles.stepLinkIcon} />
+                  <ArrowRight size={14} className={styles.stepLinkIcon} />
                 </Link>
               </div>
             </div>
@@ -190,7 +187,7 @@ function QuickStartSection(): ReactNode {
                 <p>Integrate with your existing CI/CD pipeline</p>
                 <Link to="/docs/guides/integrations/ci-integration" className={styles.stepLink}>
                   Integration Guide
-                  <ArrowRight size={16} className={styles.stepLinkIcon} />
+                  <ArrowRight size={14} className={styles.stepLinkIcon} />
                 </Link>
               </div>
             </div>
@@ -203,7 +200,7 @@ function QuickStartSection(): ReactNode {
                 <p>Run your first detection and see results</p>
                 <Link to="/docs/getting-started/quick-start" className={styles.stepLink}>
                   Quick Start
-                  <ArrowRight size={16} className={styles.stepLinkIcon} />
+                  <ArrowRight size={14} className={styles.stepLinkIcon} />
                 </Link>
               </div>
             </div>
