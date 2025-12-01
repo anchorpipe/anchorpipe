@@ -1,3 +1,8 @@
+---
+sidebar_position: 4
+sidebar_label: 'Security Reference'
+---
+
 # Security Reference
 
 This directory contains reference documentation for security procedures, contacts, and incident response.

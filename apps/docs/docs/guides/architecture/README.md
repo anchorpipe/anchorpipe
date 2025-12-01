@@ -1,3 +1,8 @@
+---
+sidebar_position: 4
+sidebar_label: 'Architecture Guides'
+---
+
 # Architecture Guides
 
 | Topic                               | Description                                                |

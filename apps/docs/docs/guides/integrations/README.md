@@ -1,3 +1,8 @@
+---
+sidebar_position: 7
+sidebar_label: 'Integration Guides'
+---
+
 # Integration Guides
 
 This directory contains guides for integrating Anchorpipe with CI/CD platforms and other systems.

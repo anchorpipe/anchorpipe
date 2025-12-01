@@ -1,3 +1,8 @@
+---
+sidebar_position: 1
+sidebar_label: 'Local Testing Guide'
+---
+
 # Local Testing Guide
 
 This guide helps you test Anchorpipe features locally before deploying to production. You don't need a domain or production setup to test most functionality.

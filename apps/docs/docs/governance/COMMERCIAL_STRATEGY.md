@@ -1,3 +1,8 @@
+---
+sidebar_position: 1
+sidebar_label: 'anchorpipe Commercial Strategy'
+---
+
 # anchorpipe Commercial Strategy
 
 **Status**: Draft - For Internal Planning  

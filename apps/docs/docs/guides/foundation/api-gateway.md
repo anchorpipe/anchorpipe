@@ -1,3 +1,8 @@
+---
+sidebar_position: 1
+sidebar_label: 'API Gateway / BFF (ST-105)'
+---
+
 # API Gateway / BFF (ST-105)
 
 ## Overview

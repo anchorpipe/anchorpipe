@@ -1,3 +1,8 @@
+---
+sidebar_position: 2
+sidebar_label: 'CircleCI Integration'
+---
+
 # CircleCI Integration
 
 This guide shows you how to integrate Anchorpipe with CircleCI workflows.

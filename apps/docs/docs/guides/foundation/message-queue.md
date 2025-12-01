@@ -1,3 +1,8 @@
+---
+sidebar_position: 5
+sidebar_label: 'Message Queue (RabbitMQ) (ST-106)'
+---
+
 # Message Queue (RabbitMQ) (ST-106)
 
 ## Overview

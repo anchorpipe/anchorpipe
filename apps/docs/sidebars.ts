@@ -141,6 +141,7 @@ const sidebars: SidebarsConfig = {
             'reference/adr/idempotency-strategy',
             'reference/adr/error-handling-strategy',
             'reference/adr/observability-strategy',
+            'reference/adr/template',
           ],
         },
       ],

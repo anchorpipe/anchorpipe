@@ -1,3 +1,8 @@
+---
+sidebar_position: 7
+sidebar_label: 'Role-Based Access Control (ST-201)'
+---
+
 # Role-Based Access Control (ST-201)
 
 ## Overview

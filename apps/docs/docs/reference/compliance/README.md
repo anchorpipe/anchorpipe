@@ -1,3 +1,8 @@
+---
+sidebar_position: 3
+sidebar_label: 'Compliance Documentation'
+---
+
 # Compliance Documentation
 
 This directory contains compliance documentation for Anchorpipe, including privacy policies, data processing agreements, and retention policies.

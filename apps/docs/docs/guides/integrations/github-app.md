@@ -1,3 +1,8 @@
+---
+sidebar_position: 4
+sidebar_label: 'GitHub App Integration'
+---
+
 # GitHub App Integration
 
 ## Overview

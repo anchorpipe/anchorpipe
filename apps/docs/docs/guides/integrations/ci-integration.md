@@ -1,3 +1,8 @@
+---
+sidebar_position: 1
+sidebar_label: 'CI Integration Guide'
+---
+
 # CI Integration Guide
 
 This guide explains how to integrate Anchorpipe with your CI/CD pipeline using HMAC authentication.

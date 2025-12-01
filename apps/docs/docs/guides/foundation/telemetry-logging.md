@@ -1,3 +1,8 @@
+---
+sidebar_position: 9
+sidebar_label: 'Telemetry and Logging (ST-108)'
+---
+
 # Telemetry and Logging (ST-108)
 
 ## Overview

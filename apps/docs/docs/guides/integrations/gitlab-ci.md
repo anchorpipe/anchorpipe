@@ -1,3 +1,8 @@
+---
+sidebar_position: 5
+sidebar_label: 'GitLab CI Integration'
+---
+
 # GitLab CI Integration
 
 This guide shows you how to integrate Anchorpipe with GitLab CI/CD pipelines.

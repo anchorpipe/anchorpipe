@@ -1,3 +1,8 @@
+---
+sidebar_position: 1
+sidebar_label: 'Audit Logging (ST-206)'
+---
+
 # Audit Logging (ST-206)
 
 ## Overview

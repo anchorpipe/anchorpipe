@@ -1,3 +1,8 @@
+---
+sidebar_position: 10
+sidebar_label: 'Security Headers and CSP (ST-204)'
+---
+
 # Security Headers and CSP (ST-204)
 
 ## Overview

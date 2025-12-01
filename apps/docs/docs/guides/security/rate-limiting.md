@@ -1,3 +1,8 @@
+---
+sidebar_position: 6
+sidebar_label: 'Rate Limiting and Brute Force Protection (ST-210)'
+---
+
 # Rate Limiting and Brute Force Protection (ST-210)
 
 ## Overview

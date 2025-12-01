@@ -1,3 +1,8 @@
+---
+sidebar_position: 6
+sidebar_label: 'Jenkins Integration'
+---
+
 # Jenkins Integration
 
 This guide shows you how to integrate Anchorpipe with Jenkins pipelines.

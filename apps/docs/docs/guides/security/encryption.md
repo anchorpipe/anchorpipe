@@ -1,3 +1,8 @@
+---
+sidebar_position: 3
+sidebar_label: 'Data Encryption at Rest and In Transit (ST-202)'
+---
+
 # Data Encryption at Rest and In Transit (ST-202)
 
 ## Overview

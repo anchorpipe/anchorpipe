@@ -10,7 +10,7 @@ Architecture Decision Records (ADRs) document significant architectural decision
 
 - **Numbering**: Sequential four-digit IDs (`0001`, `0002`, ...)
 - **Status**: `Proposed`, `Accepted`, `Deprecated`, or `Superseded`
-- **Location**: All ADRs are stored in the [`adr/`](https://github.com/anchorpipe/anchorpipe/tree/main/adr) directory in the repository root
+- **Location**: ADRs live in `apps/docs/docs/reference/adr/` (this directory) and are published automatically to the docs site
 
 ## Index
 
@@ -39,8 +39,8 @@ Architecture Decision Records (ADRs) document significant architectural decision
 
 To create a new ADR:
 
-1. Copy the [template](https://github.com/anchorpipe/anchorpipe/blob/main/adr/template.md) to a new file named `NNNN-short-title.md`
-2. Fill in status, date, deciders, context, decision, and consequences
+1. Copy the [ADR template](template.md) to a new file named `NNNN-short-title.md`
+2. Fill in status, date, deciders, context, decision, consequences, alternatives, revisit criteria, and references
 3. Link to related ADRs and issues
 4. Submit via PR with reviewers from the architecture group
-5. Update this index after the ADR is merged
+5. Update this index and the docs sidebar entry after the ADR is merged

@@ -1,3 +1,8 @@
+---
+sidebar_position: 2
+sidebar_label: 'Privacy Policy'
+---
+
 # Privacy Policy
 
 **Last Updated**: January 2025
