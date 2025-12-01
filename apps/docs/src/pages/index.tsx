@@ -12,13 +12,7 @@ import {
   Code,
   Database,
   GitBranch,
-  Lock,
   FileText,
-  Users,
-  Zap,
-  BarChart3,
-  CheckCircle,
-  AlertTriangle,
   ArrowRight,
 } from 'lucide-react';
 
