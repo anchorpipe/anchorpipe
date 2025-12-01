@@ -5,7 +5,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 const config: Config = {
   title: 'anchorpipe',
   tagline: 'CI-native flaky test detection and management',
-  favicon: 'img/favicon.ico',
+  favicon: 'img/favicon.svg',
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
   future: {
@@ -84,6 +84,7 @@ const config: Config = {
       logo: {
         alt: 'anchorpipe Logo',
         src: 'img/logo.svg',
+        srcDark: 'img/logo.svg',
       },
       items: [
         {
@@ -104,19 +105,10 @@ const config: Config = {
       style: 'light',
       links: [
         {
-          title: 'Product',
+          title: 'Docs',
           items: [
-            { label: 'Documentation', to: '/docs/intro' },
             { label: 'Getting Started', to: '/docs/getting-started/installation' },
             { label: 'API Reference', to: '/docs/api/rest-api' },
-          ],
-        },
-        {
-          title: 'Resources',
-          items: [
-            { label: 'Architecture', to: '/docs/guides/architecture/overview' },
-            { label: 'Security', to: '/docs/guides/security' },
-            { label: 'Compliance', to: '/docs/reference/compliance' },
           ],
         },
         {
@@ -124,11 +116,10 @@ const config: Config = {
           items: [
             { label: 'GitHub', href: 'https://github.com/anchorpipe/anchorpipe' },
             { label: 'Blog', to: '/blog' },
-            { label: 'Changelog', to: '/docs/changelog' },
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} anchorpipe.`,
+      copyright: `© ${new Date().getFullYear()} anchorpipe.`,
     },
     prism: {
       theme: prismThemes.github,
