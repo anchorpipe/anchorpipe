@@ -37,6 +37,36 @@ jobs:
             echo "This is a warning, not a blocker."
           fi
 
+          # Enforce docs for feature PRs
+          echo "Checking documentation expectations for feature PRs..."
+          PR_LABELS="$(jq -r '.pull_request.labels[].name // empty' "$GITHUB_EVENT_PATH")"
+          if echo "$PR_LABELS" | grep -qx 'type:feature'; then
+            BASE_SHA="$(jq -r '.pull_request.base.sha' "$GITHUB_EVENT_PATH")"
+            CHANGED_FILES="$(git diff --name-only "$BASE_SHA"...HEAD || true)"
+
+            DOCS_CHANGED="$(echo "$CHANGED_FILES" | grep -E '^(apps/docs/docs/|docs/|adr/)' || true)"
+
+            if [ -z "$DOCS_CHANGED" ]; then
+              echo "❌ This PR is labeled 'type:feature' but no documentation files were changed."
+              echo "Expected updates in one or more of:"
+              echo "  - apps/docs/docs/** or docs/** (user / reference docs)"
+              echo "  - apps/docs/docs/api/** or OpenAPI (API docs)"
+              echo "  - adr/** or apps/docs/docs/reference/adr/** (architecture decisions)"
+              echo ""
+              echo "If docs are truly not required, either:"
+              echo "  - Add a short explanation under 'Documentation Checklist' in the PR body, OR"
+              echo "  - Adjust labels if this is not a feature change."
+              echo ""
+              echo "See documentation standards at: apps/docs/docs/contributing/documentation-standards.md"
+              exit 1
+            else
+              echo "✅ Feature PR includes documentation changes:"
+              echo "$DOCS_CHANGED"
+            fi
+          else
+            echo "Skipping docs-enforcement: PR is not labeled type:feature."
+          fi
+
           echo "✅ PR validation checks complete"
 
       - name: Check branch name
