@@ -1,3 +1,8 @@
+---
+sidebar_position: 4
+sidebar_label: 'Input Validation and Sanitization (ST-203)'
+---
+
 # Input Validation and Sanitization (ST-203)
 
 ## Overview

@@ -1,3 +1,8 @@
+---
+sidebar_position: 3
+sidebar_label: 'Security Incident Response Plan (ST-211)'
+---
+
 # Security Incident Response Plan (ST-211)
 
 ## Overview

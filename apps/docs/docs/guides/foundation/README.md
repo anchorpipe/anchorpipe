@@ -1,3 +1,8 @@
+---
+sidebar_position: 8
+sidebar_label: 'Foundation Guides'
+---
+
 # Foundation Guides
 
 Documentation for foundation (G0 gate) stories and foundational features.

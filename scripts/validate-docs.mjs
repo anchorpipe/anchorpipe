@@ -69,8 +69,6 @@ function rootDocPath(file) {
 function isDocPath(file) {
   return (
     file.startsWith('apps/docs/docs/') ||
-    file.startsWith('docs/') ||
-    file.startsWith('adr/') ||
     (file.startsWith('apps/docs/') && !file.slice('apps/docs/'.length).includes('/') && (file.endsWith('.md') || file.endsWith('.mdx'))) ||
     rootDocPath(file)
   );

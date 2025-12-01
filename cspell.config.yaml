@@ -49,7 +49,5 @@ ignorePaths:
 
 files:
   - 'apps/docs/docs/**/*.{md,mdx}'
-  - 'docs/**/*.{md,mdx}'
-  - 'adr/**/*.md'
   - '*.md'
   - '*.mdx'

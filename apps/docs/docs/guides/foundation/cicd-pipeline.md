@@ -1,3 +1,8 @@
+---
+sidebar_position: 3
+sidebar_label: 'CI/CD Pipeline (ST-103)'
+---
+
 # CI/CD Pipeline (ST-103)
 
 ## Overview

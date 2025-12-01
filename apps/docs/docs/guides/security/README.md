@@ -1,3 +1,8 @@
+---
+sidebar_position: 8
+sidebar_label: 'Security Guides'
+---
+
 # Security Guides
 
 This directory contains step-by-step guides for implementing and using security features in Anchorpipe.

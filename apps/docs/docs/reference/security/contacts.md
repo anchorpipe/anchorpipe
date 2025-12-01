@@ -1,3 +1,8 @@
+---
+sidebar_position: 1
+sidebar_label: 'Security Contacts (ST-211)'
+---
+
 # Security Contacts (ST-211)
 
 ## Overview

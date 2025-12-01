@@ -1,3 +1,8 @@
+---
+sidebar_position: 7
+sidebar_label: 'Project Setup and Development Environment (ST-101)'
+---
+
 # Project Setup and Development Environment (ST-101)
 
 ## Overview
@@ -15,7 +20,7 @@ anchorpipe/
 ├── services/         # Microservices (future)
 ├── packages/         # Shared packages
 ├── infra/            # Infrastructure as code
-└── docs/             # Documentation
+└── apps/docs/docs/   # Documentation site content
 ```
 
 ## Technology Stack
@@ -169,7 +174,7 @@ GitHub Actions workflows:
 - `README.md` - Project overview
 - `CONTRIBUTING.md` - Contribution guidelines
 - `SECURITY.md` - Security policy
-- `docs/` - Comprehensive documentation
+- `apps/docs/docs/` - Comprehensive documentation
 
 ## Related Documentation
 

@@ -118,6 +118,10 @@ The workflow will work without it.
 
 ### 5. Configure Custom Domain (Optional)
 
+**Current Production Domain**: `anchorpipe-docs.vercel.app`
+
+To set up a custom domain (e.g., `docs.anchorpipe.dev`):
+
 1. In Vercel project settings, go to **Settings** → **Domains**
 2. Add your custom domain: `docs.anchorpipe.dev`
 3. Follow Vercel's DNS configuration instructions
@@ -284,12 +288,14 @@ The preview-style URL in GitHub is just the unique identifier for that specific 
 
 ### Custom Domain Not Working
 
-**Issue**: `docs.anchorpipe.dev` doesn't resolve
+**Issue**: Custom domain (e.g., `docs.anchorpipe.dev`) doesn't resolve
 
-**Solutions**:
+**Note**: If you haven't set up a custom domain, use the default Vercel domain: `anchorpipe-docs.vercel.app`
+
+**Solutions** (for custom domains only):
 
 - Verify DNS records are configured correctly
-- Check DNS propagation: `dig docs.anchorpipe.dev`
+- Check DNS propagation: `dig docs.anchorpipe.dev` (replace with your custom domain)
 - Wait up to 48 hours for DNS propagation
 - Verify domain is added in Vercel project settings
 - Check SSL certificate status in Vercel dashboard

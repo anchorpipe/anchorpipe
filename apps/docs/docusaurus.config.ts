@@ -13,7 +13,7 @@ const config: Config = {
   },
 
   // Set the production url of your site here
-  url: 'https://docs.anchorpipe.dev', // Update with actual domain
+  url: 'https://anchorpipe-docs.vercel.app',
   // Set the /<baseUrl>/ pathname under which your site is served
   baseUrl: '/',
 

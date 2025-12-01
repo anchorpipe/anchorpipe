@@ -1,3 +1,8 @@
+---
+sidebar_position: 3
+sidebar_label: 'anchorpipe Foundation Structure Plan'
+---
+
 # anchorpipe Foundation Structure Plan
 
 **Status**: Planning Document - Future Implementation  

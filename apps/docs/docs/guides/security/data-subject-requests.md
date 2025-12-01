@@ -1,3 +1,8 @@
+---
+sidebar_position: 2
+sidebar_label: 'Data Subject Request Workflows (ST-205)'
+---
+
 # Data Subject Request Workflows (ST-205)
 
 ## Overview

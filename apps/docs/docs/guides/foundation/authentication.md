@@ -1,3 +1,8 @@
+---
+sidebar_position: 2
+sidebar_label: 'Basic Authentication System (ST-104)'
+---
+
 # Basic Authentication System (ST-104)
 
 ## Overview

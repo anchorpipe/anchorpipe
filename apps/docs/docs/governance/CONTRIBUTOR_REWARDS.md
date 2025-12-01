@@ -1,3 +1,8 @@
+---
+sidebar_position: 2
+sidebar_label: 'Contributor Recognition and Rewards Framework'
+---
+
 # Contributor Recognition and Rewards Framework
 
 **Status**: Framework - To Be Implemented  

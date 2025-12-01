@@ -1,3 +1,8 @@
+---
+sidebar_position: 3
+sidebar_label: 'GitHub Actions Integration'
+---
+
 # GitHub Actions Integration
 
 This guide shows you how to integrate Anchorpipe with GitHub Actions workflows.

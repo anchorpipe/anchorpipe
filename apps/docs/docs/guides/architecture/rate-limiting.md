@@ -1,3 +1,8 @@
+---
+sidebar_position: 3
+sidebar_label: 'Rate Limiting Architecture'
+---
+
 # Rate Limiting Architecture
 
 ## Overview

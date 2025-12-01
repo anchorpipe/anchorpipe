@@ -1,3 +1,8 @@
+---
+sidebar_position: 4
+sidebar_label: 'Data Retention Policy'
+---
+
 # Data Retention Policy
 
 **Last Updated**: January 2025

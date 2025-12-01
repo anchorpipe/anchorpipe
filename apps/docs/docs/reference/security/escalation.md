@@ -1,3 +1,8 @@
+---
+sidebar_position: 2
+sidebar_label: 'Security Escalation Procedures (ST-211)'
+---
+
 # Security Escalation Procedures (ST-211)
 
 ## Overview

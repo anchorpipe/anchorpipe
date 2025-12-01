@@ -1,3 +1,8 @@
+---
+sidebar_position: 1
+sidebar_label: 'Ingestion Worker (GB dev helper)'
+---
+
 # Ingestion Worker (GB dev helper)
 
 ## Scope and purpose

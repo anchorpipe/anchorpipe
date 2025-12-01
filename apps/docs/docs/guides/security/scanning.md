@@ -1,3 +1,8 @@
+---
+sidebar_position: 9
+sidebar_label: 'Security Scanning in CI Pipeline'
+---
+
 # Security Scanning in CI Pipeline
 
 This document describes the security scanning setup for the Anchorpipe project, including CodeQL, Dependabot, SAST, and SCA tools.

@@ -1,3 +1,8 @@
+---
+sidebar_position: 1
+sidebar_label: 'Data Processing Agreement (DPA)'
+---
+
 # Data Processing Agreement (DPA)
 
 **Last Updated**: January 2025

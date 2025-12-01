@@ -1,3 +1,8 @@
+---
+sidebar_position: 5
+sidebar_label: 'OAuth 2.0 GitHub Integration'
+---
+
 # OAuth 2.0 GitHub Integration
 
 ## Overview

@@ -9,6 +9,8 @@
 
 **anchorpipe** is an open-source platform for flaky test management that is CI-native, transparent, and actionable—restoring developer velocity and release confidence across teams of all sizes.
 
+> 📚 Looking for documentation? Visit [anchorpipe-docs.vercel.app](https://anchorpipe-docs.vercel.app) for the full site.
+
 ## Why anchorpipe?
 
 Flaky tests destroy developer productivity. Teams waste hours investigating false failures, delaying releases, and losing trust in their test suites.
@@ -40,7 +42,7 @@ Works with your existing CI/CD pipeline—no migration required.
 - GitHub Actions, GitLab CI, CircleCI, Jenkins, Azure DevOps
 - JUnit, Jest, PyTest, Playwright, Mocha, Gradle
 
-[View integration guide →](docs/guides/integrations/ci-integration.md)
+[View integration guide →](https://anchorpipe-docs.vercel.app/docs/guides/integrations/ci-integration)
 
 ### 🔒 Production-Ready Security
 
@@ -53,7 +55,7 @@ Enterprise-grade security features built-in:
 - Comprehensive audit logging
 - Security scanning in CI pipeline
 
-[View security documentation →](docs/guides/security/)
+[View security documentation →](https://anchorpipe-docs.vercel.app/docs/guides/security/)
 
 ### 📊 Compliance & Privacy
 
@@ -64,7 +66,7 @@ GDPR/CCPA compliant with comprehensive data protection:
 - Data retention policies
 - Audit trails for compliance
 
-[View compliance documentation →](docs/reference/compliance/)
+[View compliance documentation →](https://anchorpipe-docs.vercel.app/docs/reference/compliance/)
 
 ## Recent Improvements
 
@@ -74,7 +76,7 @@ GDPR/CCPA compliant with comprehensive data protection:
 ✅ **Redis Rate Limiting** - Distributed rate limiting across instances  
 ✅ **Robust Idempotency** - ACID-guaranteed duplicate prevention
 
-See [Architecture Guides](./docs/guides/architecture/) for details.
+See [Architecture Guides](https://anchorpipe-docs.vercel.app/docs/guides/architecture/) for details.
 
 ## 🚀 Quick Start
 
@@ -128,24 +130,24 @@ Get anchorpipe running locally in under 5 minutes.
 
 ### Next Steps
 
-- 📖 [Connect your first CI pipeline](docs/guides/integrations/ci-integration.md)
-- 🔒 [Configure authentication](docs/guides/foundation/authentication.md)
-- 🛡️ [Set up security features](docs/guides/security/)
+- 📖 [Connect your first CI pipeline](https://anchorpipe-docs.vercel.app/docs/guides/integrations/ci-integration)
+- 🔒 [Configure authentication](https://anchorpipe-docs.vercel.app/docs/guides/foundation/authentication)
+- 🛡️ [Set up security features](https://anchorpipe-docs.vercel.app/docs/guides/security/)
 
-**Troubleshooting:** See [Project Setup Guide](docs/guides/foundation/project-setup.md) for detailed instructions.
+**Troubleshooting:** See [Project Setup Guide](https://anchorpipe-docs.vercel.app/docs/guides/foundation/project-setup) for detailed instructions.
 
 ## 📚 Documentation
 
-| Category               | Resources                                                                                                                                                                                 |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **🚀 Getting Started** | [Quick Start](#-quick-start) · [Project Setup](docs/guides/foundation/project-setup.md) · [CI Integration](docs/guides/integrations/ci-integration.md)                                    |
-| **🔌 Integrations**    | [CI/CD Setup](docs/guides/integrations/) · [HMAC Authentication](docs/guides/integrations/ci-integration.md)                                                                              |
-| **🔒 Security**        | [OAuth](docs/guides/security/oauth.md) · [RBAC](docs/guides/security/rbac.md) · [Rate Limiting](docs/guides/security/rate-limiting.md) · [Encryption](docs/guides/security/encryption.md) |
-| **🏗️ Foundation**      | [Database Schema](docs/guides/foundation/database-schema.md) · [API Gateway](docs/guides/foundation/api-gateway.md) · [Message Queue](docs/guides/foundation/message-queue.md)            |
-| **🏛️ Governance**      | [Commercial Strategy](docs/governance/COMMERCIAL_STRATEGY.md) · [Contributor Rewards](docs/governance/CONTRIBUTOR_REWARDS.md)                                                             |
-| **📖 Reference**       | [Security Reference](docs/reference/security/) · [Compliance](docs/reference/compliance/) · [Complete Index](docs/README.md)                                                              |
+| Category               | Resources                                                                                                                                                                                                                                                                                                                 |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **🚀 Getting Started** | [Quick Start](#-quick-start) · [Project Setup](https://anchorpipe-docs.vercel.app/docs/guides/foundation/project-setup) · [CI Integration](https://anchorpipe-docs.vercel.app/docs/guides/integrations/ci-integration)                                                                                                    |
+| **🔌 Integrations**    | [CI/CD Setup](https://anchorpipe-docs.vercel.app/docs/guides/integrations/) · [HMAC Authentication](https://anchorpipe-docs.vercel.app/docs/guides/integrations/ci-integration)                                                                                                                                           |
+| **🔒 Security**        | [OAuth](https://anchorpipe-docs.vercel.app/docs/guides/security/oauth) · [RBAC](https://anchorpipe-docs.vercel.app/docs/guides/security/rbac) · [Rate Limiting](https://anchorpipe-docs.vercel.app/docs/guides/security/rate-limiting) · [Encryption](https://anchorpipe-docs.vercel.app/docs/guides/security/encryption) |
+| **🏗️ Foundation**      | [Database Schema](https://anchorpipe-docs.vercel.app/docs/guides/foundation/database-schema) · [API Gateway](https://anchorpipe-docs.vercel.app/docs/guides/foundation/api-gateway) · [Message Queue](https://anchorpipe-docs.vercel.app/docs/guides/foundation/message-queue)                                            |
+| **🏛️ Governance**      | [Commercial Strategy](https://anchorpipe-docs.vercel.app/docs/governance/COMMERCIAL_STRATEGY) · [Contributor Rewards](https://anchorpipe-docs.vercel.app/docs/governance/CONTRIBUTOR_REWARDS)                                                                                                                             |
+| **📖 Reference**       | [Security Reference](https://anchorpipe-docs.vercel.app/docs/reference/security/) · [Compliance](https://anchorpipe-docs.vercel.app/docs/reference/compliance/) · [Complete Index](https://anchorpipe-docs.vercel.app/docs/intro)                                                                                         |
 
-**Can't find what you need?** [Browse all documentation](docs/README.md) or [ask in Discussions](https://github.com/anchorpipe/anchorpipe/discussions)
+**Can't find what you need?** [Browse all documentation](https://anchorpipe-docs.vercel.app/docs/intro) or [ask in Discussions](https://github.com/anchorpipe/anchorpipe/discussions)
 
 ## 🤝 Contributing
 
@@ -170,7 +172,7 @@ We ❤️ contributions! anchorpipe is built by developers, for developers.
 
 [Read our full Contributing Guide →](CONTRIBUTING.md)
 
-**Recognition:** All contributors get credit in release notes and our [Contributors Wall](https://github.com/anchorpipe/anchorpipe/graphs/contributors). Learn about our [rewards program](docs/governance/CONTRIBUTOR_REWARDS.md).
+**Recognition:** All contributors get credit in release notes and our [Contributors Wall](https://github.com/anchorpipe/anchorpipe/graphs/contributors). Learn about our [rewards program](https://anchorpipe-docs.vercel.app/docs/governance/CONTRIBUTOR_REWARDS).
 
 ## 🛡️ Security
 
@@ -185,14 +187,14 @@ Security is a top priority. anchorpipe includes:
 
 **Found a vulnerability?** Please report it privately via our [Security Policy](SECURITY.md).
 
-[View detailed security documentation →](docs/guides/security/)
+[View detailed security documentation →](https://anchorpipe-docs.vercel.app/docs/guides/security/)
 
 ## 📖 License
 
 This project is licensed under the **GNU Affero General Public License v3.0** (AGPL v3).
 
 - **Open Source**: Core features under AGPL v3
-- **Commercial Licensing**: Available for enterprises (see [docs/governance/COMMERCIAL_STRATEGY.md](docs/governance/COMMERCIAL_STRATEGY.md))
+- **Commercial Licensing**: Available for enterprises (see [docs/governance/COMMERCIAL_STRATEGY.md](https://anchorpipe-docs.vercel.app/docs/governance/COMMERCIAL_STRATEGY))
 
 See [LICENSE](LICENSE) for details.
 

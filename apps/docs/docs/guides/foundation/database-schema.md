@@ -1,3 +1,8 @@
+---
+sidebar_position: 4
+sidebar_label: 'Database Schema (ST-102)'
+---
+
 # Database Schema (ST-102)
 
 ## Overview

@@ -1,3 +1,8 @@
+---
+sidebar_position: 6
+sidebar_label: 'Object Storage (S3-compatible) (ST-107)'
+---
+
 # Object Storage (S3-compatible) (ST-107)
 
 ## Overview

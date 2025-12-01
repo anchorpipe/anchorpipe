@@ -1,3 +1,8 @@
+---
+sidebar_position: 5
+sidebar_label: 'Testing Architecture'
+---
+
 # Testing Architecture
 
 ## Test Pyramid

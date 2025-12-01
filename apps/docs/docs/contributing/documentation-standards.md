@@ -1,7 +1,12 @@
+---
+sidebar_position: 3
+sidebar_label: 'Documentation Standards'
+---
+
 # Documentation Standards
 
 This guide describes how to write and maintain documentation for Anchorpipe.
-It applies to content in `apps/docs/docs/**`, `docs/**`, and `adr/**`.
+All documentation lives in `apps/docs/docs/**` and is published at [anchorpipe-docs.vercel.app](https://anchorpipe-docs.vercel.app).
 
 ## Goals
 
@@ -12,10 +17,8 @@ It applies to content in `apps/docs/docs/**`, `docs/**`, and `adr/**`.
 ## File Format and Location
 
 - **Format**: Markdown (`.md`) or MDX (`.mdx`) for Docusaurus content.
-- **Locations**:
-  - Product docs: `apps/docs/docs/**`
-  - Repo-level docs: `docs/**`
-  - Architecture decision records: `adr/**` and `apps/docs/docs/reference/adr/**`
+- **Location**: `apps/docs/docs/**` (docs site content checked into the repo)
+- **Architecture decision records**: `apps/docs/docs/reference/adr/**`
 - **Naming**:
   - Use `kebab-case` for filenames (e.g. `getting-started.md`, `rate-limiting.md`).
   - Keep names short and descriptive.
@@ -89,10 +92,7 @@ For REST APIs:
 
 ## ADR Standards
 
-Architecture Decision Records live in:
-
-- `adr/**` (source of truth in the repo).
-- `apps/docs/docs/reference/adr/**` (published in the docs site).
+Architecture Decision Records live in `apps/docs/docs/reference/adr/**`.
 
 Each ADR should:
 
@@ -119,7 +119,7 @@ internal runbooks or ADRs.
 For feature PRs (especially those labeled `type:feature`):
 
 - Include at least one of:
-  - Updated user docs in `apps/docs/docs/**` or `docs/**`.
+  - Updated user docs in `apps/docs/docs/**`.
   - Updated API docs.
   - New or updated ADR.
   - An explicit, documented reason why docs are not required.

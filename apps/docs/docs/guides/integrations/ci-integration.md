@@ -1,3 +1,8 @@
+---
+sidebar_position: 1
+sidebar_label: 'CI Integration Guide'
+---
+
 # CI Integration Guide
 
 This guide explains how to integrate Anchorpipe with your CI/CD pipeline using HMAC authentication.
@@ -336,6 +341,6 @@ Each test case in the `tests` array must include:
 
 For additional help:
 
-- Check the [documentation](https://docs.anchorpipe.dev)
+- Check the [documentation](https://anchorpipe-docs.vercel.app)
 - Open an issue on [GitHub](https://github.com/anchorpipe/anchorpipe/issues)
 - Contact support: support@anchorpipe.dev
