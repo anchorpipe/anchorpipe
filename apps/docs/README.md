@@ -2,40 +2,40 @@
 
 This website is built using [Docusaurus](https://docusaurus.io/), a modern static website generator.
 
-## Installation
+## Prerequisites
+
+From the repo root run:
 
 ```bash
-yarn
+npm install --legacy-peer-deps
 ```
 
 ## Local Development
 
 ```bash
-yarn start
+npm run docs:dev
 ```
 
-This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
+This command starts a local Docusaurus dev server and opens a browser window. Most changes are reflected live without restarting the server.
 
 ## Build
 
 ```bash
-yarn build
+npm run docs:build
 ```
 
-This command generates static content into the `build` directory and can be served using any static contents hosting service.
+This generates static content into `apps/docs/build`, which Vercel serves in production.
 
 ## Deployment
 
-Using SSH:
+Deployments are handled automatically by Vercel (see `apps/docs/DEPLOYMENT.md`). You typically do **not** run `npm run docs:deploy` locally unless you are testing the Vercel CLI.
 
-```bash
-USE_SSH=true yarn deploy
-```
+## Documentation Quality Checks
 
-Not using SSH:
+Quality gates help us keep spelling, formatting, and links healthy:
 
-```bash
-GIT_USER=<Your GitHub username> yarn deploy
-```
+- `npm run lint:docs` → markdownlint with project configuration
+- `npm run spellcheck:docs` → cspell with shared dictionaries and project terms
+- `npm run validate:docs` → runs both checks plus a Docusaurus production build (fails on broken links)
 
-If you are using GitHub pages for hosting, this command is a convenient way to build the website and push to the `gh-pages` branch.
+GitHub Actions runs these checks automatically via `.github/workflows/docs-quality.yml`. Locally, run them from the repo root; append `--all` to the command if you want to lint every document instead of only the files changed on your branch.

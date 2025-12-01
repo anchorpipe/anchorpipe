@@ -1,0 +1,47 @@
+name: Docs Quality Gate
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'apps/docs/**'
+      - 'docs/**'
+      - 'adr/**'
+      - '.github/workflows/docs-quality.yml'
+  workflow_dispatch:
+
+jobs:
+  validate-docs:
+    name: Validate Documentation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Validate documentation
+        run: |
+          npm run validate:docs 2>&1 | tee docs-quality.log
+
+      - name: Upload validation logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-validation-logs
+          path: |
+            apps/docs/build
+            .markdownlint-cli2.jsonc
+            cspell.config.yaml
+            docs-quality.log
+          if-no-files-found: ignore
