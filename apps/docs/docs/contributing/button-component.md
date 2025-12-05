@@ -185,7 +185,7 @@ The Button component is fully accessible:
 ```tsx
 import Button from '@site/src/components/Button';
 
-<Button>Click me</Button>
+<Button>Click me</Button>;
 ```
 
 ### With Variant and Size
@@ -204,7 +204,7 @@ import { ArrowRight } from 'lucide-react';
 <Button variant="default" size="default">
   Continue
   <ArrowRight className="w-4 h-4" />
-</Button>
+</Button>;
 ```
 
 ### Disabled State
@@ -233,4 +233,3 @@ The Button component uses design system tokens:
 
 - [Design System](/docs/contributing/design-system) - Complete design system documentation
 - [Color Migration](/docs/contributing/color-migration) - Color system details
-
