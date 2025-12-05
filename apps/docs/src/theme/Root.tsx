@@ -8,14 +8,9 @@ export default function Root({ children }: { children: React.ReactNode }) {
       <Head>
         {/* Font preloading for better performance */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </Head>
       {children}
     </>
   );
 }
-
