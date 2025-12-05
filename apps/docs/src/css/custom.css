@@ -34,6 +34,8 @@
 
   --ifm-code-font-size: 95%;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.05);
+  --ifm-background-color: hsl(var(--background));
+  --ifm-background-surface-color: hsl(var(--surface-1));
 
   /* Typography - Use Design System Fonts */
   --ifm-font-family-base: var(--font-sans);
@@ -82,12 +84,12 @@
 .navbar {
   box-shadow: var(--ifm-navbar-shadow);
   backdrop-filter: blur(12px);
-  background: rgba(255, 255, 255, 0.8);
+  background: hsl(var(--background) / 0.8);
   border-bottom: 1px solid var(--color-border);
 }
 
 [data-theme='dark'] .navbar {
-  background: rgba(13, 17, 23, 0.8);
+  background: hsl(var(--background) / 0.8);
   border-bottom-color: var(--color-border);
 }
 
