@@ -3,6 +3,11 @@
  * Professional, sophisticated design with unique brand identity
  */
 
+/* Tailwind CSS Directives */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* Import Design System Variables */
 @import './variables.css';
 
