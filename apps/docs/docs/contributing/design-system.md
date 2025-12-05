@@ -46,4 +46,3 @@ Keyframe animations and timing functions for smooth, accessible interactions. Al
 The design system is implemented via CSS custom properties in `src/css/variables.css` and consumed throughout the site via `src/css/custom.css`.
 
 For developers working on the documentation site, refer to the inline comments in `variables.css` for detailed token definitions and usage guidelines.
-
