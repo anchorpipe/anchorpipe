@@ -68,7 +68,7 @@ background: hsl(var(--primary) / 0.1);
 box-shadow: 0 2px 8px hsl(var(--primary) / 0.2);
 
 /* ❌ Bad - Hard-coded color */
-color: #D41818;
+color: #d41818;
 background: rgba(212, 24, 24, 0.1);
 box-shadow: 0 2px 8px rgba(212, 24, 24, 0.2);
 ```
@@ -111,4 +111,3 @@ After migration, verify:
 
 - [Design System](/docs/contributing/design-system) - Complete design system documentation
 - [Typography System](/docs/contributing/typography-system) - Typography guidelines
-
