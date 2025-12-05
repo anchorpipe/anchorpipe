@@ -3,11 +3,7 @@ module.exports = {
   corePlugins: {
     preflight: false, // Disable Tailwind's reset to avoid conflicts with Docusaurus
   },
-  content: [
-    './src/**/*.{js,jsx,ts,tsx,mdx}',
-    './docs/**/*.{md,mdx}',
-    './blog/**/*.{md,mdx}',
-  ],
+  content: ['./src/**/*.{js,jsx,ts,tsx,mdx}', './docs/**/*.{md,mdx}', './blog/**/*.{md,mdx}'],
   darkMode: ['class', '[data-theme="dark"]'],
   theme: {
     container: {
@@ -85,20 +81,20 @@ module.exports = {
       },
       spacing: {
         // Design system spacing tokens (4px base unit)
-        '0.5': 'var(--spacing-0-5)',
-        '1': 'var(--spacing-1)',
-        '1.5': 'var(--spacing-1-5)',
-        '2': 'var(--spacing-2)',
-        '3': 'var(--spacing-3)',
-        '4': 'var(--spacing-4)',
-        '5': 'var(--spacing-5)',
-        '6': 'var(--spacing-6)',
-        '8': 'var(--spacing-8)',
-        '10': 'var(--spacing-10)',
-        '12': 'var(--spacing-12)',
-        '16': 'var(--spacing-16)',
-        '20': 'var(--spacing-20)',
-        '24': 'var(--spacing-24)',
+        0.5: 'var(--spacing-0-5)',
+        1: 'var(--spacing-1)',
+        1.5: 'var(--spacing-1-5)',
+        2: 'var(--spacing-2)',
+        3: 'var(--spacing-3)',
+        4: 'var(--spacing-4)',
+        5: 'var(--spacing-5)',
+        6: 'var(--spacing-6)',
+        8: 'var(--spacing-8)',
+        10: 'var(--spacing-10)',
+        12: 'var(--spacing-12)',
+        16: 'var(--spacing-16)',
+        20: 'var(--spacing-20)',
+        24: 'var(--spacing-24)',
       },
       keyframes: {
         'fade-in-up': {
@@ -150,4 +146,3 @@ module.exports = {
   },
   plugins: [require('tailwindcss-animate')],
 };
-
