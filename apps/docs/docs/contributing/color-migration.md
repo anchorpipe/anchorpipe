@@ -109,6 +109,6 @@ After migration, verify:
 
 ## Related Documentation
 
-- [Design System](./design-system.md) - Complete design system documentation
-- [Typography System](./typography-system.md) - Typography guidelines
+- [Design System](/docs/contributing/design-system) - Complete design system documentation
+- [Typography System](/docs/contributing/typography-system) - Typography guidelines
 
