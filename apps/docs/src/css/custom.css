@@ -130,38 +130,121 @@
   transform: scale(1.05);
 }
 
-/* Enhanced Typography */
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-weight: 600;
-  line-height: 1.25;
-  margin-top: 2rem;
-  margin-bottom: 1rem;
-  letter-spacing: -0.02em;
-  color: var(--color-text-primary);
+/* Enhanced Typography - Using Design System Variables */
+body {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-body);
+  color: hsl(var(--foreground));
 }
 
-h1 {
-  font-size: 3rem;
-  font-weight: 700;
+/* Display Text - Hero headlines */
+.display {
+  font-size: var(--font-size-display);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  letter-spacing: -0.02em;
+  color: hsl(var(--foreground));
+}
+
+/* Typography Scale - Headings */
+h1,
+.h1 {
+  font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-snug);
+  margin-top: 2rem;
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.01em;
+  color: hsl(var(--foreground));
   border-bottom: none;
   padding-bottom: 0;
-  margin-bottom: 1.5rem;
 }
 
-h2 {
-  font-size: 2.25rem;
+h2,
+.h2 {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-normal);
   margin-top: 3rem;
-  font-weight: 600;
+  margin-bottom: 1rem;
+  letter-spacing: -0.01em;
+  color: hsl(var(--foreground));
 }
 
-h3 {
-  font-size: 1.75rem;
-  font-weight: 600;
+h3,
+.h3 {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-relaxed);
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: hsl(var(--foreground));
+}
+
+h4,
+.h4 {
+  font-size: var(--font-size-h4);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-loose);
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: hsl(var(--foreground));
+}
+
+h5,
+.h5 {
+  font-size: var(--font-size-h5);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-loose);
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: hsl(var(--foreground));
+}
+
+h6,
+.h6 {
+  font-size: var(--font-size-h6);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-loose);
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  color: hsl(var(--foreground));
+}
+
+/* Body Text */
+.body-lg {
+  font-size: var(--font-size-body-lg);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-body-lg);
+  color: hsl(var(--foreground));
+}
+
+/* Small Text */
+small,
+.small {
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-normal);
+  line-height: 1.5;
+  color: hsl(var(--muted-foreground));
+}
+
+/* Extra Small Text */
+.xs {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.4;
+  color: hsl(var(--muted-foreground));
+}
+
+/* Monospace Text */
+code,
+.mono {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-mono);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-mono);
 }
 
 /* Better Links */
