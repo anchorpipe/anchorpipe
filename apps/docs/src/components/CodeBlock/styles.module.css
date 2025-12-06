@@ -1,0 +1,207 @@
+/**
+ * CodeBlock Component Styles
+ * Terminal-style code block with copy functionality
+ * Follows design system specifications
+ */
+
+.codeBlock {
+  position: relative;
+  margin: 1.5rem 0;
+}
+
+.glow {
+  position: absolute;
+  inset: -0.5rem;
+  background: hsl(var(--primary) / 0.05);
+  border-radius: 1.25rem;
+  filter: blur(1rem);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.codeBlock:hover .glow {
+  opacity: 1;
+}
+
+.container {
+  position: relative;
+  background: hsl(var(--surface-1));
+  border-radius: 0.875rem;
+  overflow: hidden;
+  border: 1px solid hsl(var(--border) / 0.4);
+  transition: border-color 0.3s ease;
+  z-index: 1;
+}
+
+.codeBlock:hover .container {
+  border-color: hsl(var(--primary) / 0.3);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid hsl(var(--border) / 0.4);
+  background: hsl(var(--surface-2) / 0.5);
+  gap: 1rem;
+}
+
+.dots {
+  display: flex;
+  gap: 0.375rem;
+  flex-shrink: 0;
+}
+
+.dots span {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+}
+
+.dotRed {
+  background: hsl(var(--destructive) / 0.7);
+}
+
+.dotYellow {
+  background: hsl(45 100% 50% / 0.7);
+}
+
+.dotGreen {
+  background: hsl(142 76% 36% / 0.7);
+}
+
+.filename {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: hsl(var(--muted-foreground));
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.copyButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.625rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  color: hsl(var(--muted-foreground));
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: var(--font-sans);
+  flex-shrink: 0;
+}
+
+.copyButton:hover:not(:disabled) {
+  color: hsl(var(--foreground));
+  background: hsl(var(--surface-3));
+}
+
+.copyButton:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+.copyButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.icon {
+  width: 0.875rem;
+  height: 0.875rem;
+  flex-shrink: 0;
+}
+
+.iconSuccess {
+  width: 0.875rem;
+  height: 0.875rem;
+  color: hsl(142 76% 36%);
+  flex-shrink: 0;
+}
+
+.textSuccess {
+  color: hsl(142 76% 36%);
+}
+
+.pre {
+  padding: 1rem;
+  margin: 0;
+  overflow-x: auto;
+  background: hsl(var(--surface-1));
+}
+
+.code {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: hsl(var(--foreground));
+  display: block;
+}
+
+.line {
+  min-height: 1.4em;
+  display: block;
+}
+
+.lineNumber {
+  display: inline-block;
+  width: 2rem;
+  margin-right: 1rem;
+  text-align: right;
+  color: hsl(var(--muted-foreground) / 0.4);
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.comment {
+  color: hsl(var(--muted-foreground) / 0.7);
+  font-style: italic;
+}
+
+.addition {
+  color: hsl(142 76% 50%);
+  background: hsl(142 76% 36% / 0.1);
+  margin: 0 -1rem;
+  padding: 0 1rem;
+  display: block;
+}
+
+.deletion {
+  color: hsl(var(--destructive) / 0.8);
+  background: hsl(var(--destructive) / 0.1);
+  margin: 0 -1rem;
+  padding: 0 1rem;
+  display: block;
+}
+
+/* Responsive design */
+@media screen and (max-width: 768px) {
+  .header {
+    padding: 0.625rem 0.75rem;
+    gap: 0.75rem;
+  }
+
+  .filename {
+    font-size: 0.6875rem;
+  }
+
+  .copyButton {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.6875rem;
+  }
+
+  .pre {
+    padding: 0.75rem;
+  }
+
+  .code {
+    font-size: 0.8125rem;
+  }
+}
