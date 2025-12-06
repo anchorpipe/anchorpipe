@@ -26,7 +26,7 @@ import { Zap } from 'lucide-react';
   icon={Zap}
   title="Fast Performance"
   description="Lightning-fast performance with optimized algorithms"
-/>
+/>;
 ```
 
 ### With Custom Class
@@ -42,13 +42,13 @@ import { Zap } from 'lucide-react';
 
 ## Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `icon` | `LucideIcon` | **required** | Lucide React icon component |
-| `title` | `string` | **required** | Feature title |
-| `description` | `string` | **required** | Feature description |
-| `accent` | `string` | `'primary'` | Accent color (currently unused, reserved for future use) |
-| `className` | `string` | `undefined` | Additional CSS class names |
+| Prop          | Type         | Default      | Description                                              |
+| ------------- | ------------ | ------------ | -------------------------------------------------------- |
+| `icon`        | `LucideIcon` | **required** | Lucide React icon component                              |
+| `title`       | `string`     | **required** | Feature title                                            |
+| `description` | `string`     | **required** | Feature description                                      |
+| `accent`      | `string`     | `'primary'`  | Accent color (currently unused, reserved for future use) |
+| `className`   | `string`     | `undefined`  | Additional CSS class names                               |
 
 ## Styling
 
@@ -82,6 +82,7 @@ On hover, the FeatureCard has several smooth animations:
 5. **Box Shadow**: Appears with primary glow effect
 
 All transitions use:
+
 - **Card**: 0.5s cubic-bezier(0.4, 0, 0.2, 1)
 - **Icon Wrapper**: 0.3s ease
 
@@ -113,22 +114,10 @@ import FeatureCard from '@site/src/components/FeatureCard';
 import { Zap, Shield, Rocket } from 'lucide-react';
 
 <div className="features-grid">
-  <FeatureCard
-    icon={Zap}
-    title="Fast"
-    description="Lightning-fast performance"
-  />
-  <FeatureCard
-    icon={Shield}
-    title="Secure"
-    description="Enterprise-grade security"
-  />
-  <FeatureCard
-    icon={Rocket}
-    title="Scalable"
-    description="Grows with your needs"
-  />
-</div>
+  <FeatureCard icon={Zap} title="Fast" description="Lightning-fast performance" />
+  <FeatureCard icon={Shield} title="Secure" description="Enterprise-grade security" />
+  <FeatureCard icon={Rocket} title="Scalable" description="Grows with your needs" />
+</div>;
 ```
 
 ## Responsive Design
@@ -143,4 +132,3 @@ The FeatureCard component is responsive:
 
 - [Design System](/docs/contributing/design-system) - Complete design system documentation
 - [Button Component](/docs/contributing/button-component) - Button component documentation
-
