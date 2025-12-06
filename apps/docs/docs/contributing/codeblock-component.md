@@ -24,17 +24,13 @@ The CodeBlock component is a terminal-style code block with copy functionality, 
 ```tsx
 import CodeBlock from '@site/src/components/CodeBlock';
 
-<CodeBlock code="npm install anchorpipe" />
+<CodeBlock code="npm install anchorpipe" />;
 ```
 
 ### With Filename
 
 ```tsx
-<CodeBlock
-  code="const example = 'hello world';"
-  filename="example.ts"
-  language="typescript"
-/>
+<CodeBlock code="const example = 'hello world';" filename="example.ts" language="typescript" />
 ```
 
 ### With Line Numbers
@@ -50,25 +46,24 @@ import CodeBlock from '@site/src/components/CodeBlock';
 ### With Comments and Diff
 
 The component automatically highlights:
+
 - **Comments**: Lines starting with `#`, `//`, or `/*`
 - **Additions**: Lines starting with `+`
 - **Deletions**: Lines starting with `-` (but not `--`)
 
 ```tsx
-<CodeBlock
-  code="# This is a comment\n+ Added line\n- Removed line\nNormal line"
-/>
+<CodeBlock code="# This is a comment\n+ Added line\n- Removed line\nNormal line" />
 ```
 
 ## Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `code` | `string` | **required** | The code to display |
-| `language` | `string` | `'bash'` | Programming language (for syntax highlighting) |
-| `filename` | `string` | `undefined` | Optional filename to display in header |
-| `showLineNumbers` | `boolean` | `false` | Whether to show line numbers |
-| `className` | `string` | `undefined` | Additional CSS class names |
+| Prop              | Type      | Default      | Description                                    |
+| ----------------- | --------- | ------------ | ---------------------------------------------- |
+| `code`            | `string`  | **required** | The code to display                            |
+| `language`        | `string`  | `'bash'`     | Programming language (for syntax highlighting) |
+| `filename`        | `string`  | `undefined`  | Optional filename to display in header         |
+| `showLineNumbers` | `boolean` | `false`      | Whether to show line numbers                   |
+| `className`       | `string`  | `undefined`  | Additional CSS class names                     |
 
 ## Copy Functionality
 
@@ -90,6 +85,7 @@ The CodeBlock component includes a copy button that:
 ### Terminal Header
 
 The header includes:
+
 - **Traffic light dots**: Red, yellow, green circles (macOS terminal style)
 - **Filename**: Displayed in monospace font if provided
 - **Copy button**: Positioned on the right side
@@ -97,6 +93,7 @@ The header includes:
 ### Glow Effect
 
 On hover, the code block shows a subtle glow effect:
+
 - Uses primary color with low opacity
 - Blur effect for smooth appearance
 - Border color changes to primary on hover
@@ -133,11 +130,7 @@ The CodeBlock component uses design system tokens:
 ### Bash Command
 
 ```tsx
-<CodeBlock
-  code="npm install -g anchorpipe"
-  filename="install.sh"
-  language="bash"
-/>
+<CodeBlock code="npm install -g anchorpipe" filename="install.sh" language="bash" />
 ```
 
 ### TypeScript Code
@@ -173,4 +166,3 @@ The CodeBlock component is responsive:
 
 - [Design System](/docs/contributing/design-system) - Complete design system documentation
 - [Button Component](/docs/contributing/button-component) - Button component documentation
-
