@@ -15,7 +15,7 @@ export default function FeatureCard({
   icon: Icon,
   title,
   description,
-  accent = 'primary',
+  accent: _accent = 'primary',
   className,
 }: FeatureCardProps) {
   return (
