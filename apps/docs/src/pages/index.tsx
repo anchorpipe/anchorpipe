@@ -26,11 +26,6 @@ function HomepageHeader() {
     <header className={clsx('hero', styles.heroBanner)}>
       <div className="container">
         <div className={styles.heroContent}>
-          <div className={styles.heroIconContainer}>
-            <div className={styles.heroIcon}>
-              <Rocket size={48} strokeWidth={1.5} />
-            </div>
-          </div>
           <Heading as="h1" className={styles.heroTitle}>
             {siteConfig.title}
           </Heading>
