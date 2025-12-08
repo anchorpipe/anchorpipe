@@ -5,6 +5,7 @@
   flex-direction: column;
   gap: 1rem;
   height: calc(100vh - 88px);
+  min-height: 0; /* allow children to scroll inside flex */
   padding: 1rem 1.25rem;
   background: hsl(var(--surface-1));
   border: 1px solid hsl(var(--border) / 0.7);
@@ -19,6 +20,22 @@
   flex: 1;
   overflow-y: auto;
   padding-right: 0.35rem;
+  min-height: 0;
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--border)) transparent;
+}
+
+.nav::-webkit-scrollbar {
+  width: 8px;
+}
+
+.nav::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 999px;
+}
+
+.nav::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--border) / 0.9);
 }
 
 .introLink {
@@ -147,7 +164,7 @@
 }
 
 .sectionItemsExpanded {
-  max-height: 1200px;
+  max-height: 9999px;
   opacity: 1;
   padding: 0.2rem 0.8rem 0.8rem;
 }
