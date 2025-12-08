@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import clsx from 'clsx';
 import Link from '@docusaurus/Link';
 import { useLocation } from '@docusaurus/router';
@@ -101,6 +101,7 @@ function SectionItems({
             key={itemKey}
             to={href}
             className={clsx(styles.sectionItem, isActive && styles.itemActive)}
+            data-active={isActive ? 'true' : undefined}
           >
             {item.label}
           </Link>
@@ -156,6 +157,7 @@ function NavSection({
 export default function DocSidebar({ sidebar }: DocSidebarProps): JSX.Element {
   const location = useLocation();
   const activePath = location.pathname;
+  const navRef = useRef<HTMLDivElement | null>(null);
 
   const sections = useMemo(
     () => sidebar.filter(isCategory) as PropSidebarItemCategory[],
@@ -191,6 +193,15 @@ export default function DocSidebar({ sidebar }: DocSidebarProps): JSX.Element {
     setOpenSections((prev) => (prev.includes(label) ? [] : [label]));
   };
 
+  useEffect(() => {
+    const navEl = navRef.current;
+    if (!navEl) return;
+    const activeEl = navEl.querySelector('[data-active="true"]') as HTMLElement | null;
+    if (activeEl && typeof activeEl.scrollIntoView === 'function') {
+      activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [activePath]);
+
   const introHref = useMemo(() => {
     let introItem = sidebar.find(
       (item) => !isCategory(item) && 'docId' in item && item.docId === 'intro',
@@ -210,7 +221,7 @@ export default function DocSidebar({ sidebar }: DocSidebarProps): JSX.Element {
 
   return (
     <aside className={styles.sidebar} aria-label="Documentation navigation">
-      <nav className={styles.nav}>
+      <nav className={styles.nav} ref={navRef}>
         <Link
           to={introHref}
           className={clsx(styles.introLink, activePath === introHref && styles.introActive)}
