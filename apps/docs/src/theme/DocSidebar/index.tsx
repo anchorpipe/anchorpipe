@@ -11,8 +11,10 @@ import {
   FileText,
   HelpCircle,
   Rocket,
+  Search,
   Shield,
   Users,
+  X,
 } from 'lucide-react';
 import styles from './styles.module.css';
 
@@ -71,7 +73,7 @@ function SectionItems({
   items: PropSidebarItem[];
   activePath: string;
   parentKey: string;
-}) {
+}): React.ReactElement {
   return (
     <div className={styles.sectionItemsInner}>
       {items.map((item, idx) => {
@@ -95,6 +97,7 @@ function SectionItems({
         }
 
         const isActive = activePath.startsWith(href);
+        const itemLabel = 'label' in item ? item.label : '';
 
         return (
           <Link
@@ -103,7 +106,7 @@ function SectionItems({
             className={clsx(styles.sectionItem, isActive && styles.itemActive)}
             data-active={isActive ? 'true' : undefined}
           >
-            {item.label}
+            {itemLabel}
           </Link>
         );
       })}
@@ -121,7 +124,7 @@ function NavSection({
   isOpen: boolean;
   onToggle: () => void;
   activePath: string;
-}) {
+}): React.ReactElement {
   const Icon = iconMap[item.label] || FileText;
   const isActive = categoryHasActivePath(item, activePath) || isOpen;
   const sectionId = `sidebar-section-${item.label.replace(/\s+/g, '-').toLowerCase()}`;
@@ -154,15 +157,27 @@ function NavSection({
   );
 }
 
-export default function DocSidebar({ sidebar }: DocSidebarProps): JSX.Element {
+export default function DocSidebar({ sidebar }: DocSidebarProps): React.ReactElement {
   const location = useLocation();
   const activePath = location.pathname;
   const navRef = useRef<HTMLDivElement | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const sections = useMemo(
     () => sidebar.filter(isCategory) as PropSidebarItemCategory[],
-    [sidebar],
+    [sidebar]
   );
+
+  // Find which category contains the current page
+  const findActiveCategory = (): string | null => {
+    for (const category of sections) {
+      const hasActivePage = categoryHasActivePath(category, activePath);
+      if (hasActivePage) {
+        return category.label;
+      }
+    }
+    return null;
+  };
 
   const [openSections, setOpenSections] = useState<string[]>(() => {
     const stored = getStoredSections();
@@ -170,17 +185,22 @@ export default function DocSidebar({ sidebar }: DocSidebarProps): JSX.Element {
       return stored;
     }
 
+    // Auto-open the active category or default to "Getting Started"
+    const activeCategory = findActiveCategory();
+    if (activeCategory) {
+      return [activeCategory];
+    }
+
     const defaultOpen = sections.find((section) => section.label === 'Getting Started');
     return defaultOpen ? [defaultOpen.label] : [];
   });
 
+  // Auto-expand active category when route changes (auto-collapse others)
   useEffect(() => {
-    const activeLabels = sections
-      .filter((section) => categoryHasActivePath(section, activePath))
-      .map((section) => section.label);
-
-    if (activeLabels.length) {
-      setOpenSections(activeLabels);
+    const activeCategory = findActiveCategory();
+    if (activeCategory) {
+      // Only keep the active category expanded
+      setOpenSections([activeCategory]);
     }
   }, [activePath, sections]);
 
@@ -189,22 +209,38 @@ export default function DocSidebar({ sidebar }: DocSidebarProps): JSX.Element {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(openSections));
   }, [openSections]);
 
-  const toggleSection = (label: string) => {
-    setOpenSections((prev) => (prev.includes(label) ? [] : [label]));
+  const toggleSection = (label: string): void => {
+    setOpenSections((prev) => {
+      if (prev.includes(label)) {
+        // Don't allow collapsing if it's the only expanded section with active item
+        const activeCategory = findActiveCategory();
+        if (label === activeCategory && prev.length === 1) {
+          return prev;
+        }
+        return [];
+      }
+      // Auto-collapse: Close all others, open only this one
+      return [label];
+    });
   };
 
+  // Smooth scroll active item into view on route change
   useEffect(() => {
-    const navEl = navRef.current;
-    if (!navEl) return;
-    const activeEl = navEl.querySelector('[data-active="true"]') as HTMLElement | null;
-    if (activeEl && typeof activeEl.scrollIntoView === 'function') {
-      activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
+    const timer = setTimeout(() => {
+      const navEl = navRef.current;
+      if (!navEl) return;
+      const activeEl = navEl.querySelector('[data-active="true"]') as HTMLElement | null;
+      if (activeEl && typeof activeEl.scrollIntoView === 'function') {
+        activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 150); // Small delay to ensure DOM is updated after collapse animation
+
+    return () => clearTimeout(timer);
   }, [activePath]);
 
   const introHref = useMemo(() => {
     let introItem = sidebar.find(
-      (item) => !isCategory(item) && 'docId' in item && item.docId === 'intro',
+      (item) => !isCategory(item) && 'docId' in item && item.docId === 'intro'
     );
 
     if (!introItem) {
@@ -219,22 +255,80 @@ export default function DocSidebar({ sidebar }: DocSidebarProps): JSX.Element {
     return '/docs/intro';
   }, [sidebar]);
 
+  // Filter sections based on search query
+  const filteredSections = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return sections;
+    }
+
+    const query = searchQuery.toLowerCase();
+    return sections
+      .map((section) => {
+        const filteredItems = section.items.filter((item) => {
+          if (isCategory(item)) {
+            // For nested categories, check all nested items
+            return (
+              item.label.toLowerCase().includes(query) ||
+              item.items.some(
+                (nestedItem) =>
+                  'label' in nestedItem && nestedItem.label.toLowerCase().includes(query)
+              )
+            );
+          }
+          return 'label' in item && item.label.toLowerCase().includes(query);
+        });
+
+        return { ...section, items: filteredItems };
+      })
+      .filter((section) => section.items.length > 0);
+  }, [sections, searchQuery]);
+
   return (
     <aside className={styles.sidebar} aria-label="Documentation navigation">
-      <nav className={styles.nav} ref={navRef}>
-        <Link
-          to={introHref}
-          className={clsx(styles.introLink, activePath === introHref && styles.introActive)}
-        >
-          <FileText className={styles.introIcon} />
-          <span>Introduction</span>
-        </Link>
-
-        <div className={styles.divider} role="presentation">
-          <span>Documentation</span>
+      {/* Search Section */}
+      <div className={styles.searchContainer}>
+        <div className={styles.searchWrapper}>
+          <Search className={styles.searchIcon} />
+          <input
+            type="text"
+            placeholder="Search docs..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className={styles.searchInput}
+            aria-label="Search documentation"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className={styles.searchClear}
+              aria-label="Clear search"
+              type="button"
+            >
+              <X className={styles.searchClearIcon} />
+            </button>
+          )}
         </div>
+      </div>
 
-        {sections.map((item) => (
+      {/* Scrollable Navigation */}
+      <nav className={styles.nav} ref={navRef}>
+        {!searchQuery && (
+          <>
+            <Link
+              to={introHref}
+              className={clsx(styles.introLink, activePath === introHref && styles.introActive)}
+            >
+              <FileText className={styles.introIcon} />
+              <span>Introduction</span>
+            </Link>
+
+            <div className={styles.divider} role="presentation">
+              <span>Documentation</span>
+            </div>
+          </>
+        )}
+
+        {filteredSections.map((item) => (
           <NavSection
             key={item.label}
             item={item}
@@ -243,6 +337,20 @@ export default function DocSidebar({ sidebar }: DocSidebarProps): JSX.Element {
             onToggle={() => toggleSection(item.label)}
           />
         ))}
+
+        {/* Empty State */}
+        {filteredSections.length === 0 && searchQuery && (
+          <div className={styles.emptyState}>
+            <p className={styles.emptyStateText}>No results for "{searchQuery}"</p>
+            <button
+              onClick={() => setSearchQuery('')}
+              className={styles.emptyStateButton}
+              type="button"
+            >
+              Clear search
+            </button>
+          </div>
+        )}
       </nav>
 
       <div className={styles.helpSection}>
@@ -262,4 +370,3 @@ export default function DocSidebar({ sidebar }: DocSidebarProps): JSX.Element {
     </aside>
   );
 }
-
