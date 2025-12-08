@@ -1,5 +1,18 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import clsx from 'clsx';
+
+// Type declaration for custom-scrollbar web component
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace JSX {
+    interface IntrinsicElements {
+      'custom-scrollbar': React.DetailedHTMLProps<
+        React.HTMLAttributes<HTMLElement>,
+        HTMLElement
+      >;
+    }
+  }
+}
 import Link from '@docusaurus/Link';
 import { useLocation } from '@docusaurus/router';
 import type { PropSidebarItem, PropSidebarItemCategory } from '@docusaurus/plugin-content-docs';
