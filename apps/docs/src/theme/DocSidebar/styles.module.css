@@ -16,6 +16,9 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 0.35rem;
 }
 
 .introLink {
@@ -144,7 +147,7 @@
 }
 
 .sectionItemsExpanded {
-  max-height: 600px;
+  max-height: 1200px;
   opacity: 1;
   padding: 0.2rem 0.8rem 0.8rem;
 }
@@ -235,6 +238,11 @@
     position: static;
     height: auto;
     top: auto;
+  }
+
+  .nav {
+    overflow: visible;
+    padding-right: 0;
   }
 }
 
