@@ -14,8 +14,8 @@
     "db:health": "tsx src/health-check.ts"
   },
   "dependencies": {
-    "@prisma/client": "^7.0.1",
-    "@prisma/adapter-pg": "^7.0.1",
+    "@prisma/client": "^7.1.0",
+    "@prisma/adapter-pg": "^7.1.0",
     "pg": "^8.13.1"
   },
   "devDependencies": {
