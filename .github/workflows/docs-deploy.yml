@@ -94,7 +94,7 @@ jobs:
         if: |
           steps.check-secrets.outputs.skip_comment == 'false' &&
           steps.get-preview-url.outputs.preview-url != ''
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const previewUrl = '${{ steps.get-preview-url.outputs.preview-url }}';
