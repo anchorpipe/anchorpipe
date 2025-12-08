@@ -17,5 +17,6 @@
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true
   },
+  "include": ["src/**/*"],
   "exclude": [".docusaurus", "build"]
 }
