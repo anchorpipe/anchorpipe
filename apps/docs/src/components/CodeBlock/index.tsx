@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Check, Copy } from 'lucide-react';
 import clsx from 'clsx';
+import Highlight, { defaultProps, Language } from 'prism-react-renderer';
+import theme from 'prism-react-renderer/themes/github';
 import styles from './styles.module.css';
 
 interface CodeBlockProps {
@@ -13,12 +15,13 @@ interface CodeBlockProps {
 
 export default function CodeBlock({
   code,
-  language: _language = 'bash',
+  language: languageProp = 'bash',
   filename,
   showLineNumbers = false,
   className,
 }: CodeBlockProps) {
   const [copied, setCopied] = useState(false);
+  const language = (languageProp || 'bash') as Language;
 
   const handleCopy = async () => {
     try {
@@ -72,27 +75,40 @@ export default function CodeBlock({
           </button>
         </div>
 
-        {/* Code */}
-        <pre className={styles.pre}>
-          <code className={styles.code}>
-            {code.split('\n').map((line, i) => (
-              <div
-                key={i}
-                className={clsx(styles.line, {
-                  [styles.comment]:
-                    line.trim().startsWith('#') ||
-                    line.trim().startsWith('//') ||
-                    line.trim().startsWith('/*'),
-                  [styles.addition]: line.trim().startsWith('+'),
-                  [styles.deletion]: line.trim().startsWith('-') && !line.trim().startsWith('--'),
+        {/* Code with syntax highlighting */}
+        <Highlight {...defaultProps} code={code} language={language} theme={theme}>
+          {({ className: highlightClassName, style, tokens, getLineProps, getTokenProps }) => (
+            <pre className={clsx(styles.pre, highlightClassName)} style={style}>
+              <code className={styles.code}>
+                {tokens.map((lineTokens, i) => {
+                  const rawLine = lineTokens.map((token) => token.content).join('');
+                  const isComment =
+                    rawLine.trim().startsWith('#') ||
+                    rawLine.trim().startsWith('//') ||
+                    rawLine.trim().startsWith('/*');
+                  const isAddition = rawLine.trim().startsWith('+');
+                  const isDeletion =
+                    rawLine.trim().startsWith('-') && !rawLine.trim().startsWith('--');
+
+                  const lineClassName = clsx(styles.line, {
+                    [styles.comment]: isComment,
+                    [styles.addition]: isAddition,
+                    [styles.deletion]: isDeletion,
+                  });
+
+                  return (
+                    <div {...getLineProps({ line: lineTokens, key: i, className: lineClassName })}>
+                      {showLineNumbers && <span className={styles.lineNumber}>{i + 1}</span>}
+                      {lineTokens.map((token, key) => (
+                        <span key={key} {...getTokenProps({ token, key })} />
+                      ))}
+                    </div>
+                  );
                 })}
-              >
-                {showLineNumbers && <span className={styles.lineNumber}>{i + 1}</span>}
-                {line || ' '}
-              </div>
-            ))}
-          </code>
-        </pre>
+              </code>
+            </pre>
+          )}
+        </Highlight>
       </div>
     </div>
   );

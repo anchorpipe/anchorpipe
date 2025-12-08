@@ -14,6 +14,7 @@ The CodeBlock component is a terminal-style code block with copy functionality, 
 - **Filename display** (optional)
 - **Line numbers** (optional)
 - **Comment/addition/deletion highlighting**
+- **Prism-based syntax highlighting** via `prism-react-renderer`
 - **Glow effect** on hover
 - **Responsive design** for mobile devices
 
@@ -103,7 +104,7 @@ On hover, the code block shows a subtle glow effect:
 - **Font**: JetBrains Mono (design system monospace font)
 - **Background**: Surface-1 color from design system
 - **Border**: Subtle border with opacity
-- **Syntax highlighting**: Supports comment, addition, and deletion highlighting
+- **Syntax highlighting**: Prism renderer plus comment/addition/deletion highlighting
 
 ## Accessibility
 
