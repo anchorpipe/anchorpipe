@@ -34,4 +34,3 @@ The sidebar automatically consumes the generated docs sidebar data (`apps/docs/s
 
 - `npm run lint` — lint and type checks
 - `npm run build` — ensure Docusaurus build succeeds and sidebar renders
-

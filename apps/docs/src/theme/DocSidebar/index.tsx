@@ -63,15 +63,28 @@ const getStoredSections = (): string[] => {
   }
 };
 
-function SectionItems({ items, activePath }: { items: PropSidebarItem[]; activePath: string }) {
+function SectionItems({
+  items,
+  activePath,
+  parentKey,
+}: {
+  items: PropSidebarItem[];
+  activePath: string;
+  parentKey: string;
+}) {
   return (
     <div className={styles.sectionItemsInner}>
-      {items.map((item) => {
+      {items.map((item, idx) => {
+        const itemKey = `${parentKey}-${idx}-${'label' in item ? item.label : 'item'}`;
         if (isCategory(item)) {
           return (
-            <div key={item.label} className={styles.nestedCategory}>
+            <div key={itemKey} className={styles.nestedCategory}>
               <div className={styles.nestedCategoryLabel}>{item.label}</div>
-              <SectionItems items={item.items} activePath={activePath} />
+              <SectionItems
+                items={item.items}
+                activePath={activePath}
+                parentKey={`${itemKey}-${item.label}`}
+              />
             </div>
           );
         }
@@ -85,7 +98,7 @@ function SectionItems({ items, activePath }: { items: PropSidebarItem[]; activeP
 
         return (
           <Link
-            key={href}
+            key={itemKey}
             to={href}
             className={clsx(styles.sectionItem, isActive && styles.itemActive)}
           >
@@ -134,7 +147,7 @@ function NavSection({
         role="group"
         aria-label={`${item.label} links`}
       >
-        <SectionItems items={item.items} activePath={activePath} />
+        <SectionItems items={item.items} activePath={activePath} parentKey={item.label} />
       </div>
     </div>
   );
@@ -183,9 +196,13 @@ export default function DocSidebar({ sidebar }: DocSidebarProps): JSX.Element {
   };
 
   const introHref = useMemo(() => {
-    const introItem = sidebar.find(
-      (item) => (!isCategory(item) && 'docId' in item && item.docId === 'intro') || 'href' in item,
+    let introItem = sidebar.find(
+      (item) => !isCategory(item) && 'docId' in item && item.docId === 'intro',
     );
+
+    if (!introItem) {
+      introItem = sidebar.find((item) => !isCategory(item) && 'href' in item && item.href);
+    }
 
     if (introItem) {
       const href = getItemHref(introItem);
