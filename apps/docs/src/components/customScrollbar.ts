@@ -170,11 +170,11 @@ export const ensureCustomScrollbar = (): void => {
       const horizontalMax = Math.max(scrollWidth - clientWidth, 1);
 
       const verticalThumbTop =
-        ((scrollTop / verticalMax) * (100 - (clientHeight / scrollHeight) * 100)) || 0;
+        (scrollTop / verticalMax) * (100 - (clientHeight / scrollHeight) * 100) || 0;
       this._verticalThumb.style.top = `${verticalThumbTop}%`;
 
       const horizontalThumbLeft =
-        ((scrollLeft / horizontalMax) * (100 - (clientWidth / scrollWidth) * 100)) || 0;
+        (scrollLeft / horizontalMax) * (100 - (clientWidth / scrollWidth) * 100) || 0;
       this._horizontalThumb.style.left = `${horizontalThumbLeft}%`;
     }
 
@@ -253,18 +253,3 @@ export const ensureCustomScrollbar = (): void => {
   customElements.define('custom-scrollbar', CustomScrollbar);
   isDefined = true;
 };
-
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      'custom-scrollbar': React.DetailedHTMLProps<
-        React.HTMLAttributes<HTMLElement>,
-        HTMLElement
-      >;
-    }
-  }
-}
-
-// Ensure global augmentation is applied in module scope
-export {};
-
