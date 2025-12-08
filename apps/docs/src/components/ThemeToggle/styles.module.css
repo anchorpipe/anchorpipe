@@ -1,0 +1,61 @@
+.toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.625rem;
+  border: 1px solid hsl(var(--border) / 0.6);
+  background: hsl(var(--surface-1));
+  color: hsl(var(--foreground));
+  cursor: pointer;
+  transition:
+    background 0.2s var(--ease-smooth),
+    border-color 0.2s var(--ease-smooth),
+    box-shadow 0.2s var(--ease-smooth);
+}
+
+.toggle:hover {
+  background: hsl(var(--surface-2));
+  border-color: hsl(var(--border));
+  box-shadow: 0 6px 20px -10px hsl(var(--primary) / 0.35);
+}
+
+.toggle:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+.toggle:active {
+  transform: scale(0.98);
+}
+
+.iconContainer {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  transition:
+    transform 0.3s var(--ease-smooth),
+    opacity 0.2s var(--ease-smooth);
+  color: hsl(var(--foreground));
+}
+
+.sun {
+  transform: rotate(0deg) scale(1);
+}
+
+.moon {
+  position: absolute;
+  transform: rotate(0deg) scale(1);
+}
+
+.hidden {
+  opacity: 0;
+  transform: rotate(90deg) scale(0);
+}
