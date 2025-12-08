@@ -4,10 +4,7 @@ import 'react';
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      'custom-scrollbar': React.DetailedHTMLProps<
-        React.HTMLAttributes<HTMLElement>,
-        HTMLElement
-      >;
+      'custom-scrollbar': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
     }
   }
 }
