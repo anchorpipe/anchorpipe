@@ -177,11 +177,9 @@ export default function DocSidebar({ sidebar }: DocSidebarProps): JSX.Element {
       .filter((section) => categoryHasActivePath(section, activePath))
       .map((section) => section.label);
 
-    setOpenSections((prev) => {
-      const next = new Set(prev);
-      activeLabels.forEach((label) => next.add(label));
-      return Array.from(next);
-    });
+    if (activeLabels.length) {
+      setOpenSections(activeLabels);
+    }
   }, [activePath, sections]);
 
   useEffect(() => {
@@ -190,9 +188,7 @@ export default function DocSidebar({ sidebar }: DocSidebarProps): JSX.Element {
   }, [openSections]);
 
   const toggleSection = (label: string) => {
-    setOpenSections((prev) =>
-      prev.includes(label) ? prev.filter((item) => item !== label) : [...prev, label],
-    );
+    setOpenSections((prev) => (prev.includes(label) ? [] : [label]));
   };
 
   const introHref = useMemo(() => {
