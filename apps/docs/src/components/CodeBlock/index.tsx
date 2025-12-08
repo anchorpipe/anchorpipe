@@ -13,7 +13,7 @@ interface CodeBlockProps {
 
 export default function CodeBlock({
   code,
-  language = 'bash',
+  language: _language = 'bash',
   filename,
   showLineNumbers = false,
   className,
