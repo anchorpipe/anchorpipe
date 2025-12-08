@@ -28,6 +28,8 @@
     "@docusaurus/module-type-aliases": "3.9.2",
     "@docusaurus/tsconfig": "3.9.2",
     "@docusaurus/types": "3.9.2",
+    "@tailwindcss/oxide-linux-x64-gnu": "^4.1.17",
+    "@tailwindcss/oxide-linux-x64-musl": "^4.1.17",
     "@tailwindcss/postcss": "^4.1.17",
     "autoprefixer": "^10.4.22",
     "postcss": "^8.5.6",
