@@ -19,14 +19,34 @@
 }
 
 .container {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  width: 100%;
+  height: 64px;
+  margin: 0;
+  padding: 0 1rem;
+  gap: 1rem;
+}
+
+.left {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  max-width: 1200px;
-  height: 64px;
+  gap: 0.5rem;
+  justify-self: start;
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+  justify-self: center;
+  min-width: 0;
+  width: 100%;
+}
+
+.searchWrapper {
+  width: min(640px, 100%);
   margin: 0 auto;
-  padding: 0 1.5rem;
-  gap: 1rem;
 }
 
 .logo {
@@ -40,23 +60,11 @@
   font-size: 1rem;
 }
 
-.logoMark {
+.logoImage {
   width: 2.25rem;
   height: 2.25rem;
-  border-radius: 0.75rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: radial-gradient(
-    circle at 30% 30%,
-    hsl(var(--primary) / 0.3),
-    hsl(var(--primary) / 0.05)
-  );
-  color: hsl(var(--primary));
-  font-size: 1.1rem;
-  box-shadow:
-    0 12px 30px -18px hsl(var(--primary) / 0.7),
-    inset 0 1px 0 hsl(var(--primary) / 0.4);
+  display: block;
+  object-fit: contain;
 }
 
 .logoText {
@@ -66,7 +74,7 @@
 .desktopNav {
   display: none;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .navLink {
@@ -111,8 +119,36 @@
   gap: 0.75rem;
 }
 
+.right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  justify-self: end;
+}
+
 .ctaLink {
   text-decoration: none;
+}
+
+.iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid hsl(var(--border) / 0.7);
+  background: hsl(var(--surface-1));
+  color: hsl(var(--foreground));
+  transition:
+    background 0.2s var(--ease-smooth),
+    border-color 0.2s var(--ease-smooth);
+}
+
+.iconButton:hover {
+  background: hsl(var(--surface-2));
+  border-color: hsl(var(--border));
 }
 
 .mobileToggle {
@@ -169,6 +205,7 @@
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  align-items: stretch;
 }
 
 .mobileNav {
@@ -220,5 +257,14 @@
   .mobileToggle,
   .mobileMenu {
     display: none;
+  }
+
+  .searchWrapper :global(.navbar__search-input) {
+    width: 100%;
+  }
+
+  .searchWrapper :global(.DocSearch-Button) {
+    width: 100%;
+    justify-content: space-between;
   }
 }

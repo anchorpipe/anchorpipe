@@ -6,6 +6,7 @@ import clsx from 'clsx';
 import { Github, Menu, X } from 'lucide-react';
 import ThemeToggle from '@site/src/components/ThemeToggle';
 import Button from '@site/src/components/Button';
+import SearchBar from '@theme/SearchBar';
 import styles from './styles.module.css';
 
 interface NavLink {
@@ -49,58 +50,49 @@ export default function Navbar(): JSX.Element {
   return (
     <nav className={clsx('navbar', styles.navbar, scrolled && styles.scrolled)}>
       <div className={styles.container}>
-        <Link to="/" className={styles.logo} aria-label="Anchorpipe home">
-          <div className={styles.logoMark}>⚓</div>
-          <span className={styles.logoText}>{siteConfig.title}</span>
-        </Link>
-
-        <div className={styles.desktopNav}>
-          {navLinks.map((link) =>
-            link.external ? (
-              <a
-                key={link.label}
-                href={link.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.navLink}
-              >
-                {link.label}
-                <Github className={styles.externalIcon} aria-hidden />
-              </a>
-            ) : (
-              <Link
-                key={link.label}
-                to={link.href}
-                className={clsx(
-                  styles.navLink,
-                  location.pathname.startsWith(link.href) && styles.active
-                )}
-              >
-                {link.label}
-              </Link>
-            )
-          )}
-        </div>
-
-        <div className={styles.desktopActions}>
-          <ThemeToggle />
-          <Link to="/docs/getting-started/quick-start" className={styles.ctaLink}>
-            <Button variant="default" size="sm">
-              Get Started
-            </Button>
+        <div className={styles.left}>
+          <Link to="/" className={styles.logo} aria-label="Anchorpipe home">
+            <img src="/img/logo.svg" alt="Anchorpipe logo" className={styles.logoImage} />
+            <span className={styles.logoText}>{siteConfig.title}</span>
           </Link>
         </div>
 
-        <button
-          type="button"
-          className={styles.mobileToggle}
-          onClick={toggleMenu}
-          aria-label="Toggle navigation menu"
-          aria-expanded={isOpen}
-          aria-controls="mobile-menu"
-        >
-          {isOpen ? <X aria-hidden /> : <Menu aria-hidden />}
-        </button>
+        <div className={styles.center}>
+          <div className={styles.searchWrapper}>
+            <SearchBar />
+          </div>
+        </div>
+
+        <div className={styles.right}>
+          <div className={styles.desktopActions}>
+            <a
+              href="https://github.com/anchorpipe/anchorpipe"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.iconButton}
+              aria-label="GitHub repository"
+            >
+              <Github aria-hidden />
+            </a>
+            <ThemeToggle />
+            <Link to="/docs/getting-started/quick-start" className={styles.ctaLink}>
+              <Button variant="default" size="sm">
+                Get Started
+              </Button>
+            </Link>
+          </div>
+
+          <button
+            type="button"
+            className={styles.mobileToggle}
+            onClick={toggleMenu}
+            aria-label="Toggle navigation menu"
+            aria-expanded={isOpen}
+            aria-controls="mobile-menu"
+          >
+            {isOpen ? <X aria-hidden /> : <Menu aria-hidden />}
+          </button>
+        </div>
       </div>
 
       <div

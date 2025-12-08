@@ -11,11 +11,10 @@ import {
   FileText,
   HelpCircle,
   Rocket,
-  Search,
   Shield,
   Users,
-  X,
 } from 'lucide-react';
+import { ensureCustomScrollbar } from '@site/src/components/customScrollbar';
 import styles from './styles.module.css';
 
 const STORAGE_KEY = 'docsSidebarOpenSections';
@@ -28,8 +27,8 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Contributing: Users,
 };
 
-const isCategory = (item: PropSidebarItem): item is PropSidebarItemCategory =>
-  item.type === 'category';
+const isCategory = (item: PropSidebarItem | undefined | null): item is PropSidebarItemCategory =>
+  Boolean(item && 'type' in item && item.type === 'category');
 
 const getItemHref = (item: PropSidebarItem): string | undefined => {
   if ('href' in item && item.href) {
@@ -44,7 +43,7 @@ const getItemHref = (item: PropSidebarItem): string | undefined => {
 };
 
 const categoryHasActivePath = (category: PropSidebarItemCategory, pathname: string): boolean =>
-  category.items.some((child) => {
+  (category.items ?? []).some((child) => {
     if (isCategory(child)) {
       return categoryHasActivePath(child, pathname);
     }
@@ -70,23 +69,78 @@ function SectionItems({
   activePath,
   parentKey,
 }: {
-  items: PropSidebarItem[];
+  items: PropSidebarItem[] | undefined;
   activePath: string;
   parentKey: string;
 }): React.ReactElement {
+  const [openChildKey, setOpenChildKey] = useState<string | null>(null);
+
+  useEffect(() => {
+    const indexedItems = (items ?? []).map((child, idx) => ({ child, idx }));
+    const activeChildEntry = indexedItems.find(
+      ({ child }) => isCategory(child) && categoryHasActivePath(child, activePath)
+    );
+
+    if (activeChildEntry && isCategory(activeChildEntry.child)) {
+      const activeKey = `${parentKey}-${activeChildEntry.idx}-${activeChildEntry.child.label ?? 'item'}`;
+      if (activeKey !== openChildKey) {
+        setOpenChildKey(activeKey);
+      }
+    }
+    // Only react to route/item changes; keep manual toggles intact.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items, activePath, parentKey]);
+
   return (
     <div className={styles.sectionItemsInner}>
-      {items.map((item, idx) => {
+      {(items ?? []).map((item, idx) => {
+        if (!item || !('type' in item)) {
+          return null;
+        }
+
         const itemKey = `${parentKey}-${idx}-${'label' in item ? item.label : 'item'}`;
         if (isCategory(item)) {
+          const children = item.items ?? [];
+          if (children.length === 0) {
+            return null;
+          }
+
+          const childActive = categoryHasActivePath(item, activePath);
+          const isChildOpen = openChildKey === itemKey || childActive;
+          const childId = `${itemKey}-child`;
+          const nestedLabel = item.label ?? 'Section';
+
           return (
             <div key={itemKey} className={styles.nestedCategory}>
-              <div className={styles.nestedCategoryLabel}>{item.label}</div>
-              <SectionItems
-                items={item.items}
-                activePath={activePath}
-                parentKey={`${itemKey}-${item.label}`}
-              />
+              <button
+                type="button"
+                className={clsx(
+                  styles.sectionButton,
+                  styles.nestedSectionButton,
+                  (childActive || isChildOpen) && styles.sectionButtonActive
+                )}
+                onClick={() => setOpenChildKey(isChildOpen ? null : itemKey)}
+                aria-expanded={isChildOpen}
+                aria-controls={childId}
+              >
+                <span className={styles.sectionLabel}>
+                  <span className={styles.nestedCategoryLabel}>{nestedLabel}</span>
+                </span>
+                <ChevronRight className={clsx(styles.chevron, isChildOpen && styles.chevronOpen)} />
+              </button>
+
+              <div
+                id={childId}
+                className={clsx(styles.sectionItems, isChildOpen && styles.sectionItemsExpanded)}
+                role="group"
+                aria-label={`${item.label} links`}
+              >
+                <SectionItems
+                  items={item.items}
+                  activePath={activePath}
+                  parentKey={`${itemKey}-${item.label}`}
+                />
+              </div>
             </div>
           );
         }
@@ -161,10 +215,9 @@ export default function DocSidebar({ sidebar }: DocSidebarProps): React.ReactEle
   const location = useLocation();
   const activePath = location.pathname;
   const navRef = useRef<HTMLDivElement | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
 
   const sections = useMemo(
-    () => sidebar.filter(isCategory) as PropSidebarItemCategory[],
+    () => (sidebar.filter(isCategory) as PropSidebarItemCategory[]) ?? [],
     [sidebar]
   );
 
@@ -209,15 +262,20 @@ export default function DocSidebar({ sidebar }: DocSidebarProps): React.ReactEle
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(openSections));
   }, [openSections]);
 
+  useEffect(() => {
+    ensureCustomScrollbar();
+  }, []);
+
   const toggleSection = (label: string): void => {
     setOpenSections((prev) => {
+      const activeCategory = findActiveCategory();
       if (prev.includes(label)) {
-        // Don't allow collapsing if it's the only expanded section with active item
-        const activeCategory = findActiveCategory();
-        if (label === activeCategory && prev.length === 1) {
-          return prev;
+        // If this is the active category, keep it open
+        if (label === activeCategory) {
+          return [label];
         }
-        return [];
+        // Otherwise, close this one but preserve the active category if it exists
+        return activeCategory ? [activeCategory] : [label];
       }
       // Auto-collapse: Close all others, open only this one
       return [label];
@@ -256,64 +314,12 @@ export default function DocSidebar({ sidebar }: DocSidebarProps): React.ReactEle
   }, [sidebar]);
 
   // Filter sections based on search query
-  const filteredSections = useMemo(() => {
-    if (!searchQuery.trim()) {
-      return sections;
-    }
-
-    const query = searchQuery.toLowerCase();
-    return sections
-      .map((section) => {
-        const filteredItems = section.items.filter((item) => {
-          if (isCategory(item)) {
-            // For nested categories, check all nested items
-            return (
-              item.label.toLowerCase().includes(query) ||
-              item.items.some(
-                (nestedItem) =>
-                  'label' in nestedItem && nestedItem.label.toLowerCase().includes(query)
-              )
-            );
-          }
-          return 'label' in item && item.label.toLowerCase().includes(query);
-        });
-
-        return { ...section, items: filteredItems };
-      })
-      .filter((section) => section.items.length > 0);
-  }, [sections, searchQuery]);
-
   return (
     <aside className={styles.sidebar} aria-label="Documentation navigation">
-      {/* Search Section */}
-      <div className={styles.searchContainer}>
-        <div className={styles.searchWrapper}>
-          <Search className={styles.searchIcon} />
-          <input
-            type="text"
-            placeholder="Search docs..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className={styles.searchInput}
-            aria-label="Search documentation"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery('')}
-              className={styles.searchClear}
-              aria-label="Clear search"
-              type="button"
-            >
-              <X className={styles.searchClearIcon} />
-            </button>
-          )}
-        </div>
-      </div>
-
       {/* Scrollable Navigation */}
-      <nav className={styles.nav} ref={navRef}>
-        {!searchQuery && (
-          <>
+      <custom-scrollbar class={styles.customScrollbar}>
+        <div className={styles.navWrapper}>
+          <nav className={styles.nav} ref={navRef}>
             <Link
               to={introHref}
               className={clsx(styles.introLink, activePath === introHref && styles.introActive)}
@@ -325,33 +331,19 @@ export default function DocSidebar({ sidebar }: DocSidebarProps): React.ReactEle
             <div className={styles.divider} role="presentation">
               <span>Documentation</span>
             </div>
-          </>
-        )}
 
-        {filteredSections.map((item) => (
-          <NavSection
-            key={item.label}
-            item={item}
-            activePath={activePath}
-            isOpen={openSections.includes(item.label)}
-            onToggle={() => toggleSection(item.label)}
-          />
-        ))}
-
-        {/* Empty State */}
-        {filteredSections.length === 0 && searchQuery && (
-          <div className={styles.emptyState}>
-            <p className={styles.emptyStateText}>No results for "{searchQuery}"</p>
-            <button
-              onClick={() => setSearchQuery('')}
-              className={styles.emptyStateButton}
-              type="button"
-            >
-              Clear search
-            </button>
-          </div>
-        )}
-      </nav>
+            {sections.map((item) => (
+              <NavSection
+                key={item.label}
+                item={item}
+                activePath={activePath}
+                isOpen={openSections.includes(item.label)}
+                onToggle={() => toggleSection(item.label)}
+              />
+            ))}
+          </nav>
+        </div>
+      </custom-scrollbar>
 
       <div className={styles.helpSection}>
         <div className={styles.helpLabel}>
