@@ -14,6 +14,3 @@ export default function Footer(props: Props): JSX.Element | null {
 
   return <OriginalFooter {...props} />;
 }
-
-
-
