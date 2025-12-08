@@ -7,7 +7,9 @@ declare global {
   namespace JSX {
     interface IntrinsicElements {
       'custom-scrollbar': React.DetailedHTMLProps<
-        React.HTMLAttributes<HTMLElement>,
+        React.HTMLAttributes<HTMLElement> & {
+          className?: string;
+        },
         HTMLElement
       >;
     }
@@ -16,6 +18,7 @@ declare global {
 import Link from '@docusaurus/Link';
 import { useLocation } from '@docusaurus/router';
 import type { PropSidebarItem, PropSidebarItemCategory } from '@docusaurus/plugin-content-docs';
+// @ts-expect-error: No type declarations for @theme/DocSidebar in local build, skip strict import
 import type { Props as DocSidebarProps } from '@theme/DocSidebar';
 import {
   Book,
@@ -330,7 +333,9 @@ export default function DocSidebar({ sidebar }: DocSidebarProps): React.ReactEle
   return (
     <aside className={styles.sidebar} aria-label="Documentation navigation">
       {/* Scrollable Navigation */}
-      <custom-scrollbar class={styles.customScrollbar}>
+      {React.createElement(
+        'custom-scrollbar',
+        { className: styles.customScrollbar },
         <div className={styles.navWrapper}>
           <nav className={styles.nav} ref={navRef}>
             <Link
@@ -356,7 +361,7 @@ export default function DocSidebar({ sidebar }: DocSidebarProps): React.ReactEle
             ))}
           </nav>
         </div>
-      </custom-scrollbar>
+      )}
 
       <div className={styles.helpSection}>
         <div className={styles.helpLabel}>

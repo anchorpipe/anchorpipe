@@ -83,6 +83,7 @@ export const ensureCustomScrollbar = (): void => {
     private _resizeObserver?: ResizeObserver;
     private _rafs: number[] = [];
     private _isDraggingThumb = false;
+    private _draggingThumb: 'vertical' | 'horizontal' | null = null;
     private _dragStartPos = { x: 0, y: 0 };
     private _thumbStartPos = { x: 0, y: 0 };
 
@@ -181,20 +182,21 @@ export const ensureCustomScrollbar = (): void => {
     private _handleThumbMouseDown = (e: MouseEvent) => {
       e.preventDefault();
       e.stopPropagation();
-      this._isDraggingThumb = true;
-      this._dragStartPos = { x: e.clientX, y: e.clientY };
       const thumb = e.target as HTMLElement;
+      const isVertical = thumb.classList.contains('vertical');
+
+      this._isDraggingThumb = true;
+      this._draggingThumb = isVertical ? 'vertical' : 'horizontal';
+      this._dragStartPos = { x: e.clientX, y: e.clientY };
       this._thumbStartPos = { x: thumb.offsetLeft, y: thumb.offsetTop };
       thumb.classList.add('dragging');
     };
 
     private _handleThumbMouseMove = (e: MouseEvent) => {
-      if (!this._isDraggingThumb) return;
+      if (!this._isDraggingThumb || !this._draggingThumb) return;
       e.preventDefault();
-      const thumb = e.target as HTMLElement;
-      const isVertical = thumb.classList.contains('vertical');
 
-      if (isVertical) {
+      if (this._draggingThumb === 'vertical') {
         const deltaY = e.clientY - this._dragStartPos.y;
         const trackHeight = this._verticalTrack.clientHeight;
         const thumbHeight = this._verticalThumb.clientHeight;
@@ -222,6 +224,7 @@ export const ensureCustomScrollbar = (): void => {
     private _handleThumbMouseUp = () => {
       if (this._isDraggingThumb) {
         this._isDraggingThumb = false;
+        this._draggingThumb = null;
         this._verticalThumb.classList.remove('dragging');
         this._horizontalThumb.classList.remove('dragging');
       }

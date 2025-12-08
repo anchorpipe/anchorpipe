@@ -31,6 +31,16 @@
   flex: 1;
   min-height: 0;
   display: block;
+  height: 100%;
+  overflow: hidden;
+  /* Custom scrollbar styling */
+  --scrollbar-size: 8px;
+  --scrollbar-track-background: hsl(var(--border) / 0.3);
+  --scrollbar-thumb-background: hsl(var(--muted-foreground) / 0.5);
+  --scrollbar-thumb-opacity: 0.6;
+  --scrollbar-thumb-hover-opacity: 0.9;
+  --scrollbar-track-border-radius: 4px;
+  --scrollbar-thumb-border-radius: 4px;
 }
 
 .navWrapper {
