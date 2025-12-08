@@ -47,7 +47,7 @@ export default function Navbar(): JSX.Element {
   const toggleMenu = () => setIsOpen((prev) => !prev);
 
   return (
-    <nav className={clsx(styles.navbar, scrolled && styles.scrolled)}>
+    <nav className={clsx('navbar', styles.navbar, scrolled && styles.scrolled)}>
       <div className={styles.container}>
         <Link to="/" className={styles.logo} aria-label="Anchorpipe home">
           <div className={styles.logoMark}>⚓</div>
