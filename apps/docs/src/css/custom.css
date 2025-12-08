@@ -349,6 +349,27 @@ table tr:hover {
   padding-bottom: 2rem;
 }
 
+/* Ensure main content scrolls independently of sidebar */
+.theme-doc-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-wrapper {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0; /* allow inner areas to scroll */
+}
+
+.main-wrapper .container,
+.main-wrapper .container.main-container {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding-bottom: 2rem;
+}
+
 /* Smooth scrolling for sidebar */
 .theme-doc-sidebar-container::-webkit-scrollbar {
   width: 6px;

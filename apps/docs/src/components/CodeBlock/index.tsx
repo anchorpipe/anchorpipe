@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Check, Copy } from 'lucide-react';
 import clsx from 'clsx';
-import Highlight, { defaultProps, Language } from 'prism-react-renderer';
-import theme from 'prism-react-renderer/themes/github';
+import { Highlight, Language, PrismTheme, themes } from 'prism-react-renderer';
 import styles from './styles.module.css';
 
 interface CodeBlockProps {
@@ -41,6 +40,8 @@ export default function CodeBlock({
     }
   };
 
+  const theme = themes.github as PrismTheme;
+
   return (
     <div className={clsx(styles.codeBlock, className)}>
       {/* Glow effect on hover */}
@@ -76,7 +77,7 @@ export default function CodeBlock({
         </div>
 
         {/* Code with syntax highlighting */}
-        <Highlight {...defaultProps} code={code} language={language} theme={theme}>
+        <Highlight code={code} language={language} theme={theme}>
           {({ className: highlightClassName, style, tokens, getLineProps, getTokenProps }) => (
             <pre className={clsx(styles.pre, highlightClassName)} style={style}>
               <code className={styles.code}>
