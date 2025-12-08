@@ -1,0 +1,224 @@
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  background: hsl(var(--background) / 0.75);
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid hsl(var(--border) / 0.6);
+  transition:
+    background 0.2s var(--ease-smooth),
+    box-shadow 0.2s var(--ease-smooth),
+    border-color 0.2s var(--ease-smooth);
+}
+
+.scrolled {
+  background: hsl(var(--background) / 0.9);
+  box-shadow: 0 10px 30px -15px hsl(var(--foreground) / 0.15);
+  border-color: hsl(var(--border));
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  height: 64px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  gap: 1rem;
+}
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-decoration: none;
+  color: hsl(var(--foreground));
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  font-size: 1rem;
+}
+
+.logoMark {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(
+    circle at 30% 30%,
+    hsl(var(--primary) / 0.3),
+    hsl(var(--primary) / 0.05)
+  );
+  color: hsl(var(--primary));
+  font-size: 1.1rem;
+  box-shadow:
+    0 12px 30px -18px hsl(var(--primary) / 0.7),
+    inset 0 1px 0 hsl(var(--primary) / 0.4);
+}
+
+.logoText {
+  white-space: nowrap;
+}
+
+.desktopNav {
+  display: none;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.navLink {
+  position: relative;
+  color: hsl(var(--muted-foreground));
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: color 0.2s var(--ease-smooth);
+}
+
+.navLink:hover {
+  color: hsl(var(--foreground));
+}
+
+.active {
+  color: hsl(var(--primary));
+}
+
+.navLink.active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.35rem;
+  height: 2px;
+  border-radius: 999px;
+  background: hsl(var(--primary));
+  opacity: 0.9;
+}
+
+.externalIcon {
+  width: 0.9rem;
+  height: 0.9rem;
+  margin-left: 0.35rem;
+  opacity: 0.7;
+}
+
+.desktopActions {
+  display: none;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.ctaLink {
+  text-decoration: none;
+}
+
+.mobileToggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid hsl(var(--border) / 0.7);
+  background: hsl(var(--surface-1));
+  color: hsl(var(--foreground));
+  cursor: pointer;
+  transition:
+    background 0.2s var(--ease-smooth),
+    border-color 0.2s var(--ease-smooth);
+}
+
+.mobileToggle:hover {
+  background: hsl(var(--surface-2));
+  border-color: hsl(var(--border));
+}
+
+.mobileToggle:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+.mobileMenu {
+  position: fixed;
+  top: 64px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: hsl(var(--background) / 0.95);
+  backdrop-filter: blur(18px);
+  opacity: 0;
+  transform: translateY(-6px);
+  pointer-events: none;
+  transition:
+    opacity 0.25s var(--ease-smooth),
+    transform 0.25s var(--ease-smooth);
+  z-index: 90;
+}
+
+.mobileMenuOpen {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.mobileMenuInner {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.mobileNav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.mobileNavLink {
+  text-decoration: none;
+  color: hsl(var(--foreground));
+  font-weight: 600;
+  font-size: 1.05rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.85rem;
+  transition:
+    background 0.2s var(--ease-smooth),
+    color 0.2s var(--ease-smooth);
+  border: 1px solid transparent;
+}
+
+.mobileNavLink:hover,
+.mobileNavLink.active {
+  background: hsl(var(--surface-2));
+  border-color: hsl(var(--border));
+  color: hsl(var(--primary));
+}
+
+.mobileActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+@media (min-width: 1024px) {
+  .container {
+    height: 72px;
+  }
+
+  .desktopNav {
+    display: inline-flex;
+  }
+
+  .desktopActions {
+    display: inline-flex;
+  }
+
+  .mobileToggle,
+  .mobileMenu {
+    display: none;
+  }
+}
