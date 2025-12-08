@@ -80,7 +80,10 @@
     "@hono/node-server": "^1.15.0",
     "tmp": "^0.2.4",
     "@prisma/dev": "0.14.0",
-    "valibot": "1.2.0"
+    "valibot": "1.2.0",
+    "@casl/prisma": {
+      "@prisma/client": "$@prisma/client"
+    }
   },
   "dependencies": {
     "ioredis": "^5.8.2",
