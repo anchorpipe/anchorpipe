@@ -1,14 +1,26 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
+const mockSignJWTInstance = vi.hoisted(() => ({
+  setProtectedHeader: vi.fn().mockReturnThis(),
+  setIssuedAt: vi.fn().mockReturnThis(),
+  setIssuer: vi.fn().mockReturnThis(),
+  setExpirationTime: vi.fn().mockReturnThis(),
+  sign: vi.fn().mockResolvedValue('jwt-token'),
+}));
+
+const mockSignJWT = vi.hoisted(() => vi.fn().mockImplementation(() => mockSignJWTInstance));
+const mockImportPKCS8 = vi.hoisted(() => vi.fn());
+
+vi.mock('jose', () => ({
+  SignJWT: mockSignJWT,
+  importPKCS8: mockImportPKCS8,
+}));
+
 import {
   getInstallationToken,
   clearInstallationTokenCache,
 } from '../github-app-tokens';
 import { SignJWT, importPKCS8 } from 'jose';
-
-vi.mock('jose', () => ({
-  SignJWT: vi.fn(),
-  importPKCS8: vi.fn(),
-}));
 
 vi.mock('./logger', () => ({
   logger: {
@@ -33,15 +45,7 @@ describe('github-app-tokens', () => {
   describe('getInstallationToken', () => {
     it('returns cached token when available', async () => {
       const mockToken = 'cached-token';
-      const mockSignJWT = {
-        setProtectedHeader: vi.fn().mockReturnThis(),
-        setIssuedAt: vi.fn().mockReturnThis(),
-        setIssuer: vi.fn().mockReturnThis(),
-        setExpirationTime: vi.fn().mockReturnThis(),
-        sign: vi.fn().mockResolvedValue('jwt-token'),
-      };
-      vi.mocked(SignJWT).mockReturnValue(mockSignJWT as any);
-      vi.mocked(importPKCS8).mockResolvedValue({} as any);
+      mockImportPKCS8.mockResolvedValue({} as any);
       vi.mocked(global.fetch).mockResolvedValueOnce({
         ok: true,
         json: async () => ({
@@ -63,15 +67,7 @@ describe('github-app-tokens', () => {
 
     it('fetches new token when cache is empty', async () => {
       const mockToken = 'new-token';
-      const mockSignJWT = {
-        setProtectedHeader: vi.fn().mockReturnThis(),
-        setIssuedAt: vi.fn().mockReturnThis(),
-        setIssuer: vi.fn().mockReturnThis(),
-        setExpirationTime: vi.fn().mockReturnThis(),
-        sign: vi.fn().mockResolvedValue('jwt-token'),
-      };
-      vi.mocked(SignJWT).mockReturnValue(mockSignJWT as any);
-      vi.mocked(importPKCS8).mockResolvedValue({} as any);
+      mockImportPKCS8.mockResolvedValue({} as any);
       vi.mocked(global.fetch).mockResolvedValueOnce({
         ok: true,
         json: async () => ({
@@ -99,15 +95,7 @@ describe('github-app-tokens', () => {
       vi.stubEnv('GITHUB_APP_ID', '12345');
       vi.stubEnv('GITHUB_APP_PRIVATE_KEY', Buffer.from('-----BEGIN PRIVATE KEY-----\ntest\n-----END PRIVATE KEY-----').toString('base64'));
 
-      const mockSignJWT = {
-        setProtectedHeader: vi.fn().mockReturnThis(),
-        setIssuedAt: vi.fn().mockReturnThis(),
-        setIssuer: vi.fn().mockReturnThis(),
-        setExpirationTime: vi.fn().mockReturnThis(),
-        sign: vi.fn().mockResolvedValue('jwt-token'),
-      };
-      vi.mocked(SignJWT).mockReturnValue(mockSignJWT as any);
-      vi.mocked(importPKCS8).mockResolvedValue({} as any);
+      mockImportPKCS8.mockResolvedValue({} as any);
       vi.mocked(global.fetch).mockResolvedValueOnce({
         ok: true,
         json: async () => ({
@@ -142,15 +130,7 @@ describe('github-app-tokens', () => {
 
   describe('clearInstallationTokenCache', () => {
     it('clears token cache for installation', async () => {
-      const mockSignJWT = {
-        setProtectedHeader: vi.fn().mockReturnThis(),
-        setIssuedAt: vi.fn().mockReturnThis(),
-        setIssuer: vi.fn().mockReturnThis(),
-        setExpirationTime: vi.fn().mockReturnThis(),
-        sign: vi.fn().mockResolvedValue('jwt-token'),
-      };
-      vi.mocked(SignJWT).mockReturnValue(mockSignJWT as any);
-      vi.mocked(importPKCS8).mockResolvedValue({} as any);
+      mockImportPKCS8.mockResolvedValue({} as any);
       vi.mocked(global.fetch).mockResolvedValueOnce({
         ok: true,
         json: async () => ({
