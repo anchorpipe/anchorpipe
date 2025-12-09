@@ -26,7 +26,7 @@ import {
   getInstallationToken,
   clearInstallationTokenCache,
 } from '../github-app-tokens';
-import { SignJWT, importPKCS8 } from 'jose';
+import { importPKCS8 } from 'jose';
 
 vi.mock('./logger', () => ({
   logger: {
