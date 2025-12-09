@@ -20,7 +20,6 @@ const DOM_TEST_GLOBS = [
 ];
 
 const coverageConfig = {
-  enabled: true,
   provider: 'v8' as const,
   reporter: ['text', 'json', 'html', 'lcov'],
   include: ['src/**/*.{ts,tsx}'],
