@@ -28,14 +28,19 @@
     "@docusaurus/module-type-aliases": "3.9.2",
     "@docusaurus/tsconfig": "3.9.2",
     "@docusaurus/types": "3.9.2",
-    "@tailwindcss/oxide-linux-x64-gnu": "^4.1.17",
-    "@tailwindcss/oxide-linux-x64-musl": "^4.1.17",
     "@tailwindcss/postcss": "^4.1.17",
     "autoprefixer": "^10.4.22",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.17",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "~5.9.3"
+  },
+  "optionalDependencies": {
+    "@tailwindcss/oxide-linux-x64-gnu": "^4.1.17",
+    "@tailwindcss/oxide-linux-x64-musl": "^4.1.17",
+    "@tailwindcss/oxide-darwin-x64": "^4.1.17",
+    "@tailwindcss/oxide-darwin-arm64": "^4.1.17",
+    "@tailwindcss/oxide-win32-x64-msvc": "^4.1.17"
   },
   "browserslist": {
     "production": [

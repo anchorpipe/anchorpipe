@@ -30,6 +30,9 @@ jobs:
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
+      - name: Install optional dependencies
+        run: npm install --no-save
+
       - name: Run ESLint (root, target web app)
         run: npx eslint apps/web
 
@@ -54,6 +57,9 @@ jobs:
 
       - name: Install dependencies
         run: npm install --legacy-peer-deps
+
+      - name: Install optional dependencies
+        run: npm install --no-save
 
       - name: Generate Prisma Client
         run: npm run db:generate
@@ -89,6 +95,9 @@ jobs:
           cd apps/web && npm install --legacy-peer-deps
           cd ../../libs/database && npm install --legacy-peer-deps
           cd ../redis && npm install --legacy-peer-deps
+
+      - name: Install optional dependencies
+        run: npm install --no-save
 
       - name: Generate Prisma Client
         run: npm run db:generate
@@ -151,6 +160,9 @@ jobs:
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
+      - name: Install optional dependencies
+        run: npm install --no-save
+
       - name: Generate Prisma Client
         run: npm run db:generate
         env:
@@ -196,6 +208,9 @@ jobs:
 
       - name: Install dependencies
         run: npm install --legacy-peer-deps
+
+      - name: Install optional dependencies
+        run: npm install --no-save
 
       - name: Validate OpenAPI spec (if present)
         if: ${{ hashFiles('apps/web/public/openapi.yaml') != '' }}
@@ -247,6 +262,9 @@ jobs:
 
       - name: Install dependencies
         run: npm install --legacy-peer-deps
+
+      - name: Install optional dependencies
+        run: npm install --no-save
 
       - name: Generate Prisma Client
         run: npm run db:generate

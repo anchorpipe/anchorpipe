@@ -37,7 +37,8 @@ COPY libs/redis/package.json ./libs/redis/
 COPY libs/storage/package.json ./libs/storage/
 
 # Install all dependencies at repo root (single install)
-RUN npm install --legacy-peer-deps
+RUN npm install --legacy-peer-deps && \
+    npm install --no-save --include=optional || npm install --no-save
 
 # Stage 2: Builder
 FROM node:25-alpine AS builder

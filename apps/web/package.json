@@ -33,8 +33,6 @@
     "zod": "^4.1.13"
   },
   "devDependencies": {
-    "@tailwindcss/oxide-linux-x64-gnu": "^4.1.17",
-    "@tailwindcss/oxide-linux-x64-musl": "^4.1.17",
     "@tailwindcss/postcss": "^4.1.17",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
@@ -52,5 +50,12 @@
     "postcss": "^8.4.49",
     "tailwindcss": "^4.1.17",
     "typescript": "^5.9.3"
+  },
+  "optionalDependencies": {
+    "@tailwindcss/oxide-linux-x64-gnu": "^4.1.17",
+    "@tailwindcss/oxide-linux-x64-musl": "^4.1.17",
+    "@tailwindcss/oxide-darwin-x64": "^4.1.17",
+    "@tailwindcss/oxide-darwin-arm64": "^4.1.17",
+    "@tailwindcss/oxide-win32-x64-msvc": "^4.1.17"
   }
 }
