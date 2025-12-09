@@ -9,13 +9,25 @@ const mockHistogramInstance = vi.hoisted(() => ({
   observe: vi.fn(),
 }));
 
-const mockHistogram = vi.hoisted(() => vi.fn(() => mockHistogramInstance));
+const mockHistogram = vi.hoisted(() => {
+  function HistogramConstructor() {
+    return mockHistogramInstance;
+  }
+  return vi.fn().mockImplementation(HistogramConstructor);
+});
 
 const mockCollectDefaultMetrics = vi.hoisted(() => vi.fn());
 
+const mockRegistryConstructor = vi.hoisted(() => {
+  function RegistryConstructor() {
+    return mockRegistry;
+  }
+  return vi.fn().mockImplementation(RegistryConstructor);
+});
+
 vi.mock('prom-client', () => {
   const mockClient = {
-    Registry: vi.fn(() => mockRegistry),
+    Registry: mockRegistryConstructor,
     collectDefaultMetrics: mockCollectDefaultMetrics,
     Histogram: mockHistogram,
   };
@@ -55,23 +67,4 @@ describe('metrics', () => {
   });
 });
 
-describe('metrics', () => {
-  it('exports httpRequestDurationMs histogram', () => {
-    expect(httpRequestDurationMs).toBeDefined();
-    expect(typeof httpRequestDurationMs.observe).toBe('function');
-  });
-
-  it('exports register', () => {
-    expect(register).toBeDefined();
-  });
-
-  it('metricsText returns metrics string', async () => {
-    const mockMetrics = 'mock metrics output';
-    vi.mocked(register.metrics).mockResolvedValueOnce(mockMetrics);
-
-    const result = await metricsText();
-
-    expect(result).toBe(mockMetrics);
-  });
-});
 
