@@ -8,7 +8,13 @@ const mockSignJWTInstance = vi.hoisted(() => ({
   sign: vi.fn().mockResolvedValue('jwt-token'),
 }));
 
-const mockSignJWT = vi.hoisted(() => vi.fn().mockImplementation(() => mockSignJWTInstance));
+const mockSignJWT = vi.hoisted(() => {
+  function SignJWTConstructor() {
+    return mockSignJWTInstance;
+  }
+  return vi.fn().mockImplementation(SignJWTConstructor);
+});
+
 const mockImportPKCS8 = vi.hoisted(() => vi.fn());
 
 vi.mock('jose', () => ({

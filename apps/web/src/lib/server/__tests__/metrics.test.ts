@@ -9,11 +9,21 @@ const mockHistogramInstance = vi.hoisted(() => ({
   observe: vi.fn(),
 }));
 
-const mockHistogram = vi.hoisted(() => vi.fn().mockImplementation(() => mockHistogramInstance));
+const mockHistogram = vi.hoisted(() => {
+  function HistogramConstructor() {
+    return mockHistogramInstance;
+  }
+  return vi.fn().mockImplementation(HistogramConstructor);
+});
 
 const mockCollectDefaultMetrics = vi.hoisted(() => vi.fn());
 
-const mockRegistryConstructor = vi.hoisted(() => vi.fn().mockImplementation(() => mockRegistry));
+const mockRegistryConstructor = vi.hoisted(() => {
+  function RegistryConstructor() {
+    return mockRegistry;
+  }
+  return vi.fn().mockImplementation(RegistryConstructor);
+});
 
 vi.mock('prom-client', () => {
   const mockClient = {
