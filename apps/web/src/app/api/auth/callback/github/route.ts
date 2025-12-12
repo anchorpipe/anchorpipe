@@ -17,7 +17,10 @@ export async function GET(request: NextRequest) {
 
   // Handle OAuth errors from GitHub
   if (error) {
-    console.error('GitHub OAuth error:', error, errorDescription);
+    // Sanitize user-controlled error fields to prevent log injection
+    const safeError = typeof error === 'string' ? error.replace(/\r?\n/g, '') : error;
+    const safeErrorDescription = typeof errorDescription === 'string' ? errorDescription.replace(/\r?\n/g, '') : errorDescription;
+    console.error('GitHub OAuth error:', safeError, safeErrorDescription);
     return NextResponse.redirect(
       new URL(
         `/?error=oauth_error&message=${encodeURIComponent(errorDescription || error)}`,
