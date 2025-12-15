@@ -131,12 +131,14 @@
 }
 
 /* Enhanced Typography - Using Design System Variables */
+html,
 body {
   font-family: var(--font-sans);
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-normal);
   line-height: var(--line-height-body);
   color: hsl(var(--foreground));
+  background: hsl(var(--background));
 }
 
 /* Display Text - Hero headlines */
