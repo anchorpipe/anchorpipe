@@ -15,14 +15,19 @@ export async function GET(request: NextRequest) {
   const error = searchParams.get('error');
   const errorDescription = searchParams.get('error_description');
 
+  // Remove control characters to prevent log injection and keep logs readable
   const sanitizeLogValue = (value: unknown) =>
-    typeof value === 'string' ? value.replace(/\r?\n/g, '') : value;
+    typeof value === 'string' ? value.replace(/[\x00-\x1F\x7F]/g, '') : value;
 
   // Handle OAuth errors from GitHub
   if (error) {
     const safeError = sanitizeLogValue(error);
     const safeErrorDescription = sanitizeLogValue(errorDescription);
-    console.error('GitHub OAuth error:', safeError, safeErrorDescription);
+    console.error(
+      'GitHub OAuth error: error="%s" error_description="%s"',
+      safeError,
+      safeErrorDescription
+    );
     return NextResponse.redirect(
       new URL(
         `/?error=oauth_error&message=${encodeURIComponent(errorDescription || error)}`,
