@@ -15,9 +15,14 @@ export async function GET(request: NextRequest) {
   const error = searchParams.get('error');
   const errorDescription = searchParams.get('error_description');
 
+  const sanitizeLogValue = (value: unknown) =>
+    typeof value === 'string' ? value.replace(/\r?\n/g, '') : value;
+
   // Handle OAuth errors from GitHub
   if (error) {
-    console.error('GitHub OAuth error:', error, errorDescription);
+    const safeError = sanitizeLogValue(error);
+    const safeErrorDescription = sanitizeLogValue(errorDescription);
+    console.error('GitHub OAuth error:', safeError, safeErrorDescription);
     return NextResponse.redirect(
       new URL(
         `/?error=oauth_error&message=${encodeURIComponent(errorDescription || error)}`,
@@ -85,7 +90,8 @@ export async function GET(request: NextRequest) {
       );
     }
   } catch (error) {
-    console.error('OAuth callback error:', error);
+    const safeError = sanitizeLogValue(error);
+    console.error('OAuth callback error:', safeError);
     const errorMessage = error instanceof Error ? error.message : 'OAuth callback failed';
     return NextResponse.redirect(
       new URL(`/?error=oauth_error&message=${encodeURIComponent(errorMessage)}`, request.url)
