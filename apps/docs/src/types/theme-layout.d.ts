@@ -17,5 +17,3 @@ declare module '@theme/Layout' {
 
   export default function Layout(props: Props): ReactElement;
 }
-
-
