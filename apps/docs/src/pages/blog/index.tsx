@@ -1,7 +1,7 @@
+import type { ReactNode } from 'react';
 import Layout from '@theme/Layout';
-import React from 'react';
 
-export default function BlogListPage(): JSX.Element {
+export default function BlogListPage(): ReactNode {
   return (
     <Layout title="Blog" description="anchorpipe Blog - Updates, tutorials, and insights">
       <div className="container margin-vert--lg">
