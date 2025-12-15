@@ -25,7 +25,7 @@ const columns: FooterColumn[] = [
   {
     title: 'Resources',
     items: [
-      { label: 'Documentation', to: '/docs' },
+      { label: 'Documentation', to: '/docs/intro' },
       { label: 'Blog', to: '/blog' },
       { label: 'Changelog', href: 'https://github.com/anchorpipe/anchorpipe/releases' },
     ],

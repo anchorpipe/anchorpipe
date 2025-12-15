@@ -15,14 +15,10 @@ export async function GET(request: NextRequest) {
   const error = searchParams.get('error');
   const errorDescription = searchParams.get('error_description');
 
-  // Remove control characters to prevent log injection and keep logs readable
-  const sanitizeLogValue = (value: unknown) =>
-    typeof value === 'string' ? value.replace(/[\x00-\x1F\x7F]/g, '') : value;
-
   // Handle OAuth errors from GitHub
   if (error) {
-    const safeError = sanitizeLogValue(error);
-    const safeErrorDescription = sanitizeLogValue(errorDescription);
+    const safeError = (error || '').replace(/\r|\n/g, '');
+    const safeErrorDescription = (errorDescription || '').replace(/\r|\n/g, '');
     console.error(
       'GitHub OAuth error: error="%s" error_description="%s"',
       safeError,
@@ -95,8 +91,7 @@ export async function GET(request: NextRequest) {
       );
     }
   } catch (error) {
-    const safeError = sanitizeLogValue(error);
-    console.error('OAuth callback error:', safeError);
+    console.error('OAuth callback error:', error);
     const errorMessage = error instanceof Error ? error.message : 'OAuth callback failed';
     return NextResponse.redirect(
       new URL(`/?error=oauth_error&message=${encodeURIComponent(errorMessage)}`, request.url)
