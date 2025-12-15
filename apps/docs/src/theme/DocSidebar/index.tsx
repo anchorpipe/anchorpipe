@@ -80,6 +80,101 @@ const getStoredSections = (): string[] => {
   }
 };
 
+const useIntroHref = (sidebar: PropSidebarItem[]): string =>
+  useMemo(() => {
+    const introItem =
+      sidebar.find((item) => !isCategory(item) && 'docId' in item && item.docId === 'intro') ??
+      sidebar.find((item) => !isCategory(item) && 'href' in item && item.href);
+
+    if (introItem) {
+      const href = getItemHref(introItem);
+      if (href) return href;
+    }
+
+    return '/docs/intro';
+  }, [sidebar]);
+
+const useActiveCategory = (
+  sections: PropSidebarItemCategory[],
+  activePath: string
+): string | null =>
+  useMemo(() => {
+    for (const category of sections) {
+      if (categoryHasActivePath(category, activePath)) {
+        return category.label;
+      }
+    }
+    return null;
+  }, [activePath, sections]);
+
+function useOpenSections(
+  sections: PropSidebarItemCategory[],
+  activeCategory: string | null
+): {
+  openSections: string[];
+  toggleSection: (label: string) => void;
+} {
+  const [openSections, setOpenSections] = useState<string[]>(() => {
+    const stored = getStoredSections();
+    if (stored.length) {
+      return stored;
+    }
+
+    if (activeCategory) {
+      return [activeCategory];
+    }
+
+    const defaultOpen = sections.find((section) => section.label === 'Getting Started');
+    return defaultOpen ? [defaultOpen.label] : [];
+  });
+
+  useEffect(() => {
+    if (activeCategory) {
+      setOpenSections([activeCategory]);
+    }
+  }, [activeCategory]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(openSections));
+  }, [openSections]);
+
+  const toggleSection = React.useCallback(
+    (label: string) => {
+      setOpenSections((prev) => {
+        if (prev.includes(label)) {
+          if (label === activeCategory) {
+            return [label];
+          }
+          return activeCategory ? [activeCategory] : [label];
+        }
+        return [label];
+      });
+    },
+    [activeCategory]
+  );
+
+  return { openSections, toggleSection };
+}
+
+const useSmoothScrollToActive = (
+  navRef: React.RefObject<HTMLDivElement>,
+  activePath: string
+): void => {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const navEl = navRef.current;
+      if (!navEl) return;
+      const activeEl = navEl.querySelector('[data-active="true"]') as HTMLElement | null;
+      if (activeEl && typeof activeEl.scrollIntoView === 'function') {
+        activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 150);
+
+    return () => clearTimeout(timer);
+  }, [activePath, navRef]);
+};
+
 function SectionItems({
   items,
   activePath,
@@ -109,78 +204,155 @@ function SectionItems({
 
   return (
     <div className={styles.sectionItemsInner}>
-      {(items ?? []).map((item, idx) => {
-        if (!item || !('type' in item)) {
-          return null;
-        }
-
-        const itemKey = `${parentKey}-${idx}-${'label' in item ? item.label : 'item'}`;
-        if (isCategory(item)) {
-          const children = item.items ?? [];
-          if (children.length === 0) {
-            return null;
-          }
-
-          const childActive = categoryHasActivePath(item, activePath);
-          const isChildOpen = openChildKey === itemKey || childActive;
-          const childId = `${itemKey}-child`;
-          const nestedLabel = item.label ?? 'Section';
-
-          return (
-            <div key={itemKey} className={styles.nestedCategory}>
-              <button
-                type="button"
-                className={clsx(
-                  styles.sectionButton,
-                  styles.nestedSectionButton,
-                  (childActive || isChildOpen) && styles.sectionButtonActive
-                )}
-                onClick={() => setOpenChildKey(isChildOpen ? null : itemKey)}
-                aria-expanded={isChildOpen}
-                aria-controls={childId}
-              >
-                <span className={styles.sectionLabel}>
-                  <span className={styles.nestedCategoryLabel}>{nestedLabel}</span>
-                </span>
-                <ChevronRight className={clsx(styles.chevron, isChildOpen && styles.chevronOpen)} />
-              </button>
-
-              <div
-                id={childId}
-                className={clsx(styles.sectionItems, isChildOpen && styles.sectionItemsExpanded)}
-                role="group"
-                aria-label={`${item.label} links`}
-              >
-                <SectionItems
-                  items={item.items}
-                  activePath={activePath}
-                  parentKey={`${itemKey}-${item.label}`}
-                />
-              </div>
-            </div>
-          );
-        }
-
-        const href = getItemHref(item);
-        if (!href) {
-          return null;
-        }
-
-        const isActive = activePath.startsWith(href);
-        const itemLabel = 'label' in item ? item.label : '';
-
-        return (
-          <Link
-            key={itemKey}
-            to={href}
-            className={clsx(styles.sectionItem, isActive && styles.itemActive)}
-            data-active={isActive ? 'true' : undefined}
-          >
-            {itemLabel}
-          </Link>
-        );
-      })}
+      {(items ?? []).map((item, idx) =>
+        renderSectionItem({
+          item,
+          idx,
+          parentKey,
+          activePath,
+          openChildKey,
+          setOpenChildKey,
+        })
+      )}
     </div>
+  );
+}
+
+function NestedCategory({
+  item,
+  itemKey,
+  childActive,
+  isChildOpen,
+  activePath,
+  setOpenChildKey,
+}: {
+  item: PropSidebarItemCategory;
+  itemKey: string;
+  childActive: boolean;
+  isChildOpen: boolean;
+  activePath: string;
+  setOpenChildKey: React.Dispatch<React.SetStateAction<string | null>>;
+}): React.ReactElement {
+  const childId = `${itemKey}-child`;
+  const nestedLabel = item.label ?? 'Section';
+
+  return (
+    <div className={styles.nestedCategory}>
+      <button
+        type="button"
+        className={clsx(
+          styles.sectionButton,
+          styles.nestedSectionButton,
+          (childActive || isChildOpen) && styles.sectionButtonActive
+        )}
+        onClick={() => setOpenChildKey(isChildOpen ? null : itemKey)}
+        aria-expanded={isChildOpen}
+        aria-controls={childId}
+      >
+        <span className={styles.sectionLabel}>
+          <span className={styles.nestedCategoryLabel}>{nestedLabel}</span>
+        </span>
+        <ChevronRight className={clsx(styles.chevron, isChildOpen && styles.chevronOpen)} />
+      </button>
+
+      <div
+        id={childId}
+        className={clsx(styles.sectionItems, isChildOpen && styles.sectionItemsExpanded)}
+        role="group"
+        aria-label={`${item.label} links`}
+      >
+        <SectionItems
+          items={item.items}
+          activePath={activePath}
+          parentKey={`${itemKey}-${item.label}`}
+        />
+      </div>
+    </div>
+  );
+}
+
+function SectionLinkItem({
+  itemKey,
+  href,
+  isActive,
+  itemLabel,
+}: {
+  itemKey: string;
+  href: string;
+  isActive: boolean;
+  itemLabel: string;
+}): React.ReactElement {
+  return (
+    <Link
+      key={itemKey}
+      to={href}
+      className={clsx(styles.sectionItem, isActive && styles.itemActive)}
+      data-active={isActive ? 'true' : undefined}
+    >
+      {itemLabel}
+    </Link>
+  );
+}
+
+function renderSectionItem({
+  item,
+  idx,
+  parentKey,
+  activePath,
+  openChildKey,
+  setOpenChildKey,
+}: {
+  item: PropSidebarItem | undefined;
+  idx: number;
+  parentKey: string;
+  activePath: string;
+  openChildKey: string | null;
+  setOpenChildKey: React.Dispatch<React.SetStateAction<string | null>>;
+}): React.ReactElement | null {
+  if (!item || !('type' in item)) {
+    return null;
+  }
+
+  const itemKey = `${parentKey}-${idx}-${'label' in item ? item.label : 'item'}`;
+
+  if (isCategory(item)) {
+    const children = item.items ?? [];
+    if (children.length === 0) {
+      return null;
+    }
+
+    const childActive = categoryHasActivePath(item, activePath);
+    const isChildOpen = openChildKey === itemKey || childActive;
+
+    return (
+      <NestedCategory
+        key={itemKey}
+        item={item}
+        itemKey={itemKey}
+        childActive={childActive}
+        isChildOpen={isChildOpen}
+        activePath={activePath}
+        setOpenChildKey={setOpenChildKey}
+      />
+    );
+  }
+
+  const href = getItemHref(item);
+  if (!href) {
+    return null;
+  }
+
+  const isActive = activePath.startsWith(href);
+  const itemLabel = 'label' in item ? item.label : '';
+
+  return (
+    <SectionLinkItem
+      key={itemKey}
+      itemKey={itemKey}
+      href={href}
+      isActive={isActive}
+      itemLabel={itemLabel}
+    />
   );
 }
 
@@ -237,97 +409,15 @@ export default function DocSidebar({ sidebar }: DocSidebarProps): React.ReactEle
     [sidebar]
   );
 
-  // Find which category contains the current page
-  const findActiveCategory = (): string | null => {
-    for (const category of sections) {
-      const hasActivePage = categoryHasActivePath(category, activePath);
-      if (hasActivePage) {
-        return category.label;
-      }
-    }
-    return null;
-  };
-
-  const [openSections, setOpenSections] = useState<string[]>(() => {
-    const stored = getStoredSections();
-    if (stored.length) {
-      return stored;
-    }
-
-    // Auto-open the active category or default to "Getting Started"
-    const activeCategory = findActiveCategory();
-    if (activeCategory) {
-      return [activeCategory];
-    }
-
-    const defaultOpen = sections.find((section) => section.label === 'Getting Started');
-    return defaultOpen ? [defaultOpen.label] : [];
-  });
-
-  // Auto-expand active category when route changes (auto-collapse others)
-  useEffect(() => {
-    const activeCategory = findActiveCategory();
-    if (activeCategory) {
-      // Only keep the active category expanded
-      setOpenSections([activeCategory]);
-    }
-  }, [activePath, sections]);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(openSections));
-  }, [openSections]);
+  const introHref = useIntroHref(sidebar);
+  const activeCategory = useActiveCategory(sections, activePath);
+  const { openSections, toggleSection } = useOpenSections(sections, activeCategory);
 
   useEffect(() => {
     ensureCustomScrollbar();
   }, []);
 
-  const toggleSection = (label: string): void => {
-    setOpenSections((prev) => {
-      const activeCategory = findActiveCategory();
-      if (prev.includes(label)) {
-        // If this is the active category, keep it open
-        if (label === activeCategory) {
-          return [label];
-        }
-        // Otherwise, close this one but preserve the active category if it exists
-        return activeCategory ? [activeCategory] : [label];
-      }
-      // Auto-collapse: Close all others, open only this one
-      return [label];
-    });
-  };
-
-  // Smooth scroll active item into view on route change
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const navEl = navRef.current;
-      if (!navEl) return;
-      const activeEl = navEl.querySelector('[data-active="true"]') as HTMLElement | null;
-      if (activeEl && typeof activeEl.scrollIntoView === 'function') {
-        activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-    }, 150); // Small delay to ensure DOM is updated after collapse animation
-
-    return () => clearTimeout(timer);
-  }, [activePath]);
-
-  const introHref = useMemo(() => {
-    let introItem = sidebar.find(
-      (item) => !isCategory(item) && 'docId' in item && item.docId === 'intro'
-    );
-
-    if (!introItem) {
-      introItem = sidebar.find((item) => !isCategory(item) && 'href' in item && item.href);
-    }
-
-    if (introItem) {
-      const href = getItemHref(introItem);
-      if (href) return href;
-    }
-
-    return '/docs/intro';
-  }, [sidebar]);
+  useSmoothScrollToActive(navRef, activePath);
 
   // Filter sections based on search query
   return (
