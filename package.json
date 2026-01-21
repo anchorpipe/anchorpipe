@@ -52,7 +52,7 @@
     "@vitest/coverage-v8": "^4.0.15",
     "@vitest/ui": "^4.0.15",
     "cspell": "^9.4.0",
-    "eslint": "^9.39.1",
+    "eslint": "^9.39.2",
     "ioredis-mock": "^8.13.1",
     "jiti": "2.6.1",
     "jsonc-eslint-parser": "^2.4.2",
