@@ -14,12 +14,12 @@
     "db:health": "tsx src/health-check.ts"
   },
   "dependencies": {
-    "@prisma/client": "^7.1.0",
-    "@prisma/adapter-pg": "^7.1.0",
-    "pg": "^8.13.1"
+    "@prisma/client": "^7.3.0",
+    "@prisma/adapter-pg": "^7.3.0",
+    "pg": "^8.18.0"
   },
   "devDependencies": {
-    "@types/pg": "^8.11.10",
+    "@types/pg": "^8.16.0",
     "prisma": "^7.1.0",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
