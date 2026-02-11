@@ -17,7 +17,7 @@
     "@anchorpipe/mq": "*",
     "@anchorpipe/redis": "*",
     "@anchorpipe/storage": "*",
-    "@casl/ability": "^6.7.3",
+    "@casl/ability": "^6.7.5",
     "@casl/prisma": "^1.6.0",
     "@vitest/coverage-v8": "^4.0.15",
     "@vitest/ui": "^4.0.15",
