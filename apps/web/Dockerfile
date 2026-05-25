@@ -4,7 +4,7 @@ ARG GLOB_VERSION=11.1.0
 ARG BRACE_EXPANSION_VERSION=2.0.2
 
 # Stage 1: Dependencies
-FROM node:25-alpine AS deps
+FROM node:26-alpine AS deps
 ARG NPM_VERSION
 ARG GLOB_VERSION
 ARG BRACE_EXPANSION_VERSION
@@ -41,7 +41,7 @@ RUN npm install --legacy-peer-deps && \
     npm install --no-save --include=optional || npm install --no-save
 
 # Stage 2: Builder
-FROM node:25-alpine AS builder
+FROM node:26-alpine AS builder
 ARG NPM_VERSION
 ARG GLOB_VERSION
 ARG BRACE_EXPANSION_VERSION
@@ -119,7 +119,7 @@ WORKDIR /app/apps/web
 RUN npm run build
 
 # Stage 3: Runner
-FROM node:25-alpine AS runner
+FROM node:26-alpine AS runner
 ARG NPM_VERSION
 ARG GLOB_VERSION
 ARG BRACE_EXPANSION_VERSION
