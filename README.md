@@ -1,213 +1,62 @@
 # anchorpipe
 
-[![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-blue.svg)](LICENSE)
-[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
-[![CI](https://github.com/anchorpipe/anchorpipe/actions/workflows/ci.yml/badge.svg)](https://github.com/anchorpipe/anchorpipe/actions/workflows/ci.yml)
-[![Security Scanning](https://github.com/anchorpipe/anchorpipe/actions/workflows/security-scan.yml/badge.svg)](https://github.com/anchorpipe/anchorpipe/actions/workflows/security-scan.yml)
-[![CodeQL](https://github.com/anchorpipe/anchorpipe/actions/workflows/codeql.yml/badge.svg)](https://github.com/anchorpipe/anchorpipe/actions/workflows/codeql.yml)
-[![codecov](https://codecov.io/gh/anchorpipe/anchorpipe/branch/main/graph/badge.svg)](https://codecov.io/gh/anchorpipe/anchorpipe)
+**Status: clean-slate redesign in progress.**
 
-**anchorpipe** is an open-source platform for flaky test management that is CI-native, transparent, and actionable—restoring developer velocity and release confidence across teams of all sizes.
+anchorpipe is being rebuilt as an open-source, evidence-first analytics system for flaky-test investigation. The redesigned product will preserve immutable test observations, explain uncertainty, and help engineers distinguish nondeterminism from persistent regressions and infrastructure failures.
 
-> 📚 Looking for documentation? Visit [anchorpipe-docs.vercel.app](https://anchorpipe-docs.vercel.app) for the full site.
+> The previous Docusaurus documentation site, deployment configuration, and roadmap claims have been removed. The repository is currently a source workspace for the redesign, not a production-ready release.
 
-## Why anchorpipe?
+## Design direction
 
-Flaky tests destroy developer productivity. Teams waste hours investigating false failures, delaying releases, and losing trust in their test suites.
+The approved redesign is intentionally narrow:
 
-**anchorpipe** automatically detects, explains, and helps you fix flaky tests—integrated directly into your CI/CD workflow.
+- **Evidence before labels:** retain every test execution attempt, environment, commit, order/seed, timing, and failure signature.
+- **Uncertainty as data:** report sample counts, failure counts, intervals/posteriors, recency, comparable-condition coverage, and abstention.
+- **Durability before distribution:** accept an ingestion only after an immutable receipt and outbox record are committed.
+- **Modular monolith plus workers:** keep the control plane and read projections together; move normalization and scoring behind durable asynchronous jobs.
+- **Safe integrations:** start with local/JUnit input, the existing JSON adapters, GitHub Actions artifacts, and one idempotent Check Run.
+- **Honest operations:** PostgreSQL is the operational source of truth; object storage holds private evidence; Redis is optional and non-authoritative.
 
-### The Problem
+The detailed research and gap register are preserved in the redesign work archive and will be distilled into repository documentation after the first implemented vertical slice.
 
-- ❌ Tests that pass/fail randomly waste hours of debugging
-- ❌ Teams lose confidence in their test suites
-- ❌ Releases get delayed due to test uncertainty
-- ❌ No visibility into which tests are truly broken vs. flaky
+## Current repository state
 
-### The Solution
+The codebase contains useful foundations, including report parsers, Prisma models, authentication/RBAC seams, audit models, and unit tests. It is not yet release-ready. The redesign work must first make the clean checkout buildable, make ingestion durable, establish tenant isolation, replace overclaimed behavior with explicit contracts, and add service-backed acceptance tests.
 
-- ✅ **Automatic detection** using ML-based heuristics
-- ✅ **Transparent explanations** for every flake
-- ✅ **PR-native feedback** - catch flakes before merge
-- ✅ **Actionable remediation** with guided playbooks
+The old docs and deployment surfaces were deliberately removed rather than kept as fictional architecture. New documentation will be written alongside implemented behavior under `docs/` when the first redesigned vertical slice is complete.
 
-## ✨ Key Features
+## Local development
 
-### 🔌 Universal CI Integration
+Prerequisites:
 
-Works with your existing CI/CD pipeline—no migration required.
+- Docker Engine and Docker Compose v2
+- Node.js LTS and npm
+- Git
 
-**Supported Platforms:**
+Install dependencies and inspect available workspace targets:
 
-- GitHub Actions, GitLab CI, CircleCI, Jenkins, Azure DevOps
-- JUnit, Jest, PyTest, Playwright, Mocha, Gradle
+```bash
+npm ci
+npm run db:generate
+npm test
+npm run lint
+npm run build
+```
 
-[View integration guide →](https://anchorpipe-docs.vercel.app/docs/guides/integrations/ci-integration)
+Local infrastructure is currently intended for development only. Do not expose Compose services publicly or reuse development credentials in any hosted environment. The deployment profile will be redesigned before a production runbook is published.
 
-### 🔒 Production-Ready Security
+## Contributing
 
-Enterprise-grade security features built-in:
+Contributions use the **Developer Certificate of Origin (DCO)**. Every commit must include a sign-off:
 
-- OAuth 2.0 with PKCE authentication
-- Role-based access control (RBAC)
-- Rate limiting and brute force protection
-- Encryption at rest and in transit
-- Comprehensive audit logging
-- Security scanning in CI pipeline
+```bash
+git commit -s -m "Describe the change"
+```
 
-[View security documentation →](https://anchorpipe-docs.vercel.app/docs/guides/security/)
+Read [`CONTRIBUTING.md`](CONTRIBUTING.md) and [`SECURITY.md`](SECURITY.md) before opening a pull request. Architecture changes should include tests and a short decision record in the repository's future `docs/` area.
 
-### 📊 Compliance & Privacy
+## License
 
-GDPR/CCPA compliant with comprehensive data protection:
+The redesigned project is intended to use the **Apache License 2.0**. See [`LICENSE`](LICENSE). The license transition is being handled with provenance and copyright-authority review; third-party code retains its upstream notices and license terms.
 
-- Privacy policy and data processing agreements
-- Data subject request (DSR) workflows
-- Data retention policies
-- Audit trails for compliance
-
-[View compliance documentation →](https://anchorpipe-docs.vercel.app/docs/reference/compliance/)
-
-## Recent Improvements
-
-### Production-Ready Infrastructure (Jan 2025)
-
-✅ **Tests in CI** - All tests run on every PR with coverage reporting  
-✅ **Redis Rate Limiting** - Distributed rate limiting across instances  
-✅ **Robust Idempotency** - ACID-guaranteed duplicate prevention
-
-See [Architecture Guides](https://anchorpipe-docs.vercel.app/docs/guides/architecture/) for details.
-
-## 🚀 Quick Start
-
-Get anchorpipe running locally in under 5 minutes.
-
-### Prerequisites
-
-- Docker Desktop (or Docker Engine) + Docker Compose V2
-- Node.js 20.x LTS + npm 10.x
-- Git >= 2.40
-
-### Setup Steps
-
-1. **Clone and enter directory**
-
-   ```bash
-   git clone https://github.com/anchorpipe/anchorpipe.git
-   cd anchorpipe
-   ```
-
-2. **Start infrastructure**
-
-   ```bash
-   # Create .env with DATABASE_URL
-   echo DATABASE_URL=postgresql://postgres:postgres@localhost:15432/anchorpipe_dev > .env
-
-   # Start local services (PostgreSQL, Redis, RabbitMQ, MinIO)
-   docker compose up -d
-   ```
-
-3. **Install and setup**
-
-   ```bash
-   npm install
-   npm run db:migrate
-   ```
-
-4. **Start development server**
-
-   ```bash
-   npm run dev
-   ```
-
-5. **Verify installation**
-
-   ```bash
-   curl http://localhost:3000/api/health
-   ```
-
-   **✅ Expected output:** `{"status": "healthy"}`
-
-### Next Steps
-
-- 📖 [Connect your first CI pipeline](https://anchorpipe-docs.vercel.app/docs/guides/integrations/ci-integration)
-- 🔒 [Configure authentication](https://anchorpipe-docs.vercel.app/docs/guides/foundation/authentication)
-- 🛡️ [Set up security features](https://anchorpipe-docs.vercel.app/docs/guides/security/)
-
-**Troubleshooting:** See [Project Setup Guide](https://anchorpipe-docs.vercel.app/docs/guides/foundation/project-setup) for detailed instructions.
-
-## 📚 Documentation
-
-| Category               | Resources                                                                                                                                                                                                                                                                                                                 |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **🚀 Getting Started** | [Quick Start](#-quick-start) · [Project Setup](https://anchorpipe-docs.vercel.app/docs/guides/foundation/project-setup) · [CI Integration](https://anchorpipe-docs.vercel.app/docs/guides/integrations/ci-integration)                                                                                                    |
-| **🔌 Integrations**    | [CI/CD Setup](https://anchorpipe-docs.vercel.app/docs/guides/integrations/) · [HMAC Authentication](https://anchorpipe-docs.vercel.app/docs/guides/integrations/ci-integration)                                                                                                                                           |
-| **🔒 Security**        | [OAuth](https://anchorpipe-docs.vercel.app/docs/guides/security/oauth) · [RBAC](https://anchorpipe-docs.vercel.app/docs/guides/security/rbac) · [Rate Limiting](https://anchorpipe-docs.vercel.app/docs/guides/security/rate-limiting) · [Encryption](https://anchorpipe-docs.vercel.app/docs/guides/security/encryption) |
-| **🏗️ Foundation**      | [Database Schema](https://anchorpipe-docs.vercel.app/docs/guides/foundation/database-schema) · [API Gateway](https://anchorpipe-docs.vercel.app/docs/guides/foundation/api-gateway) · [Message Queue](https://anchorpipe-docs.vercel.app/docs/guides/foundation/message-queue)                                            |
-| **🏛️ Governance**      | [Commercial Strategy](https://anchorpipe-docs.vercel.app/docs/governance/COMMERCIAL_STRATEGY) · [Contributor Rewards](https://anchorpipe-docs.vercel.app/docs/governance/CONTRIBUTOR_REWARDS)                                                                                                                             |
-| **📖 Reference**       | [Security Reference](https://anchorpipe-docs.vercel.app/docs/reference/security/) · [Compliance](https://anchorpipe-docs.vercel.app/docs/reference/compliance/) · [Complete Index](https://anchorpipe-docs.vercel.app/docs/intro)                                                                                         |
-
-**Can't find what you need?** [Browse all documentation](https://anchorpipe-docs.vercel.app/docs/intro) or [ask in Discussions](https://github.com/anchorpipe/anchorpipe/discussions)
-
-## 🤝 Contributing
-
-We ❤️ contributions! anchorpipe is built by developers, for developers.
-
-**Ways to Contribute:**
-
-- 🐛 [Report bugs](https://github.com/anchorpipe/anchorpipe/issues/new?template=bug_report.md)
-- 💡 [Suggest features](https://github.com/anchorpipe/anchorpipe/issues/new?template=feature_request.md)
-- 📖 Improve documentation
-- 🔧 Submit pull requests
-- 💬 Help others in [Discussions](https://github.com/anchorpipe/anchorpipe/discussions)
-
-**First-time contributor?** Look for [`good first issue`](https://github.com/anchorpipe/anchorpipe/labels/good%20first%20issue) labels.
-
-### Quick Contribution Steps
-
-1. **Fork** the repository
-2. **Create** a feature branch: `git checkout -b feature/amazing-feature`
-3. **Commit** with sign-off: `git commit -s -m "Add amazing feature"`
-4. **Push** and open a Pull Request
-
-[Read our full Contributing Guide →](CONTRIBUTING.md)
-
-**Recognition:** All contributors get credit in release notes and our [Contributors Wall](https://github.com/anchorpipe/anchorpipe/graphs/contributors). Learn about our [rewards program](https://anchorpipe-docs.vercel.app/docs/governance/CONTRIBUTOR_REWARDS).
-
-## 🛡️ Security
-
-Security is a top priority. anchorpipe includes:
-
-✅ OAuth 2.0 with PKCE  
-✅ OWASP-aligned security headers  
-✅ Rate limiting & brute force protection  
-✅ Encryption at rest and in transit  
-✅ Comprehensive audit logging  
-✅ Security scanning in CI pipeline
-
-**Found a vulnerability?** Please report it privately via our [Security Policy](SECURITY.md).
-
-[View detailed security documentation →](https://anchorpipe-docs.vercel.app/docs/guides/security/)
-
-## 📖 License
-
-This project is licensed under the **GNU Affero General Public License v3.0** (AGPL v3).
-
-- **Open Source**: Core features under AGPL v3
-- **Commercial Licensing**: Available for enterprises (see [docs/governance/COMMERCIAL_STRATEGY.md](https://anchorpipe-docs.vercel.app/docs/governance/COMMERCIAL_STRATEGY))
-
-See [LICENSE](LICENSE) for details.
-
-## 📞 Support
-
-- **General Questions**: [GitHub Discussions](https://github.com/anchorpipe/anchorpipe/discussions)
-- **Bug Reports**: [GitHub Issues](https://github.com/anchorpipe/anchorpipe/issues)
-- **Security Issues**: See [SECURITY.md](SECURITY.md)
-
-## 🗺️ Roadmap
-
-See our [GitHub Projects](https://github.com/orgs/anchorpipe/projects/3/views/2) board for the complete roadmap and issue tracking.
-
----
-
-**Made with ❤️ by the anchorpipe community**
+Project naming and branding must not imply endorsement or official status for modified distributions.

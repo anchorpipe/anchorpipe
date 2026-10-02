@@ -357,8 +357,6 @@ This Code of Conduct works alongside our other community policies:
 - **[Contributing Guidelines](CONTRIBUTING.md)** - How to contribute code
 - **[Security Policy](SECURITY.md)** - Reporting security vulnerabilities
 - **[Governance Model](GOVERNANCE.md)** - Decision-making process
-- **[Trademark Policy](TRADEMARK_POLICY.md)** - Using the anchorpipe name/logo
-- **[Privacy Policy](docs/reference/compliance/privacy-policy.md)** - How we handle data
 
 **Have questions about policies?** [Ask in Discussions](https://github.com/anchorpipe/anchorpipe/discussions)
 
