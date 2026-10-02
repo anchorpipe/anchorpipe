@@ -12,6 +12,7 @@ Anchorpipe is in a **clean-slate redesign**. These Markdown documents are the so
 6. [Operations](operations.md) — supported deployment profiles, reliability, observability, backup, and release gates.
 7. [Roadmap and gap register](roadmap.md) — phased implementation plan and current forensic gaps.
 8. [Complete redesign research](research/redesign-research.md) — the full research and forensic report, preserved as an auditable record.
+9. [Implementation status](implementation-status.md) — what the first vertical slice now does and which service-backed gates remain.
 
 ## Documentation rules
 
