@@ -102,7 +102,6 @@
     },
   },
   "globs": [
-    "apps/docs/docs/**/*.{md,mdx}",
     "docs/**/*.md",
     "adr/**/*.md",
     "*.md",

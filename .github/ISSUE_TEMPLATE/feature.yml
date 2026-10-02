@@ -137,7 +137,7 @@ body:
         ## 📚 Documentation Requirements
 
         Features should ship with documentation updates where appropriate.
-        See documentation standards: `apps/docs/docs/contributing/documentation-standards.md`.
+        See documentation standards: `CONTRIBUTING.md`.
 
   - type: checkboxes
     id: docs_requirements
@@ -145,10 +145,10 @@ body:
       label: Documentation Requirements
       description: What documentation updates are expected for this feature?
       options:
-        - label: User-facing docs (guides, getting started, or reference in `apps/docs/docs/**` or `docs/**`)
-        - label: API docs (`apps/docs/docs/api/**` or OpenAPI)
-        - label: ADR for architectural decisions (`apps/docs/docs/reference/adr/**` or `adr/**`)
-        - label: Deployment / operations docs (`apps/docs/DEPLOYMENT.md` or deployment guides)
+        - label: User-facing docs (guides, getting started, or reference in `docs/**` or `docs/**`)
+        - label: API docs (`docs/api/**` or OpenAPI)
+        - label: ADR for architectural decisions (`docs/reference/adr/**` or `adr/**`)
+        - label: Deployment / operations docs (`docs/operations/README.md` or deployment guides)
         - label: No docs changes required (N/A) – explain why below
 
   - type: textarea

@@ -9,7 +9,7 @@ alwaysApply: false
 # Anchorpipe Infrastructure Rules
 
 - Hosting & Deployment
-  - Vercel: apps/web and apps/docs; PR previews; production on main.
+  - Vercel: apps/web and docs; PR previews; production on main.
   - Render: API/worker/DB/Redis only if selected via ADR; use render.yaml; deploy hooks from GH Actions.
   - Secrets: GitHub Environments + platform dashboards; never commit; document key mapping.
 

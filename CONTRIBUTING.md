@@ -1,144 +1,57 @@
 # Contributing to anchorpipe
 
-Thank you for your interest in contributing to anchorpipe! This document provides guidelines and instructions for contributing to the project.
+Thank you for helping rebuild anchorpipe. The repository is in a clean-slate redesign phase; please prefer small, evidence-backed changes over adding surface area to unfinished architecture.
 
-## Code of Conduct
+## Developer Certificate of Origin
 
-By participating in this project, you agree to abide by our [Code of Conduct](CODE_OF_CONDUCT.md).
+anchorpipe uses the [Developer Certificate of Origin](https://developercertificate.org/), not a Contributor License Agreement. You retain copyright ownership of your contribution and certify that you have the right to submit it under the project license.
 
-## Developer Certificate of Origin (DCO)
-
-anchorpipe uses the [Developer Certificate of Origin (DCO)](https://developercertificate.org/) instead of a Contributor License Agreement (CLA). This is a lightweight process that certifies you wrote the code or have the right to contribute it.
-
-### How to Sign Off
-
-Every commit must be signed off. This certifies that:
-
-- You wrote the code, or
-- You have the right to contribute the code, and
-- You understand your contributions are made under the project's license (AGPL v3)
-
-### Intellectual Property Rights
-
-By contributing to anchorpipe with DCO sign-off, you:
-
-- **Grant AGPL License**: Your contributions are licensed under AGPL-3.0
-- **Retain Copyright**: You keep ownership of your code
-- **Attribution**: You will be credited for your contributions
-
-**Important**: DCO grants rights under AGPL-3.0 only. The project cannot relicense your code without your permission. For complete details, see [IP_ASSIGNMENT.md](IP_ASSIGNMENT.md).
-
-**Note**: An optional Enhanced Contributor Agreement may be available in the future for contributors who want to grant additional rights (like relicensing) in exchange for revenue sharing eligibility. This is completely optional.
-
-### Signing Off Commits
-
-Add `-s` or `--signoff` to your git commit:
+Every commit must include a sign-off:
 
 ```bash
-git commit -s -m "Your commit message"
+git commit -s -m "Describe the change"
 ```
 
-Or manually add the signoff line:
+The project is intended to be distributed under the Apache License 2.0. This is a non-exclusive license grant; no copyright assignment, exclusive license, mandatory CLA, commercial-relicensing agreement, or field-of-use restriction is required by this project.
 
-```
-Signed-off-by: Your Name <your.email@example.com>
-```
+## Before opening a pull request
 
-### Automatic Sign-off (Recommended)
+1. Read [`SECURITY.md`](SECURITY.md) and the repository README.
+2. Create a focused branch, for example `feat/ingestion-receipt` or `fix/parser-limit`.
+3. Add or update tests for behavior changes.
+4. Run the applicable checks from a clean checkout.
+5. Sign every commit with `git commit -s`.
+6. Explain the user-visible behavior, data model impact, failure modes, and rollback plan.
 
-Set up your git to automatically sign off commits:
+## Engineering expectations
 
-```bash
-git config --global format.signoff true
-```
+- Preserve immutable facts; do not overwrite execution history with derived conclusions.
+- Make idempotency, retry, timeout, and authorization behavior explicit.
+- Do not claim support for an integration or deployment profile that is not implemented and tested.
+- Treat test reports, logs, paths, commit data, and artifacts as potentially sensitive.
+- Avoid logging credentials, tokens, raw authorization headers, or unnecessary personal data.
+- Add service-backed tests for database, object storage, worker, webhook, and replay behavior when changing those boundaries.
+- Prefer versioned schemas and additive migrations; use expand/contract for production changes.
 
-### GitHub UI Sign-off
+## Repository structure
 
-When creating PRs via GitHub UI, include this text in your PR description:
+- `apps/` — user-facing applications
+- `libs/` — shared libraries and domain modules
+- `services/` — independently runnable workers when implemented
+- `infra/` — local development infrastructure and operational notes
+- `scripts/` — bounded development and release utilities
+- `.github/` — contribution, security, and CI policy
 
-```
-I certify that I wrote the code or have the right to contribute it under the project's license.
+The previous Docusaurus site and deployment configuration were removed during the redesign reset. New documentation will be added under `docs/` only when it describes implemented behavior.
 
-Signed-off-by: Your Name <your.email@example.com>
-```
+## Pull requests
 
-## Getting Started
+Pull requests should be narrow, reviewable, and linked to the relevant design decision or task. Include:
 
-1. **Fork the repository** and clone your fork
-2. **Create a branch** for your work: `git checkout -b feature/your-feature-name`
-3. **Set up development environment** - see [docs/contributing/setup.md](docs/contributing/setup.md)
-4. **Make your changes** following our coding standards
-5. **Test your changes** - ensure all tests pass
-6. **Sign off your commits** - use `git commit -s`
-7. **Push to your fork** and create a Pull Request
+- a concise problem statement;
+- the chosen design and rejected alternatives when material;
+- test commands and results;
+- security, privacy, tenancy, and operational considerations;
+- migration and rollback notes for schema or deployment changes.
 
-## Pull Request Process
-
-1. **Link to an issue** - All PRs should reference an issue (fixes #123)
-2. **Keep PRs focused** - One feature or fix per PR
-3. **Write clear commit messages** - Use [Conventional Commits](https://www.conventionalcommits.org/)
-4. **Ensure CI passes** - All checks must be green
-5. **Request review** - Add relevant reviewers based on CODEOWNERS
-6. **Address feedback** - Respond to review comments promptly
-
-## Coding Standards
-
-- **TypeScript/JavaScript**: Follow ESLint and Prettier configurations
-- **Testing**: Write tests for new features and bug fixes
-- **Documentation**: Update relevant docs when adding features
-- **Accessibility**: Follow WCAG 2.2 AA standards
-- **Performance**: Meet performance budgets (see quality handbook)
-
-See [docs/contributing/coding-standards.md](docs/contributing/coding-standards.md) for detailed guidelines.
-
-## Project Structure
-
-- `apps/` - Applications (web, CLI, desktop)
-- `libs/` - Shared libraries and packages (Nx default; intentionally not named `packages/`)
-- `services/` - Backend services (ingestion, scoring)
-- `docs/` - Public documentation (Docusaurus)
-- `docs/internal/` - Internal documentation (planning, ADRs)
-- `.github/` - GitHub workflows and templates
-
-## Naming & Directory Conventions
-
-Follow the repository structure guidance in [`anchorpipe_guide_docs/impo/repo-structure-guide.md`](anchorpipe_guide_docs/impo/repo-structure-guide.md):
-
-- **Directories**: `kebab-case` (e.g., `test-report-parsers/`, `role-audit/`).
-- **TypeScript/JavaScript files**: `camelCase` (e.g., `rbacService.ts`); export defaults avoided unless necessary.
-- **Rust/Python files**: `snake_case` per language norms.
-- **Scripts**: `kebab-case` for shell (`deploy.sh`), `snake_case` for Python (`db_migrate.py`).
-- **ADRs**: `NNNN-title-words-separated-by-hyphens.md` (see [`adr/README.md`](adr/README.md)).
-- **Tests**: colocate next to source with `.test.ts` suffix or within `__tests__/`.
-- **README expectation**: Each top-level directory (`apps/<name>`, `libs/<name>`, `services/<name>`, `infra/`) must include a `README.md` documenting purpose, setup, and operational notes.
-
-When creating new libraries or services:
-
-1. Use Nx generators where available (`nx g @nx/node:lib my-lib`).
-2. Respect workspace aliases (`@anchorpipe/*`).
-3. Update this section if new naming rules are introduced.
-
-## Areas for Contribution
-
-- **Bug fixes** - Check issues labeled `type:bug`
-- **Features** - Check issues labeled `type:feature` and `status:ready`
-- **Documentation** - Improve docs, add examples, fix typos
-- **Testing** - Add tests, improve coverage
-- **Accessibility** - Improve a11y compliance
-- **Performance** - Optimize code, reduce bundle size
-
-## Questions?
-
-- **General questions**: Use [GitHub Discussions Q&A](https://github.com/anchorpipe/anchorpipe/discussions/c/q-a)
-- **Feature ideas**: Use [GitHub Discussions Ideas](https://github.com/anchorpipe/anchorpipe/discussions/c/ideas)
-- **Security issues**: See [SECURITY.md](SECURITY.md)
-
-## Recognition
-
-Contributors are recognized in:
-
-- Release notes
-- Contributors list in README
-- Project website (coming soon)
-
-Thank you for contributing to anchorpipe! 🚀
+Do not include secrets, customer data, generated credentials, or unreviewed third-party code. Preserve upstream notices for all dependencies and vendored material.

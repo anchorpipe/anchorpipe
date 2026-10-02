@@ -40,13 +40,13 @@ Fixes #
 
 <!--
 For feature and behavior changes, ensure documentation is updated.
-See documentation standards: apps/docs/docs/contributing/documentation-standards.md
+See documentation standards: CONTRIBUTING.md
 -->
 
-- [ ] User-facing docs updated (e.g. `apps/docs/docs/**` or `docs/**`)
-- [ ] API docs updated (`apps/docs/docs/api/**` or OpenAPI as needed)
-- [ ] ADR added/updated for architecture decisions (`apps/docs/docs/reference/adr/**` or `adr/**`)
-- [ ] Deployment docs updated (`apps/docs/DEPLOYMENT.md` or related guides), if applicable
+- [ ] User-facing docs updated (e.g. `docs/**` or `docs/**`)
+- [ ] API docs updated (`docs/api/**` or OpenAPI as needed)
+- [ ] ADR added/updated for architecture decisions (`docs/reference/adr/**` or `adr/**`)
+- [ ] Deployment docs updated (`docs/operations/README.md` or related guides), if applicable
 - [ ] Docs not required for this change (N/A) — explanation provided below
 
 **If docs are N/A, explain why:**
@@ -83,7 +83,7 @@ See documentation standards: apps/docs/docs/contributing/documentation-standards
 
 ### Documentation
 
-- [ ] I reviewed the [documentation standards](apps/docs/docs/contributing/documentation-standards.md)
+- [ ] I reviewed the [documentation standards](CONTRIBUTING.md)
 - [ ] I updated relevant docs (user guides, reference, or ADRs) for this change
 - [ ] I verified `npm run validate:docs` passes (or is not required for this PR)
 

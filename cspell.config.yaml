@@ -39,8 +39,6 @@ ignorePaths:
   - '**/.docusaurus/**'
   - '**/coverage/**'
   - '**/.turbo/**'
-  - 'apps/docs/build/**'
-  - 'apps/docs/.docusaurus/**'
   - '.github/workflows/**'
   - 'package-lock.json'
   - 'pnpm-lock.yaml'
@@ -48,6 +46,5 @@ ignorePaths:
   - 'bun.lockb'
 
 files:
-  - 'apps/docs/docs/**/*.{md,mdx}'
   - '*.md'
   - '*.mdx'

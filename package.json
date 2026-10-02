@@ -24,14 +24,7 @@
     "db:migrate:deploy": "cd libs/database && npm run db:migrate:deploy",
     "db:studio": "cd libs/database && npm run db:studio",
     "db:seed": "cd libs/database && npm run db:seed",
-    "openapi:validate": "swagger-cli validate apps/web/public/openapi.yaml",
-    "docs:dev": "cd apps/docs && npm run start",
-    "docs:build": "cd apps/docs && npm run build",
-    "docs:serve": "cd apps/docs && npm run serve",
-    "docs:deploy": "cd apps/docs && npm run deploy",
-    "lint:docs": "node scripts/validate-docs.mjs lint",
-    "spellcheck:docs": "node scripts/validate-docs.mjs spell",
-    "validate:docs": "node scripts/validate-docs.mjs all"
+    "openapi:validate": "swagger-cli validate apps/web/public/openapi.yaml"
   },
   "devDependencies": {
     "@cspell/dict-html": "^4.0.13",
@@ -98,5 +91,6 @@
     "lightningcss-linux-x64-gnu": "^1.30.2",
     "lightningcss-linux-x64-musl": "^1.30.2",
     "lightningcss-win32-x64-msvc": "^1.30.2"
-  }
+  },
+  "license": "Apache-2.0"
 }
