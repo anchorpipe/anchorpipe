@@ -1,6 +1,5 @@
 # Review ownership for protected project and security surfaces
 /LICENSE @rick1330
-/NOTICE @rick1330
 /SECURITY.md @rick1330
 /.github/workflows/ @rick1330
 /libs/database/ @rick1330

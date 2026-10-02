@@ -131,36 +131,6 @@ body:
         - Performance considerations: ...
         - Security implications: ...
 
-  - type: markdown
-    attributes:
-      value: |
-        ## 📚 Documentation Requirements
-
-        Features should ship with documentation updates where appropriate.
-        See documentation standards: `CONTRIBUTING.md`.
-
-  - type: checkboxes
-    id: docs_requirements
-    attributes:
-      label: Documentation Requirements
-      description: What documentation updates are expected for this feature?
-      options:
-        - label: User-facing docs (guides, getting started, or reference in `docs/**` or `docs/**`)
-        - label: API docs (`docs/api/**` or OpenAPI)
-        - label: ADR for architectural decisions (`docs/reference/adr/**` or `adr/**`)
-        - label: Deployment / operations docs (`docs/operations/README.md` or deployment guides)
-        - label: No docs changes required (N/A) – explain why below
-
-  - type: textarea
-    id: docs_notes
-    attributes:
-      label: Documentation Notes
-      description: Describe what documentation will be added/updated (or why no docs are needed).
-      placeholder: |
-        - Affected docs:
-        - New sections/pages:
-        - Links to related ADRs or guides:
-
   - type: checkboxes
     id: contribution
     attributes:

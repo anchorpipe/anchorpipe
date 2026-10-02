@@ -636,8 +636,7 @@ async function getHmacSecretForRepo(
  * Get ingestion endpoint URL
  */
 function getIngestionUrl(): string {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL || 'http://localhost:3000';
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
   return `${baseUrl}/api/ingestion`;
 }
 

@@ -57,6 +57,6 @@ Read [`CONTRIBUTING.md`](CONTRIBUTING.md) and [`SECURITY.md`](SECURITY.md) befor
 
 ## License
 
-The redesigned project is intended to use the **Apache License 2.0**. See [`LICENSE`](LICENSE) and [`NOTICE`](NOTICE). The license transition is being handled with provenance and copyright-authority review; third-party code retains its upstream notices and license terms.
+The redesigned project is intended to use the **Apache License 2.0**. See [`LICENSE`](LICENSE). The license transition is being handled with provenance and copyright-authority review; third-party code retains its upstream notices and license terms.
 
-The project name and logo are governed separately by [`TRADEMARK_POLICY.md`](TRADEMARK_POLICY.md).
+Project naming and branding must not imply endorsement or official status for modified distributions.

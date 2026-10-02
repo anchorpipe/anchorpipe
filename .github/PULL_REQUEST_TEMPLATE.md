@@ -36,23 +36,6 @@ Fixes #
 - [ ] 🔧 Build/CI configuration change
 - [ ] 🔒 Security fix
 
-## 📚 Documentation Checklist
-
-<!--
-For feature and behavior changes, ensure documentation is updated.
-See documentation standards: CONTRIBUTING.md
--->
-
-- [ ] User-facing docs updated (e.g. `docs/**` or `docs/**`)
-- [ ] API docs updated (`docs/api/**` or OpenAPI as needed)
-- [ ] ADR added/updated for architecture decisions (`docs/reference/adr/**` or `adr/**`)
-- [ ] Deployment docs updated (`docs/operations/README.md` or related guides), if applicable
-- [ ] Docs not required for this change (N/A) — explanation provided below
-
-**If docs are N/A, explain why:**
-
->
-
 ## 🧪 Testing
 
 <!-- Describe the tests you ran and how to reproduce them -->
@@ -80,12 +63,6 @@ See documentation standards: CONTRIBUTING.md
 - [ ] My changes generate no new warnings or errors
 - [ ] I have added tests that prove my fix is effective or that my feature works
 - [ ] New and existing tests pass locally with my changes
-
-### Documentation
-
-- [ ] I reviewed the [documentation standards](CONTRIBUTING.md)
-- [ ] I updated relevant docs (user guides, reference, or ADRs) for this change
-- [ ] I verified `npm run validate:docs` passes (or is not required for this PR)
 
 ### Security & Performance
 

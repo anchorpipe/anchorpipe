@@ -8,7 +8,7 @@ Anchorpipe is an independent open-source project. It is not an Apache Software F
 
 The project is intended to use the Apache License 2.0. Contributors retain ownership of their work and contribute under the project license through the Developer Certificate of Origin (DCO). Anchorpipe does not require a copyright assignment, exclusive license, mandatory CLA, commercial-relicensing agreement, or field-of-use restriction.
 
-The license transition is subject to copyright-authority and provenance review. Historical code, generated assets, vendored material, fonts, fixtures, and dependencies must not be relabeled without confirming their applicable terms. Third-party notices remain with the relevant component.
+The license transition is subject to copyright-authority and provenance review. Historical code, generated assets, vendored material, fonts, fixtures, and dependencies must not be relabeled without confirming their applicable terms. Third-party components retain their upstream notices and license terms.
 
 ## Decision making
 
@@ -30,7 +30,3 @@ A release must identify an immutable commit, dependency/provenance inventory, ch
 ## Security and conduct
 
 Report vulnerabilities privately using [`SECURITY.md`](SECURITY.md). Contributions must follow [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md). Do not include secrets, private customer data, or unreviewed third-party material in issues or pull requests.
-
-## Trademark
-
-Software licensing and project branding are separate. Use of the anchorpipe name or logo must follow [`TRADEMARK_POLICY.md`](TRADEMARK_POLICY.md); that policy does not restrict rights granted by the Apache License 2.0.

@@ -19,8 +19,7 @@ scripts/
 
 ### `maintenance/`
 
-- `archive-setup-scripts.ps1` — Moves legacy Project V2 setup scripts into the archive folder.
-- `cleanup-project-v2-docs.ps1` — Removes temporary documentation created during the Project V2 bootstrapping phase.
+Maintenance scripts are intentionally empty until a repeatable operational task has an owner and tests.
 
 ### `rbac/`
 
@@ -42,5 +41,3 @@ Scripts are expected to be idempotent where possible and include inline comments
 2. Use `kebab-case` for filenames (e.g., `sync-metrics.sh`).
 3. Include a short header comment describing purpose and arguments.
 4. Update this README with the new script and instructions.
-
-Archived one-off setup helpers remain in `tempo-local/used-scripts/` for historical reference.
