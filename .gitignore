@@ -1,1 +1,66 @@
-(empty)
+# Local scratch area (do not track)
+# All content under this directory is intentionally excluded from version control.
+# This directory is used to hold moved ADR/docs/.github backups for local reference only.
+# Do NOT remove this rule.
+# If you need to bring content back into the repo, curate it into proper directories outside tempo-local.
+# ------------------------------------------------------------------------------
+/tempo-local/
+/anchorpipe_guide_docs/
+
+# Node / package managers
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+.nx
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Build outputs / dist
+.dist/
+dist/
+build/
+.out/
+.next/
+
+# Prisma generated client (Prisma 7.0+)
+libs/database/src/generated/
+
+# OS/IDE files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+!.vscode/settings.json
+!.devcontainer/
+
+# Logs
+logs/
+*.log
+
+# Testing
+coverage/
+.nyc_output/
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+
+# Gap analysis (local analysis directory)
+gap-analysis/\ntempo-local/scripts/
+
+vite.config.*.timestamp*
+vitest.config.*.timestamp*
+# Rust build outputs
+target/
+**/target/
+
+# Rust build outputs & lockfiles for the pipeline workspace (per docs/pipeline README)
+services/pipeline/target/
+Cargo.lock
