@@ -1,7 +1,6 @@
 import { NextRequest } from 'next/server';
 import {
   DEFAULT_HMAC_V1_CLOCK_SKEW_SECONDS,
-  InMemoryReplayStore,
   parseHmacV1Signature,
   ReplayStore,
   extractHmacSignature,
@@ -9,6 +8,7 @@ import {
   verifyHmac,
   verifyHmacV1Signature,
 } from './hmac';
+import { defaultDistributedReplayStore } from './redis-replay-store';
 import { findActiveSecretsForRepo, updateSecretLastUsed } from './hmac-secrets';
 import { decryptField } from './secrets';
 import {
@@ -155,7 +155,7 @@ export interface HmacV1AuthOptions {
   clockSkewSeconds?: number;
 }
 
-const defaultReplayStore = new InMemoryReplayStore();
+const defaultReplayStore = defaultDistributedReplayStore;
 
 /** Authenticate the versioned v1 ingestion signature. */
 export async function authenticateV1HmacRequest(
