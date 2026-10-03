@@ -29,6 +29,10 @@ use std::time::Duration;
 const NATURAL_KEY_NAMESPACE: uuid::Uuid = uuid::uuid!("6ba7b812-6dad-11d1-80b4-00c04fd430c8");
 
 fn natural_key_id(seed: &str) -> String {
+    // UUIDv5 (RFC 9562): SHA-1 over the namespace bytes followed by the seed,
+    // per RFC 4122 §4.3. `sha1::Sha1` is a plain Hasher (writes raw bytes), so
+    // we feed the namespace and seed directly instead of using Digest semantics.
+    use sha1::Digest as _;
     let mut hasher = sha1::Sha1::new();
     hasher.update(NATURAL_KEY_NAMESPACE.as_bytes());
     hasher.update(seed.as_bytes());
@@ -176,7 +180,7 @@ impl PostgresIntakePort {
         let repository_id = Self::payload_text(&envelope.payload, "repository_id")
             .ok_or(PortError::Failed)?;
         let commit_sha = Self::payload_text(&envelope.payload, "commit_sha")
-            .filter(is_hex_sha)
+            .filter(|sha| is_hex_sha(sha))
             .ok_or(PortError::Failed)?;
         let framework = Self::payload_text(&envelope.payload, "framework")
             .filter(|v| !v.trim().is_empty())
@@ -204,7 +208,7 @@ impl PostgresIntakePort {
         )
         .bind(&tenant_id)
         .bind(&client_key)
-        .fetch_optional(&mut **tx)
+        .fetch_optional(&mut *tx)
         .await
         .map_err(|_| PortError::Failed)?;
 
@@ -240,7 +244,7 @@ impl PostgresIntakePort {
                 .bind(observed_ref.clone())
                 .bind(&framework)
                 .bind(occurred_at)
-                .execute(&mut **tx)
+                .execute(&mut *tx)
                 .await
                 .map_err(|_| PortError::Failed)?;
                 if result.rows_affected() == 0 {
@@ -250,7 +254,7 @@ impl PostgresIntakePort {
                     )
                     .bind(&tenant_id)
                     .bind(&client_key)
-                    .fetch_one(&mut **tx)
+                    .fetch_one(&mut *tx)
                     .await
                     .map_err(|_| PortError::Failed)?
                     .get("id")
@@ -284,7 +288,7 @@ impl PostgresIntakePort {
         .bind(&receipt_id)
         .bind(&envelope.event_type)
         .bind(&outbox_payload)
-        .execute(&mut **tx)
+        .execute(&mut *tx)
         .await
         .map_err(|_| PortError::Failed)?;
 

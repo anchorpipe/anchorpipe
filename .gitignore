@@ -1,15 +1,1 @@
-# Rust build artifacts
-target/
-
-# Node dependencies & build output
-node_modules/
-.nx/
-dist/
-.next/
-
-# Generated code (regenerate with `npm run db:generate`)
-libs/database/src/generated/
-
-# Local env files (only the example is tracked)
-.env
-.env.local
+(empty)

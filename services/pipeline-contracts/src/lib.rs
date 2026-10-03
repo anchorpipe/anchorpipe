@@ -222,7 +222,11 @@ impl Validate for CanonicalRunPayload {
         validate_optional_string("framework", self.framework.as_deref(), 64, &mut errors);
         validate_optional_string("run_id", self.run_id.as_deref(), limits::MAX_ID_CHARS, &mut errors);
         validate_collection("tests", self.tests.len(), limits::MAX_TEST_CASES, &mut errors);
-        Err(errors).filter(|e| !e.is_empty())
+        if errors.is_empty() {
+            Ok(())
+        } else {
+            Err(errors)
+        }
     }
 }
 
