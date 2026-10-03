@@ -1,0 +1,15 @@
+[package]
+name = "anchorpipe-rust-contracts"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
+description = "Versioned, validated contracts shared by Anchorpipe Rust services"
+license = "Apache-2.0"
+
+[dependencies]
+chrono = { version = "0.4", features = ["serde", "clock"] }
+serde = { version = "1", features = ["derive"] }
+serde_ignored = "0.1"
+serde_json = "1"
+
+[dev-dependencies]

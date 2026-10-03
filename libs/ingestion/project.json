@@ -1,0 +1,21 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/ingestion/src",
+  "projectType": "library",
+  "tags": ["type:lib", "scope:ingestion"],
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc -p libs/ingestion/tsconfig.lib.json"
+      },
+      "outputs": ["{workspaceRoot}/dist/libs/ingestion"]
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vitest run libs/ingestion/src"
+      }
+    }
+  }
+}

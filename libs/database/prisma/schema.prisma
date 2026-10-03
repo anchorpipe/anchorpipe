@@ -1,0 +1,689 @@
+// anchorpipe Database Schema
+// Generated for PostgreSQL 16+
+// See: docs/program/02-architecture.md Section 6
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================
+// Core Entities
+// ============================================
+
+model Repo {
+  id            String         @id @default(uuid())
+  tenantId      String?        @map("tenant_id")
+  ghId          BigInt?        @unique @map("gh_id") // GitHub repository ID
+  name          String
+  owner         String
+  defaultBranch String         @default("main") @map("default_branch")
+  visibility    RepoVisibility @default(public)
+  config        Json? // Repository configuration (JSONB)
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+
+  // Relations
+  testCases         TestCase[]
+  testRuns          TestRun[]
+  ownerMaps         OwnerMap[]
+  telemetryEvents   TelemetryEvent[]
+  repositoryConfigs RepositoryConfig[]
+  notifications     Notification[]
+  userRoles         UserRepoRole[]
+  hmacSecrets       HmacSecret[]
+  idempotencyKeys   IdempotencyKey[]
+  ingestionReceipts IngestionReceipt[]
+
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+
+  @@unique([tenantId, id])
+  @@index([ghId])
+  @@index([tenantId])
+  @@map("repos")
+}
+
+enum RepoVisibility {
+  public
+  private
+}
+
+model Tenant {
+  id        String   @id @default(uuid())
+  slug      String   @unique
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  repos             Repo[]
+  idempotencyKeys   IdempotencyKey[]
+  ingestionReceipts IngestionReceipt[]
+  outboxEvents      OutboxEvent[]
+  processingLedgers ProcessingLedger[]
+  deadLetters       DeadLetter[]
+
+  @@map("tenants")
+}
+
+model User {
+  id             String    @id @default(uuid())
+  githubId       String?   @unique @map("github_id")
+  githubLogin    String?   @map("github_login")
+  email          String?
+  name           String?
+  createdAt      DateTime  @default(now()) @map("created_at")
+  lastLoginAt    DateTime? @map("last_login_at")
+  telemetryOptIn Boolean   @default(false) @map("telemetry_opt_in")
+  preferences    Json? // User preferences (JSONB)
+
+  // Relations
+  telemetryEvents       TelemetryEvent[]
+  accounts              Account[]
+  sessions              Session[]
+  repoRoles             UserRepoRole[]
+  roleAuditLogsAsActor  RoleAuditLog[]       @relation("RoleAuditActor")
+  roleAuditLogsAsTarget RoleAuditLog[]       @relation("RoleAuditTarget")
+  dataSubjectRequests   DataSubjectRequest[]
+  auditLogs             AuditLog[]           @relation("AuditActor")
+  passwordResetTokens   PasswordResetToken[]
+
+  @@index([githubId])
+  @@map("users")
+}
+
+// Authentication models (basic auth/OAuth compatibility)
+model Account {
+  id                String  @id @default(uuid())
+  userId            String  @map("user_id")
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  accessToken       String? @map("access_token")
+  refreshToken      String? @map("refresh_token")
+  tokenType         String? @map("token_type")
+  scope             String?
+  expiresAt         Int?    @map("expires_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  userId       String   @map("user_id")
+  sessionToken String   @unique @map("session_token")
+  expires      DateTime
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model VerificationToken {
+  id         String   @id @default(uuid())
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model TestCase {
+  id                String   @id @default(uuid())
+  repoId            String   @map("repo_id")
+  path              String // File path
+  name              String // Test name
+  framework         String   @default("unknown") // jest, pytest, junit, playwright, etc.
+  tags              String[] // Test tags
+  description       String?
+  lastFailureReason String?  @map("last_failure_reason")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  repo       Repo        @relation(fields: [repoId], references: [id], onDelete: Cascade)
+  testRuns   TestRun[]
+  flakeScore FlakeScore?
+
+  @@unique([repoId, path, name, framework])
+  @@index([repoId])
+  @@map("test_cases")
+}
+
+model TestRun {
+  id              String        @id @default(uuid())
+  testCaseId      String        @map("test_case_id")
+  repoId          String        @map("repo_id")
+  commitSha       String        @map("commit_sha") // 40-char SHA
+  status          TestRunStatus
+  durationMs      Int?          @map("duration_ms")
+  startedAt       DateTime      @map("started_at")
+  rerunCount      Int           @default(0) @map("rerun_count")
+  failureDetails  String?       @map("failure_details")
+  environmentHash String?       @map("environment_hash") // Hash of CI environment
+  createdAt       DateTime      @default(now()) @map("created_at")
+
+  // Relations
+  testCase TestCase @relation(fields: [testCaseId], references: [id], onDelete: Cascade)
+  repo     Repo     @relation(fields: [repoId], references: [id], onDelete: Cascade)
+
+  @@index([repoId, startedAt(sort: Desc)])
+  @@index([testCaseId, startedAt(sort: Desc)])
+  @@index([environmentHash])
+  @@index([commitSha])
+  @@map("test_runs")
+}
+
+enum TestRunStatus {
+  pass
+  fail
+  skip
+}
+
+model FlakeScore {
+  id               String   @id @default(uuid())
+  testCaseId       String   @unique @map("test_case_id")
+  windowN          Int      @default(50) @map("window_n") // Lookback window
+  passRate         Float    @map("pass_rate")
+  volatility       Float
+  recencyFail      Float    @map("recency_fail")
+  clustering       Float
+  score            Int // 0-100 flake score
+  class            String   @default("stable") // stable, flaky, highly_flaky
+  mlPredictionData Json?    @map("ml_prediction_data") // ML model outputs (JSONB)
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  testCase TestCase @relation(fields: [testCaseId], references: [id], onDelete: Cascade)
+
+  // Note: Partial index for score >= 60 (highly flaky) should be created manually via raw SQL:
+  // CREATE INDEX idx_flake_scores_highly_flaky ON flake_scores(score) WHERE score >= 60;
+
+  @@index([score])
+  @@map("flake_scores")
+}
+
+model OwnerMap {
+  id              String      @id @default(uuid())
+  repoId          String      @map("repo_id")
+  pattern         String // CODEOWNERS pattern or heuristic pattern
+  owner           String // GitHub username/team
+  source          OwnerSource @default(manual)
+  confidenceScore Float?      @map("confidence_score")
+  createdAt       DateTime    @default(now()) @map("created_at")
+
+  // Relations
+  repo Repo @relation(fields: [repoId], references: [id], onDelete: Cascade)
+
+  @@index([repoId, pattern])
+  @@map("owner_maps")
+}
+
+enum OwnerSource {
+  CODEOWNERS
+  manual
+  heuristic
+}
+
+model TelemetryEvent {
+  id             String   @id @default(uuid())
+  repoId         String?  @map("repo_id")
+  userId         String?  @map("user_id")
+  eventType      String   @map("event_type")
+  eventData      Json?    @map("event_data") // Event payload (JSONB)
+  eventTimestamp DateTime @default(now()) @map("event_timestamp")
+
+  // Relations
+  repo Repo? @relation(fields: [repoId], references: [id], onDelete: SetNull)
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([eventType, eventTimestamp(sort: Desc)])
+  @@index([repoId])
+  @@index([userId])
+  @@index([eventTimestamp(sort: Desc)])
+  @@map("telemetry_events")
+}
+
+model IdempotencyKey {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  tenantId    String?  @map("tenant_id")
+  clientKey   String?  @map("client_key")
+  requestHash String?  @map("request_hash")
+  receiptId   String?  @map("receipt_id")
+  repoId      String   @map("repo_id")
+  commitSha   String   @map("commit_sha")
+  runId       String?  @map("run_id")
+  framework   String
+  response    Json?
+  createdAt   DateTime @default(now()) @map("created_at")
+  expiresAt   DateTime @map("expires_at")
+
+  repo    Repo              @relation(fields: [repoId], references: [id], onDelete: Cascade)
+  tenant  Tenant?           @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  receipt IngestionReceipt? @relation(fields: [receiptId], references: [id], onDelete: SetNull)
+
+  @@index([repoId])
+  @@index([tenantId])
+  @@index([tenantId, clientKey])
+  @@index([requestHash])
+  @@index([receiptId])
+  @@index([commitSha])
+  @@index([expiresAt])
+  @@map("idempotency_keys")
+}
+
+model RepositoryConfig {
+  id               String   @id @default(uuid())
+  repoId           String   @unique @map("repo_id")
+  config           Json // Repository-specific configuration (JSONB)
+  retentionDays    Int?     @default(30) @map("retention_days")
+  scoringThreshold Int?     @default(60) @map("scoring_threshold")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  repo Repo @relation(fields: [repoId], references: [id], onDelete: Cascade)
+
+  @@map("repository_configs")
+}
+
+model Notification {
+  id        String               @id @default(uuid())
+  repoId    String               @map("repo_id")
+  type      NotificationType
+  title     String
+  message   String
+  severity  NotificationSeverity @default(info)
+  read      Boolean              @default(false)
+  actionUrl String?              @map("action_url")
+  metadata  Json? // Additional notification data (JSONB)
+  createdAt DateTime             @default(now()) @map("created_at")
+  readAt    DateTime?            @map("read_at")
+
+  // Relations
+  repo Repo @relation(fields: [repoId], references: [id], onDelete: Cascade)
+
+  @@index([repoId, createdAt(sort: Desc)])
+  @@index([read, createdAt(sort: Desc)])
+  @@map("notifications")
+}
+
+enum NotificationType {
+  flake_detected
+  score_threshold_breach
+  system_alert
+  ci_integration
+  other
+}
+
+enum NotificationSeverity {
+  info
+  warning
+  error
+  critical
+}
+
+// ============================================
+// Data Subject Requests (Privacy / Compliance)
+// ============================================
+
+enum DataSubjectRequestType {
+  export
+  deletion
+}
+
+enum DataSubjectRequestStatus {
+  pending
+  processing
+  completed
+  failed
+}
+
+model DataSubjectRequest {
+  id                 String                   @id @default(uuid())
+  userId             String                   @map("user_id")
+  type               DataSubjectRequestType
+  status             DataSubjectRequestStatus @default(pending)
+  requestedAt        DateTime                 @default(now()) @map("requested_at")
+  dueAt              DateTime                 @map("due_at")
+  processedAt        DateTime?                @map("processed_at")
+  confirmationSentAt DateTime?                @map("confirmation_sent_at")
+  exportData         Json?                    @map("export_data")
+  metadata           Json?
+
+  // Relations
+  user   User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  events DataSubjectRequestEvent[]
+
+  @@index([userId, requestedAt(sort: Desc)])
+  @@map("data_subject_requests")
+}
+
+model DataSubjectRequestEvent {
+  id        String                   @id @default(uuid())
+  requestId String                   @map("request_id")
+  status    DataSubjectRequestStatus
+  message   String?
+  createdAt DateTime                 @default(now()) @map("created_at")
+
+  // Relations
+  request DataSubjectRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@index([requestId, createdAt(sort: Desc)])
+  @@map("data_subject_request_events")
+}
+
+// ============================================
+// RBAC (Role-Based Access Control)
+// ============================================
+
+enum RepoRole {
+  admin // Full access: manage roles, config, data
+  member // Write access: view and modify data
+  read_only // Read-only access: view data only
+}
+
+model UserRepoRole {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  repoId     String   @map("repo_id")
+  role       RepoRole
+  assignedBy String?  @map("assigned_by") // User ID who assigned this role
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  repo Repo @relation(fields: [repoId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, repoId])
+  @@index([userId])
+  @@index([repoId])
+  @@index([role])
+  @@map("user_repo_roles")
+}
+
+// Audit log for role changes
+model RoleAuditLog {
+  id           String    @id @default(uuid())
+  actorId      String    @map("actor_id") // User who made the change
+  targetUserId String    @map("target_user_id") // User whose role changed
+  repoId       String    @map("repo_id")
+  action       String // "assigned", "updated", "removed"
+  oldRole      RepoRole? @map("old_role")
+  newRole      RepoRole? @map("new_role")
+  metadata     Json? // Additional context (JSONB)
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  // Relations (optional - for easier querying)
+  actor      User @relation("RoleAuditActor", fields: [actorId], references: [id], onDelete: Cascade)
+  targetUser User @relation("RoleAuditTarget", fields: [targetUserId], references: [id], onDelete: Cascade)
+
+  @@index([actorId])
+  @@index([targetUserId])
+  @@index([repoId])
+  @@index([createdAt(sort: Desc)])
+  @@map("role_audit_logs")
+}
+
+// ============================================
+// General Audit Logging
+// ============================================
+
+enum AuditAction {
+  login_success
+  login_failure
+  user_created
+  role_assigned
+  role_removed
+  dsr_export_request
+  dsr_export_download
+  dsr_deletion_request
+  config_updated
+  token_created
+  token_revoked
+  hmac_auth_success
+  hmac_auth_failure
+  hmac_secret_created
+  hmac_secret_revoked
+  hmac_secret_rotated
+  other
+}
+
+enum AuditSubject {
+  user
+  repo
+  dsr
+  configuration
+  security
+  session
+  token
+  system
+}
+
+model AuditLog {
+  id          String       @id @default(uuid())
+  actorId     String?      @map("actor_id")
+  action      AuditAction
+  subject     AuditSubject
+  subjectId   String?      @map("subject_id")
+  description String?
+  metadata    Json?
+  ipAddress   String?      @map("ip_address")
+  userAgent   String?      @map("user_agent")
+  createdAt   DateTime     @default(now()) @map("created_at")
+
+  // Relations
+  actor User? @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([subject, subjectId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ============================================
+// HMAC Secrets for CI Integration
+// ============================================
+
+model HmacSecret {
+  id          String    @id @default(uuid())
+  repoId      String    @map("repo_id")
+  name        String // Human-readable name (e.g., "GitHub Actions Production")
+  secretHash  String    @map("secret_hash") // SHA-256 hash of the secret (for lookup)
+  secretValue String    @map("secret_value") // Encrypted secret value (AES-256-GCM)
+  active      Boolean   @default(true) // Active secrets can be used for validation
+  revoked     Boolean   @default(false) // Revoked secrets are permanently disabled
+  lastUsedAt  DateTime? @map("last_used_at") // Last successful authentication
+  rotatedFrom String?   @map("rotated_from") // ID of secret this was rotated from
+  createdBy   String?   @map("created_by") // User ID who created this secret
+  createdAt   DateTime  @default(now()) @map("created_at")
+  revokedAt   DateTime? @map("revoked_at")
+  expiresAt   DateTime? @map("expires_at") // Optional expiration
+
+  // Relations
+  repo Repo @relation(fields: [repoId], references: [id], onDelete: Cascade)
+
+  @@index([repoId, active])
+  @@index([secretHash])
+  @@index([revoked])
+  @@map("hmac_secrets")
+}
+
+// ============================================
+// GitHub App Integration
+// ============================================
+
+model GitHubAppInstallation {
+  id              String    @id @default(uuid())
+  installationId  BigInt    @unique @map("installation_id") // GitHub App installation ID
+  accountId       BigInt    @map("account_id") // GitHub account (user/org) ID
+  accountType     String    @map("account_type") // "User" or "Organization"
+  accountLogin    String    @map("account_login") // GitHub username/org name
+  targetType      String    @map("target_type") // "User" or "Organization"
+  targetId        BigInt?   @map("target_id") // Target account ID (if different from accountId)
+  repositoryIds   BigInt[]  @map("repository_ids") // Array of repository IDs (BigInt[])
+  permissions     Json // App permissions (JSONB)
+  events          String[] // Webhook events subscribed to
+  suspendedAt     DateTime? @map("suspended_at")
+  suspendedBy     String?   @map("suspended_by") // User ID who suspended
+  suspendedReason String?   @map("suspended_reason")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  @@index([installationId])
+  @@index([accountId])
+  @@index([accountLogin])
+  @@map("github_app_installations")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  token     String    @unique // Hashed reset token
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at") // When token was used (null if unused)
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+  @@map("password_reset_tokens")
+}
+
+enum IngestionReceiptStatus {
+  accepted
+  processing
+  completed
+  partial
+  quarantined
+  failed
+  replayed
+}
+
+enum OutboxEventStatus {
+  pending
+  published
+  failed
+}
+
+enum ProcessingLedgerStatus {
+  processing
+  completed
+  retryable
+  dead_letter
+}
+
+model IngestionReceipt {
+  id            String                 @id @default(uuid())
+  tenantId      String                 @map("tenant_id")
+  repoId        String                 @map("repo_id")
+  clientKey     String                 @map("client_key")
+  requestHash   String                 @map("request_hash")
+  eventId       String                 @unique @map("event_id")
+  schemaVersion String                 @map("schema_version")
+  source        String
+  mediaType     String                 @map("media_type")
+  sizeBytes     Int                    @map("size_bytes")
+  objectKey     String                 @map("object_key")
+  providerRunId String?                @map("provider_run_id")
+  commitSha     String                 @map("commit_sha")
+  observedRef   String?                @map("observed_ref")
+  framework     String
+  status        IngestionReceiptStatus @default(accepted)
+  occurredAt    DateTime               @map("occurred_at")
+  receivedAt    DateTime               @default(now()) @map("received_at")
+  createdAt     DateTime               @default(now()) @map("created_at")
+
+  tenant            Tenant             @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  repo              Repo               @relation(fields: [repoId], references: [id], onDelete: Restrict)
+  idempotencyKeys   IdempotencyKey[]
+  outboxEvents      OutboxEvent[]
+  processingLedgers ProcessingLedger[]
+  deadLetters       DeadLetter[]
+
+  @@unique([tenantId, clientKey])
+  @@index([tenantId, createdAt(sort: Desc)])
+  @@index([repoId, createdAt(sort: Desc)])
+  @@index([status, createdAt(sort: Desc)])
+  @@map("ingestion_receipts")
+}
+
+model OutboxEvent {
+  id           String            @id @default(uuid())
+  tenantId     String            @map("tenant_id")
+  receiptId    String            @map("receipt_id")
+  eventType    String            @map("event_type")
+  eventVersion Int               @default(1) @map("event_version")
+  payload      Json
+  status       OutboxEventStatus @default(pending)
+  availableAt  DateTime          @default(now()) @map("available_at")
+  attempts     Int               @default(0)
+  publishedAt  DateTime?         @map("published_at")
+  lastError    String?           @map("last_error")
+  createdAt    DateTime          @default(now()) @map("created_at")
+
+  tenant  Tenant           @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  receipt IngestionReceipt @relation(fields: [receiptId], references: [id], onDelete: Restrict)
+
+  @@unique([tenantId, receiptId, eventType])
+  @@index([status, availableAt])
+  @@index([tenantId, createdAt(sort: Desc)])
+  @@map("outbox_events")
+}
+
+model ProcessingLedger {
+  id              String                 @id @default(uuid())
+  tenantId        String                 @map("tenant_id")
+  receiptId       String                 @map("receipt_id")
+  consumer        String
+  consumerVersion String                 @map("consumer_version")
+  status          ProcessingLedgerStatus @default(processing)
+  attempts        Int                    @default(0)
+  leaseUntil      DateTime?              @map("lease_until")
+  nextAttemptAt   DateTime?              @map("next_attempt_at")
+  startedAt       DateTime               @default(now()) @map("started_at")
+  completedAt     DateTime?              @map("completed_at")
+  lastError       String?                @map("last_error")
+  createdAt       DateTime               @default(now()) @map("created_at")
+
+  tenant  Tenant           @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  receipt IngestionReceipt @relation(fields: [receiptId], references: [id], onDelete: Restrict)
+
+  @@unique([receiptId, consumer, consumerVersion])
+  @@index([tenantId, status, nextAttemptAt])
+  @@map("processing_ledgers")
+}
+
+model DeadLetter {
+  id            String    @id @default(uuid())
+  tenantId      String    @map("tenant_id")
+  receiptId     String    @map("receipt_id")
+  consumer      String
+  reasonCode    String    @map("reason_code")
+  attempts      Int
+  firstFailedAt DateTime  @map("first_failed_at")
+  lastFailedAt  DateTime  @map("last_failed_at")
+  replayedAt    DateTime? @map("replayed_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  tenant  Tenant           @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  receipt IngestionReceipt @relation(fields: [receiptId], references: [id], onDelete: Restrict)
+
+  @@unique([receiptId, consumer])
+  @@index([tenantId, createdAt(sort: Desc)])
+  @@map("dead_letters")
+}

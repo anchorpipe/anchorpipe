@@ -1,0 +1,188 @@
+name: CI Security Quality Gates
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-security-quality-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  prisma-validate:
+    name: Prisma schema validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Validate Prisma schema
+        run: npx prisma validate --schema=libs/database/prisma/schema.prisma
+
+  ingestion-core-tests:
+    name: Ingestion core tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Run ingestion core tests
+        run: npx nx run @anchorpipe/ingestion:test
+
+  worker-build:
+    name: Ingestion worker build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Generate Prisma Client
+        run: npx prisma generate --schema=libs/database/prisma/schema.prisma
+
+      - name: Build ingestion worker
+        run: npx nx run ingestion:build
+
+  web-quality:
+    name: Web type-check and lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Generate Prisma Client
+        run: npx prisma generate --schema=libs/database/prisma/schema.prisma
+
+      - name: Type-check web
+        run: npx nx run web:type-check
+
+      - name: Lint web
+        run: npx nx run web:lint
+
+  dependency-audit-baseline:
+    name: Dependency audit baseline (informational)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Record npm audit baseline
+        id: npm-audit
+        continue-on-error: true
+        shell: bash
+        run: |
+          set +e
+          timeout --signal=TERM 180s npm audit --json > npm-audit.json 2>npm-audit.stderr
+          audit_exit_code=$?
+          set -e
+
+          if jq -e . npm-audit.json >/dev/null 2>&1; then
+            cp npm-audit.json npm-audit-baseline.json
+          else
+            jq -n \
+              --arg exit_code "$audit_exit_code" \
+              --rawfile stderr npm-audit.stderr \
+              '{audit_command_exit_code: ($exit_code | tonumber), audit: null, note: "npm audit did not return JSON; inspect stderr and rerun the baseline.", stderr: $stderr}' \
+              > npm-audit-baseline.json
+          fi
+
+          if jq -e '.metadata.vulnerabilities' npm-audit-baseline.json >/dev/null 2>&1; then
+            critical=$(jq -r '.metadata.vulnerabilities.critical // 0' npm-audit-baseline.json)
+            high=$(jq -r '.metadata.vulnerabilities.high // 0' npm-audit-baseline.json)
+            moderate=$(jq -r '.metadata.vulnerabilities.moderate // 0' npm-audit-baseline.json)
+            low=$(jq -r '.metadata.vulnerabilities.low // 0' npm-audit-baseline.json)
+            total=$(jq -r '.metadata.vulnerabilities.total // 0' npm-audit-baseline.json)
+            audit_exit_note="${audit_exit_code}"
+          else
+            critical='unknown'
+            high='unknown'
+            moderate='unknown'
+            low='unknown'
+            total='unknown'
+            audit_exit_note="${audit_exit_code} (no JSON result)"
+          fi
+
+          {
+            echo '## Dependency audit baseline'
+            echo
+            echo 'This is an informational, non-blocking snapshot of the dependency graph at this commit.'
+            echo 'Findings are not being suppressed or represented as fixed; remediation requires a separate change.'
+            echo
+            echo '| npm audit result | Count |'
+            echo '| --- | ---: |'
+            echo "| Critical | ${critical} |"
+            echo "| High | ${high} |"
+            echo "| Moderate | ${moderate} |"
+            echo "| Low | ${low} |"
+            echo "| Total | ${total} |"
+            echo
+            echo "npm audit command exit code: ${audit_exit_note}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          # The audit is deliberately informational; retain the command's result as an artifact.
+          exit 0
+
+      - name: Upload dependency audit baseline
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: npm-audit-baseline
+          path: |
+            npm-audit-baseline.json
+            npm-audit.json
+            npm-audit.stderr
+          if-no-files-found: warn
+          retention-days: 30

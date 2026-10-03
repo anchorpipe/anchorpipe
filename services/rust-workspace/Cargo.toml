@@ -1,0 +1,13 @@
+[workspace]
+resolver = "2"
+
+# Cargo requires workspace members to be below this manifest's directory. The
+# sibling aliases keep the integration workspace at a stable path while each
+# service crate remains in its own services/<crate>/ directory. The
+# rust-contracts is included when present; future Rust service crates should
+# use the same alias-and-member pattern.
+members = [
+    "ingestion-rust",
+    "normalizer-rust",
+    "rust-contracts",
+]

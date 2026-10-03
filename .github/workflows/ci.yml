@@ -1,0 +1,287 @@
+name: CI
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  NPM_VERSION: '11.1.0'
+
+jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Upgrade npm to patched release
+        run: npm install -g npm@${{ env.NPM_VERSION }}
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Install optional dependencies
+        run: npm install --no-save
+
+      - name: Run ESLint (root, target web app)
+        run: npx eslint apps/web
+
+      - name: Check formatting
+        run: npx prettier --check .
+
+  typecheck:
+    name: typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Upgrade npm to patched release
+        run: npm install -g npm@${{ env.NPM_VERSION }}
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Install optional dependencies
+        run: npm install --no-save
+
+      - name: Generate Prisma Client
+        run: npm run db:generate
+        working-directory: libs/database
+
+      - name: Run TypeScript type check
+        run: |
+          # Type check web app only (root tsconfig excludes apps/)
+          npx tsc --noEmit --project apps/web/tsconfig.json
+
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Upgrade npm to patched release
+        run: npm install -g npm@${{ env.NPM_VERSION }}
+
+      - name: Install dependencies (root)
+        run: npm install --legacy-peer-deps
+
+      - name: Install dependencies (workspaces)
+        run: |
+          # Install workspace dependencies
+          cd apps/web && npm install --legacy-peer-deps
+          cd ../../libs/database && npm install --legacy-peer-deps
+          cd ../redis && npm install --legacy-peer-deps
+
+      - name: Install optional dependencies
+        run: npm install --no-save
+
+      - name: Generate Prisma Client
+        run: npm run db:generate
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test
+        continue-on-error: true
+
+      - name: Build web app
+        working-directory: apps/web
+        run: npm run build
+        env:
+          # Provide a dummy DATABASE_URL for build-time (route will return 503 if not available)
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test
+          AUTH_SECRET: test-auth-secret-change-me
+          MINIO_ENDPOINT: localhost
+          MINIO_PORT: '9000'
+          MINIO_USE_SSL: 'false'
+          MINIO_ACCESS_KEY: minioadmin
+          MINIO_SECRET_KEY: minioadminpassword
+        continue-on-error: false
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v6
+        if: success()
+        with:
+          name: build-artifacts
+          path: |
+            apps/web/.next/
+            libs/database/node_modules/.prisma/
+
+  db-health:
+    name: db-health
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Upgrade npm to patched release
+        run: npm install -g npm@${{ env.NPM_VERSION }}
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Install optional dependencies
+        run: npm install --no-save
+
+      - name: Generate Prisma Client
+        run: npm run db:generate
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test
+        working-directory: libs/database
+
+      - name: Run database migrations
+        run: npm run db:migrate:deploy
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test
+        working-directory: libs/database
+
+      - name: Verify database health
+        run: npm run db:health
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test
+        working-directory: libs/database
+
+      - name: Install PostgreSQL client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Verify schema tables exist
+        run: |
+          PGPASSWORD=postgres psql -h localhost -U postgres -d test -c "\dt" | grep -qE "(repos|users|test_cases|test_runs|flake_scores)" && echo "✅ Required tables exist" || (echo "❌ Missing required tables" && exit 1)
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test
+
+  openapi-validate:
+    name: openapi-validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Upgrade npm to patched release
+        run: npm install -g npm@${{ env.NPM_VERSION }}
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Install optional dependencies
+        run: npm install --no-save
+
+      - name: Validate OpenAPI spec (if present)
+        if: ${{ hashFiles('apps/web/public/openapi.yaml') != '' }}
+        run: npm run openapi:validate
+
+  tests:
+    name: tests
+    needs: [lint, typecheck, build, db-health, openapi-validate]
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: anchorpipe_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/anchorpipe_test
+      REDIS_URL: redis://localhost:6379
+      NODE_ENV: test
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Upgrade npm to patched release
+        run: npm install -g npm@${{ env.NPM_VERSION }}
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Install optional dependencies
+        run: npm install --no-save
+
+      - name: Generate Prisma Client
+        run: npm run db:generate
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/anchorpipe_test
+        working-directory: libs/database
+
+      - name: Run database migrations
+        run: npx prisma migrate deploy
+        working-directory: libs/database
+
+      - name: Run tests with coverage
+        run: |
+          # Decision 3: run the entire suite on every PR for now; optimize duration later if needed.
+          npx nx test web --configuration=coverage
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
