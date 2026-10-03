@@ -1,6 +1,6 @@
 use std::io::{self, BufRead, Write};
 
-use anchorpipe_normalizer::normalize_message_json;
+use anchorpipe_canonicalizer::normalize_message_json;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // The executable is deliberately transport-neutral: one JSON input message per line,

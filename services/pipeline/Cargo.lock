@@ -12,10 +12,30 @@ dependencies = [
 ]
 
 [[package]]
-name = "anchorpipe-ingestion-rust"
+name = "anchorpipe-canonicalizer"
 version = "0.1.0"
 dependencies = [
- "anchorpipe-rust-contracts",
+ "anchorpipe-pipeline-contracts",
+ "chrono",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "anchorpipe-pipeline-contracts"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "serde",
+ "serde_ignored",
+ "serde_json",
+]
+
+[[package]]
+name = "anchorpipe-receipt-gate"
+version = "0.1.0"
+dependencies = [
+ "anchorpipe-pipeline-contracts",
  "async-trait",
  "axum",
  "hex",
@@ -32,26 +52,6 @@ dependencies = [
  "tower-http",
  "tracing",
  "tracing-subscriber",
-]
-
-[[package]]
-name = "anchorpipe-normalizer"
-version = "0.1.0"
-dependencies = [
- "anchorpipe-rust-contracts",
- "chrono",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "anchorpipe-rust-contracts"
-version = "0.1.0"
-dependencies = [
- "chrono",
- "serde",
- "serde_ignored",
- "serde_json",
 ]
 
 [[package]]

@@ -8,6 +8,7 @@ mod config;
 mod dto;
 mod error;
 mod http;
+mod persistence;
 mod ports;
 
 pub use auth::{body_digest_hex, canonical_string, AuthError, HmacV1Verifier, VerificationInput};
@@ -16,3 +17,4 @@ pub use dto::{EnvelopeVersion, IngestionEnvelopeV1, ValidationError};
 pub use error::{ApiError, ErrorCode, ErrorResponse};
 pub use http::{router, AppState, BodyPolicy, HealthResponse};
 pub use ports::{DurableIngestionPort, EnqueueReceipt, PortError, UnavailablePort};
+pub use persistence::{IntakeDbConfig, PostgresIntakePort};

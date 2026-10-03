@@ -8,7 +8,7 @@ This separation ensures:
 
 - **Clear boundaries**: Server-only code (Node.js APIs, Prisma, etc.) is isolated from client-safe code
 - **Build safety**: Prevents accidentally bundling server code into client bundles
-- **Future-proofing**: When we migrate to dedicated Rust/Go services (per ADR-0007), server code is already separated
+- **Future-proofing**: When we migrate to dedicated pipeline services (per ADR-0007), server code is already separated
 
 ## What Belongs Here
 
@@ -80,6 +80,6 @@ This organization keeps test files separate from source code while maintaining c
 ## Related Documentation
 
 - [ADR-0001: Core Backend Stack](../../../../adr/0001-core-backend-stack.md) - MVP BFF via Next.js
-- [ADR-0007: Ingestion Cutover Criteria](../../../../adr/0007-ingestion-cutover-criteria.md) - Future migration to Rust/Go services
+- [ADR-0007: Ingestion Cutover Criteria](../../../../adr/0007-ingestion-cutover-criteria.md) - Future migration to pipeline services
 - [ADR-0013: Code Organization — Server/Client Separation](../../../../adr/0013-code-organization-server-client-separation.md) - This organizational pattern
 - [Repository Structure Guide](../../../../anchorpipe_guide_docs/impo/repo-structure-guide.md)

@@ -1,4 +1,6 @@
-use anchorpipe_ingestion_rust::{router, AppState, Config, UnavailablePort};
+use anchorpipe_receipt_gate::{
+    router, AppState, Config, IntakeDbConfig, PostgresIntakePort, UnavailablePort,
+};
 use std::{net::SocketAddr, sync::Arc};
 use tokio::net::TcpListener;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -10,8 +12,26 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing::info!(config = %config.redacted_summary(), "starting ingestion service");
     let bind_addr: SocketAddr = config.bind_addr;
     let listener = TcpListener::bind(bind_addr).await?;
-    let app = router(AppState::new(config, Arc::new(UnavailablePort)));
-    tracing::info!(address = %listener.local_addr()?, "ingestion HTTP listener ready; durable adapter is not configured");
+    // Fail-closed default is the unavailable port; when a database URL is
+    // present we wire the durable Postgres intake adapter instead.
+    let port: Arc<dyn anchorpipe_receipt_gate::DurableIngestionPort> = match IntakeDbConfig::from_env() {
+        Ok(db_config) => match PostgresIntakePort::connect(db_config).await {
+            Ok(adapter) => {
+                tracing::info!("durable Postgres intake adapter connected");
+                Arc::new(adapter)
+            }
+            Err(_) => {
+                tracing::warn!("intake database unreachable; failing closed with UnavailablePort");
+                Arc::new(UnavailablePort)
+            }
+        },
+        Err(_) => {
+            tracing::warn!("no INGESTION_DATABASE_URL/DATABASE_URL configured; failing closed with UnavailablePort");
+            Arc::new(UnavailablePort)
+        }
+    };
+    let app = router(AppState::new(config, port));
+    tracing::info!(address = %listener.local_addr()?, "receipt gate HTTP listener ready");
     axum::serve(listener, app)
         .with_graceful_shutdown(shutdown_signal())
         .await?;
@@ -21,7 +41,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 fn init_tracing() {
     let filter = tracing_subscriber::EnvFilter::try_from_default_env()
-        .unwrap_or_else(|_| "anchorpipe_ingestion_rust=info,tower_http=info".into());
+        .unwrap_or_else(|_| "anchorpipe_receipt_gate=info,tower_http=info".into());
     tracing_subscriber::registry()
         .with(filter)
         .with(tracing_subscriber::fmt::layer().json().flatten_event(true))

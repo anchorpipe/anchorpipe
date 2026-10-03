@@ -308,7 +308,7 @@ Webhook support, when added, must verify raw bytes with exact `sha256=` HMAC, co
 | Docs build | `apps/docs/docusaurus.config.ts`, `vercel.json` | Docusaurus build fails on missing `./prism-prisma`. | **Rewrite** config/dependency; make docs build a gate. |
 | Local Compose | `infra/docker-compose.yml`, `infra/README.md` | Host ports/dev credentials, floating MinIO `latest`, no healthchecks/limits; Redis port documentation mismatch. | **Preserve for local only; rewrite** with pinned versions/digests, loopback/private binds, generated dev secrets, healthchecks. |
 | Environment examples | `env.example` | Two sequential NODE_ENV/DATABASE_URL blocks silently select test settings. | **Rewrite** into explicit local/test/hosted profiles and validation. |
-| Stale docs | `services/README.md`, `infra/README.md`, `apps/docs/docs/guides/local-testing.md` | References absent `anchorpipe_guide_docs` and `tempo-local`; describes planned Rust/Go services as if current. | **Delete or rewrite** links; mark plans as planned with owner/exit criteria. |
+| Stale docs | `services/README.md`, `infra/README.md`, `apps/docs/docs/guides/local-testing.md` | References absent `anchorpipe_guide_docs` and `tempo-local`; describes planned pipeline services as if current. | **Delete or rewrite** links; mark plans as planned with owner/exit criteria. |
 | Worker scaffold | `services/ingestion/project.json`, README, no `src` | Advertised independently deployable service is absent. | **Delete or rewrite**: remove Nx target until source exists, or complete it. No fictional deploy surface. |
 | API errors | `apps/web/src/app/api/ingestion/route.ts:167-174` | Internal exceptions can be returned to clients. | **Rewrite** stable opaque errors and server-side details. |
 | Test confidence | CI results: 95 files, 576 tests, 573 pass, 3 skipped | Mostly unit/mocked; no service-backed integration/E2E acceptance. | **Preserve unit suite; add** DB/storage/webhook/replay/retention/container smoke tests. |
@@ -318,7 +318,7 @@ Webhook support, when added, must verify raw bytes with exact `sha256=` HMAC, co
 
 - Future ML, Kafka, Iceberg, provider breadth, Kubernetes, and native Mocha are **preserve as roadmap**, not v1 promises.
 - `TRADEMARK_POLICY.md` is **preserve separately** from code licensing; it must not become a software-use restriction.
-- Future Rust/Go cutover documents are **delete or label planned** until an approved boundary, owner, and benchmark exist.
+- Future pipeline cutover documents are **delete or label planned** until an approved boundary, owner, and benchmark exist.
 
 ## 5. Security, privacy, and tenancy baseline
 

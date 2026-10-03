@@ -190,6 +190,50 @@ fn append_prefixed(errors: &mut Vec<ValidationError>, prefix: &str, nested: Vec<
     }));
 }
 
+/// The normalized test-run payload shared across pipeline services. Producers
+/// embed this object in an envelope/outbox `payload`; consumers decode it with
+/// [`from_json`] so field naming and limits stay contract-enforced on both
+/// sides of the queue boundary.
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub struct CanonicalRunPayload {
+    pub repository_id: String,
+    pub commit_sha: String,
+    #[serde(default)]
+    pub framework: Option<String>,
+    #[serde(default)]
+    pub run_id: Option<String>,
+    #[serde(default)]
+    pub ref_name: Option<String>,
+    #[serde(default)]
+    pub observed_ref: Option<String>,
+    #[serde(default)]
+    pub environment_hash: Option<String>,
+    /// Raw provider records; shape is provider-specific until the
+    /// canonicalizer maps them into canonical test cases.
+    pub tests: Vec<Value>,
+}
+
+impl Validate for CanonicalRunPayload {
+    fn validate(&self) -> Result<(), Vec<ValidationError>> {
+        let mut errors = Vec::new();
+        validate_id("repository_id", &self.repository_id, &mut errors);
+        validate_string("commit_sha", &self.commit_sha, 64, &mut errors);
+        validate_optional_string("framework", self.framework.as_deref(), 64, &mut errors);
+        validate_optional_string("run_id", self.run_id.as_deref(), limits::MAX_ID_CHARS, &mut errors);
+        validate_collection("tests", self.tests.len(), limits::MAX_TEST_CASES, &mut errors);
+        Err(errors).filter(|e| !e.is_empty())
+    }
+}
+
+/// Queue names shared by the relay, canonicalizer, and control plane. These
+/// are wire-stable identifiers; renaming one requires a coordinated migration.
+pub mod queues {
+    pub const INGESTION_MAIN: &str = "test.ingestion";
+    pub const INGESTION_DLQ: &str = "test.ingestion.failed";
+    pub const DEAD_LETTER_EXCHANGE: &str = "dlx";
+}
+
 /// Metadata carried by every message.  IDs are opaque strings to support UUID,
 /// cuid, and provider identifiers without making a wire-level identity claim.
 #[derive(Clone, Serialize, Deserialize, Eq, PartialEq)]

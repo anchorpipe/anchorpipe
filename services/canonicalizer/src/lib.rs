@@ -5,7 +5,7 @@
 //! acknowledge, retry, or dead-letter messages without coupling this domain logic to a
 //! particular RabbitMQ client.
 
-use anchorpipe_rust_contracts::limits;
+use anchorpipe_pipeline_contracts::limits;
 use chrono::{DateTime, SecondsFormat, Utc};
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};

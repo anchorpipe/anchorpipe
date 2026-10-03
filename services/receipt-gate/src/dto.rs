@@ -1,4 +1,4 @@
-use anchorpipe_rust_contracts::limits;
+use anchorpipe_pipeline_contracts::limits;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 

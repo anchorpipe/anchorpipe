@@ -8,6 +8,6 @@ FROM debian:bookworm-slim
 RUN apt-get update \
     && apt-get install -y --no-install-recommends ca-certificates \
     && rm -rf /var/lib/apt/lists/*
-COPY --from=builder /usr/src/normalizer/target/release/anchorpipe-normalizer /usr/local/bin/anchorpipe-normalizer
+COPY --from=builder /usr/src/normalizer/target/release/anchorpipe-canonicalizer /usr/local/bin/anchorpipe-canonicalizer
 USER 65532:65532
-ENTRYPOINT ["/usr/local/bin/anchorpipe-normalizer"]
+ENTRYPOINT ["/usr/local/bin/anchorpipe-canonicalizer"]

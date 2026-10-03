@@ -1,0 +1,111 @@
+name: Pipeline services
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'services/pipeline/**'
+      - 'services/receipt-gate/**'
+      - 'services/canonicalizer/**'
+      - 'services/pipeline-contracts/**'
+      - 'services/relay/**'
+      - '.github/workflows/pipeline-services.yml'
+  pull_request:
+    paths:
+      - 'services/pipeline/**'
+      - 'services/receipt-gate/**'
+      - 'services/canonicalizer/**'
+      - 'services/pipeline-contracts/**'
+      - 'services/relay/**'
+      - '.github/workflows/pipeline-services.yml'
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  fmt:
+    name: Format check
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/pipeline
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+  check:
+    name: Cargo check
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/pipeline
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - name: Check workspace
+        run: cargo check --workspace
+
+  test:
+    name: Cargo test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/pipeline
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - name: Test workspace
+        run: cargo test --workspace
+
+  clippy:
+    name: Clippy
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/pipeline
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - name: Lint
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+  dependency-audit:
+    name: Dependency audit
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/pipeline
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - name: Audit dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! command -v cargo-audit >/dev/null 2>&1; then
+            echo "cargo-audit is unavailable; attempting a locked install."
+            if ! cargo install cargo-audit --locked; then
+              echo "::warning::cargo-audit is unavailable, so the dependency audit was skipped."
+              exit 0
+            fi
+          fi
+          cargo audit --manifest-path Cargo.toml
