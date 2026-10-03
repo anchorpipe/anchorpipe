@@ -19,16 +19,18 @@ vi.mock('@anchorpipe/database', () => ({
 }));
 
 vi.mock('@/lib/server/audit-service', () => ({
-  extractRequestContext: vi.fn().mockReturnValue({ userId: 'admin-1', tenantId: 'tenant-1' }),
+  extractRequestContext: vi.fn().mockReturnValue({ ipAddress: '127.0.0.1', userAgent: 'test' }),
   writeAuditLog: vi.fn().mockResolvedValue(undefined),
   AUDIT_ACTIONS: { other: 'other' },
   AUDIT_SUBJECTS: { system: 'system' },
 }));
 
+vi.mock('@/lib/server/auth', () => ({
+  readSession: vi.fn().mockResolvedValue({ sub: 'admin-1' }),
+}));
+
 vi.mock('@/lib/server/rbac-service', () => ({
-  getUserAbility: vi.fn().mockResolvedValue({
-    can: vi.fn().mockReturnValue(true),
-  }),
+  userHasAdminRole: vi.fn().mockResolvedValue(true),
 }));
 
 describe('DLQ Admin APIs', () => {
@@ -36,7 +38,7 @@ describe('DLQ Admin APIs', () => {
     vi.clearAllMocks();
   });
 
-  it('GET returns list of dead letters for authorized admin', async () => {
+  it('GET returns list of dead letters for authenticated admin', async () => {
     const mockDeadLetters = [
       { id: 'dl-1', tenantId: 'tenant-1', receiptId: 'rec-1', reasonCode: 'PARSER_ERROR' },
     ];
@@ -50,7 +52,7 @@ describe('DLQ Admin APIs', () => {
     expect(body.deadLetters).toEqual(mockDeadLetters);
   });
 
-  it('POST /replay re-enqueues outbox event and deletes dead letter', async () => {
+  it('POST /replay re-enqueues outbox event and deletes dead letter for authenticated admin', async () => {
     const mockDeadLetter = {
       id: 'dl-1',
       tenantId: 'tenant-1',

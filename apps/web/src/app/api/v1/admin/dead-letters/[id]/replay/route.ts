@@ -1,20 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@anchorpipe/database';
 import { extractRequestContext, writeAuditLog, AUDIT_ACTIONS, AUDIT_SUBJECTS } from '@/lib/server/audit-service';
-import { getUserAbility } from '@/lib/server/rbac-service';
+import { readSession } from '@/lib/server/auth';
+import { userHasAdminRole } from '@/lib/server/rbac-service';
 
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
-    const context = extractRequestContext(request);
-    const ability = await getUserAbility('system-admin', 'SYSTEM');
+    const session = await readSession();
+    const userId = session?.sub as string | undefined;
 
-    if (!ability.can('manage', 'config')) {
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const isAdmin = await userHasAdminRole(userId);
+    if (!isAdmin) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
+
+    const { id } = await params;
+    const context = extractRequestContext(request);
 
     const deadLetter = await prisma.deadLetter.findUnique({
       where: { id },
@@ -35,7 +43,7 @@ export async function POST(
             receiptId: deadLetter.receiptId,
             deadLetterId: deadLetter.id,
             reasonCode: deadLetter.reasonCode,
-            replayedBy: 'operator',
+            replayedBy: userId,
           },
         },
       });
@@ -48,6 +56,7 @@ export async function POST(
     });
 
     await writeAuditLog({
+      actorId: userId,
       action: AUDIT_ACTIONS.other,
       subject: AUDIT_SUBJECTS.system,
       subjectId: id,
