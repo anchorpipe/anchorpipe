@@ -18,7 +18,7 @@
 use anchorpipe_pipeline_contracts::queues;
 use lapin::options::{BasicAckOptions, BasicNackOptions, BasicPublishOptions, BasicQosOptions, ExchangeDeclareOptions, QueueBindOptions, QueueDeclareOptions};
 use lapin::types::{AMQPValue, FieldTable};
-use lapin::{Channel, Connection, ConnectionProperties, ExchangeKind};
+use lapin::{BasicProperties, Channel, Connection, ConnectionProperties, ExchangeKind};
 use sqlx::postgres::PgPoolOptions;
 use sqlx::{PgPool, Row};
 use std::env;
@@ -195,11 +195,13 @@ async fn publish_one(
             "",
             queues::INGESTION_MAIN,
             BasicPublishOptions {
-                routing_key: queues::INGESTION_MAIN.into(),
+                mandatory: false,
                 immediate: false,
             },
             &body,
-            headers,
+            BasicProperties::default()
+                .with_headers(headers)
+                .with_message_id(id.into()),
         )
         .await?;
     Ok(())
