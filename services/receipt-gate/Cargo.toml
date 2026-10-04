@@ -13,6 +13,8 @@ chrono = { version = "0.4", default-features = false, features = ["std", "clock"
 hex = "0.4"
 hmac = "0.12"
 http-body-util = "0.1"
+# 0.1.21 omits the std::future::Future import in its server feature.
+hyper-util = "=0.1.20"
 sha1 = "0.10"
 sqlx = { version = "0.7", default-features = false, features = ["runtime-tokio-rustls", "postgres", "uuid", "macros", "json", "chrono"] }
 uuid = { version = "1", features = ["v5", "serde"] }
