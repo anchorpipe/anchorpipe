@@ -59,7 +59,7 @@
     "swagger-cli": "^4.0.4",
     "tslib": "^2.3.0",
     "typescript": "^5.9.3",
-    "vite": "^7.2.7",
+    "vite": "^7.3.7",
     "vitest": "^4.0.15"
   },
   "overrides": {
