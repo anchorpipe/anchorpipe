@@ -9,7 +9,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "minio": "^8.0.2"
+    "minio": "^8.0.7"
   },
   "devDependencies": {
     "@types/node": "^25.0.2",
